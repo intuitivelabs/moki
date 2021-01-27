@@ -7,6 +7,7 @@ import unfilter from "../../styles/icons/unfilter.png";
 import emptyIcon from "../../styles/icons/empty_small.png";
 import Animation from '../helpers/Animation';
 import ReactCountryFlag from "react-country-flag";
+import Ipcipher from "anonym-js";
 
 
 class TableChart extends Component {
