@@ -38,17 +38,18 @@ class Export extends Component {
         document.getElementById("loadingExport").innerHTML = "Getting all data, it can take a while!";
         try {
 
+            console.log("GUI: send fetch "+new Date());
             var name = window.location.pathname.substr(1);
             if (name === "connectivityCA" || name === "connectivity" || name === "home" || name === "microanalysis") {
                 name = "overview";
             }
 
             // Retrieves the list of calls
-            var calls = await elasticsearchConnection(name + "/table", { "size": "10000" });
+            var calls = await elasticsearchConnection(name + "/table", { "size": "10000", "type": "export" });
+            console.log("GUI: receive all data "+new Date());
             //parse data
-            console.log(calls);
             if (calls && calls.hits && calls.hits.hits && calls.hits.hits.length > 0) {
-                var data = await parseTableHits(calls.hits.hits);
+                var data = await parseTableHits(calls.hits.hits, storePersistent.getState().profile, "export");
 
                 this.setState({
                     data: data

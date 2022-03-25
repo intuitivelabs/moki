@@ -2,6 +2,7 @@
 
 const { getFiltersConcat, getTypesConcat, getQueries, checkSelectedTypes } = require('../utils/metrics');
 const { connectToES } = require('../modules/elastic');
+const fs = require('fs');
 const scroll = require('../../js/template_queries/scroll');
 let { timestamp_gte, timestamp_lte } = require('../utils/ts');
 const { getTimestampBucket } = require('../utils/ts');
@@ -201,7 +202,8 @@ class Controller {
       console.log(new Date() + " send msearch");
       const requestList = [];
       for (let j = 0; j < requests.length; j++) {
-        // console.log(JSON.stringify(requests[j].query));
+        console.log(JSON.stringify(requests[j].index));
+        console.log(JSON.stringify(requests[j].query));
         requestList.push(
           {
             index: requests[j].index,
@@ -228,8 +230,8 @@ class Controller {
       client.close();
       let resp = res.json(response);
       if (typeof resp === "string") {
-        console.error("Failed msearch: "+resp);
-        console.error("Failed msearch query: "+JSON.stringify(requestList));
+        console.error("Failed msearch: " + resp);
+        console.error("Failed msearch query: " + JSON.stringify(requestList));
       }
       return resp;
     }
@@ -311,6 +313,9 @@ class Controller {
       console.info("SERVER search with filters: " + filters + " types: " + types + " timerange: " + timestamp_gte + "-" + timestamp_lte + " timebucket: " + timebucket + " userFilter: " + userFilter + " domainFilter: " + domainFilter + " encrypt checksum filter: " + isEncryptChecksumFilter);
       //always timerange_query
       requests.query = timerange_query.getTemplate(getQueries(filters, types, timestamp_gte, timestamp_lte, userFilter, requests.filter, domainFilter, isEncryptChecksumFilter), supress, querySize);
+      console.log(JSON.stringify(requests.query));
+      console.log("-----------------------");
+      console.log("SERVER: send search to ES " + new Date());
 
       if (querySize > 500) {
         var response = await client.search({
@@ -324,7 +329,10 @@ class Controller {
 
         const totalHits = response.hits.total.value;
         let actualHits = response.hits.hits.length;
+        console.log("SERVER: total hits " +totalHits);
+
         while (actualHits < totalHits) {
+          console.log("SERVER: got "+actualHits +" " +new Date());
           const responseScroll = await scroll.scroll(client, response._scroll_id);
           actualHits = actualHits + responseScroll.hits.hits.length;
           response.hits.hits = response.hits.hits.concat(responseScroll.hits.hits);
@@ -343,14 +351,29 @@ class Controller {
         });
       }
 
+
+      console.log("SERVER: got all data " + new Date());
+      //store data in file
+      if (req.body.params.type === "export") {
+        console.log("SERVER: storing in file " + new Date());
+        let out = "[" + response.hits.hits.map(el => JSON.stringify(el)).join(",") + "]";
+
+        fs.writeFile("/etc/abc-monitor/export.json", JSON.stringify(out, null, 2), { flag: 'wx' }, function (error) {
+          if (error) {
+            console.log("problem to write a file");
+          }
+          console.log("SERVER: stored in file " + new Date());
+        })
+      }
+
       userFilter = "*";
       console.info(new Date() + " got elastic data");
       let resp = res.json(response);
 
-      client.close(); 
+      client.close();
       if (typeof resp === "string") {
-        console.error("Failed msearch: "+resp);
-        console.error("Failed msearch query: "+JSON.stringify(requests.query));
+        console.error("Failed msearch: " + resp);
+        console.error("Failed msearch query: " + JSON.stringify(requests.query));
       }
       return resp;
     }
