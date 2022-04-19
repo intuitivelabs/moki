@@ -36,14 +36,14 @@ async function getJWTsipUserFilter(req) {
 */
 
   //check if web access - allow it without user logins
-  if (req.originalUrl.startsWith("/api/web")) {
-    if (cfg.debug) console.info("web access no need fot user filter");
-    return "*";
+   if (req.originalUrl.includes("web")) {
+    if (cfg.debug) console.info("web access, getting setting from m_settings: " + process.env.honeyId);
+    return { "domain": process.env.honeyId };
   }
   // check config if JWT required
   let isAccept;
   try {
-    isAccept = await isRequireJWT();
+    isAccept = process.env.JWT_required || await isRequireJWT();
   } catch (e) {
     // error in config processing:
     console.log("ACCESS getJWTsipUserFilter: error in config processing: ", JSON.stringify(e));
