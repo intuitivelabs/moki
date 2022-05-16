@@ -8,6 +8,7 @@ import {
 import store from "../store/index";
 import storePersistent from "../store/indexPersistent";
 import { elasticsearchConnection } from '@moki-client/gui';
+import { getTypes } from "../helpers/getTypes.js";
 const HAS_TABLE = ["calls", "conference", "diagnostics", "exceeded", "network", "overview", "alerts", "qos", "realm", "registration", "security", "system", "transport", "account"];
 
 class Dashboard extends Component {
@@ -85,11 +86,16 @@ class Dashboard extends Component {
       for (let j = 0; j < functors.length; j++) {
         let attrs = [];
         if (functors[j].attrs) attrs = functors[j].attrs;
-
         //special loader
         //multi parser "Regs", "data.responses[5]", "Regs-1d", "data.responses[6]"
         if (functors[j].type === "multipleLineData") {
           this.transientState[functors[j].result] = await functors[j].func(functors[j].details[0], data.responses[i], functors[j].details[1], data.responses[i + 1], profile, attrs);
+        }
+        //need to pass types argument
+        if(functors[j].func.name === "parseBucketData"){
+          
+          this.transientState[functors[j].result] = await functors[j].func(data.responses[i], getTypes(), profile, attrs);
+
         }
         else {
           this.transientState[functors[j].result] =
