@@ -173,6 +173,25 @@ export default class listChart extends Component {
                 }
                 store.dispatch(setFilters(oldFilters));
             }
+
+            //special filters
+            if (obj.exceeded === "TMAA") {
+                if (obj["exceeded-by"] === "uri") {
+                    createFilter("attrs.from.keyword:\"" + obj.attrs.from + "\" AND attrs.type:auth-failed");
+                }
+                else {
+                    createFilter("attrs.source:\"" + obj.attrs.source + "\" AND attrs.type:auth-failed");
+                }
+            }
+            else if (obj.exceeded === "TMM") {
+                if (obj["exceeded-by"] === "uri") {
+                    createFilter("attrs.from.keyword:\"" + obj.attrs.from + "\" AND attrs.type:call-end");
+                }
+                else {
+                    createFilter("attrs.source:\"" + obj.attrs.source + "\" AND attrs.type:call-end");
+                }
+            }
+
             //create new filter
             if (obj["exceeded-by"] === "uri") {
                 createFilter("attrs.from.keyword:\"" + obj.attrs.from + "\"");
