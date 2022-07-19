@@ -293,7 +293,7 @@ class filterBar extends Component {
                     <div className="text-nowrap row">
                         <Navbar variant="light">
                             <div className="row" style={{ "width": "100%", "display": "inline-flex" }}>
-                                <Autocomplete
+                                <Autocomplete type="es"
                                     suggestions={getSearchableAttributes()} enter={this.state.filterbar} tags={this.props.tags} />
                                 <div className="row" style={{ "marginLeft": "5px", "marginTop": "6px", "display": "table-cell", "width": "1px", "verticalAlign": "bottom" }}>
                                     <div className="row" style={{ "width": "max-content" }}>
