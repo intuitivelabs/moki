@@ -3,10 +3,11 @@ import React, {
     Fragment
 } from "react";
 import PropTypes from "prop-types";
+import { parseExpression } from "../helpers/match";
 
 const LOGICAL_OPERATORS_ES = ["OR", "AND"];
 const OPERATORS_API = ["=", "~", ">", "<"];
-const LOGICAL_OPERATORS_API = ["|", "&"];
+const LOGICAL_OPERATORS_API = ["&"];
 
 class Autocomplete extends Component {
     static propTypes = {
@@ -37,60 +38,120 @@ state: 3 - logical operator
             userInput: this.props.enter ? this.props.enter : "",
             tags: this.props.tags,
             state: this.props.enter ? 2 : 0,
-            finishedInput: ""
+            finishedInput: this.props.enter ? this.props.enter : "",
+            saveInput: false
         };
+    }
+
+    endsWithAny(suffixes, string) {
+        return suffixes.some(function (suffix) {
+            return string.endsWith(suffix);
+        });
     }
 
     // Event fired when the input value is changed
     onChange = e => {
         console.log("on change");
-
         const {
             suggestions
         } = this.props;
-        const userInput = e.currentTarget.value;
+        let userInput = e.currentTarget.value;
+
+        //remove finish input
+        //userInput = userInput.substring(this.state.finishedInput.length, userInput.length);
+
         // Filter our suggestions that don't contain the user's input
         let filteredSuggestions = suggestions.filter(
             suggestion =>
                 suggestion.toLowerCase().indexOf(userInput.toLowerCase()) > -1
         );
 
-        console.log("state");
-        console.log(this.state.state);
-        //check if input value finished so it can switch state to 3
-        //if " or ' was closed and last char is space
-        let increaseState = false;
-        if(((userInput.match(/"/g) || []).length % 4 === 0) && ((userInput.match(/"/g) || []).length % 4 === 0) && userInput.endsWith(" ")){
-            increaseState = true;
+        console.log("focus!!");
+        if (this.props.id) {
+            console.log(  document.getElementById(this.props.id+"input"));
+            document.getElementById(this.props.id+"input").focus();
+
         }
 
-         //show attr
-         if ((increaseState && this.state.state+1 % 4 === 0) || this.state.state % 4 === 0) {
-            console.log("suggestions attrs");
-            //filteredSuggestions = this.props.suggestions;
+        console.log(this.state.finishedInput);
+        console.log(e.currentTarget.innerText);
+        console.log(e.currentTarget.value);
+        console.log("userInput");
+        console.log(userInput);
+
+        console.log("---------state-----------");
+        console.log(parseExpression(userInput));
+        let state = parseExpression(userInput); 
+
+        //if parse exp return json object, show operator
+        if (state.constructor == Object) {
+            state = 3;
+        }
+
+        // console.log(this.state.state);
+        //check if input value finished so it can switch state to 3
+        //if " or ' was closed and last char is space
+        /*  let increaseState = false;
+          if (((userInput.match(/"/g) || []).length % 2 === 0) && ((userInput.match(/"/g) || []).length % 2 === 0) && userInput.endsWith(" ")) {
+              increaseState = true;
+              console.log("increase break");
+  
+          }
+  
+          if (((userInput.match(/"/g) || []).length % 2 === 0) && ((userInput.match(/"/g) || []).length % 2 === 0) && this.endsWithAny(OPERATORS_API, userInput)) {
+              console.log("increase operators");
+              increaseState = true;
+          }
+  
+  
+          console.log("increaseState");
+          console.log(increaseState);
+          */
+        //show attr
+        if (state === 0) {
+            console.log("suggestions attrs ");
+            // filteredSuggestions = this.props.suggestions;
         }
 
 
         //attr selected, show operator: =, ~ >, <, undef
-        if ((increaseState && this.state.state+1 % 4 === 1) || this.state.state % 4 === 1) {
+        if (state === 1 ) {
             console.log(" operators ")
             filteredSuggestions = OPERATORS_API;
         }
 
+        if (state === 1 && userInput.endsWith(" ")) {
+            console.log(" operators ")
+            filteredSuggestions = OPERATORS_API;
+            this.setState({saveInput: true})
+        }
+
+        if (state === 2 && this.endsWithAny(LOGICAL_OPERATORS_API, userInput)) {
+            console.log(" value ")
+            filteredSuggestions = "";
+            this.setState({saveInput: true})
+        }
+
         //show logical operator
-        if ((increaseState && this.state.state+1 % 4 === 3) || this.state.state % 4 === 3) {
+        if (state === 3 && !(this.endsWithAny(LOGICAL_OPERATORS_API, userInput) || userInput.endsWith(" ")))  {
             console.log(" logical ope");
             filteredSuggestions = LOGICAL_OPERATORS_API;
         }
 
-        if(increaseState){
-            this.setState({
-                state: this.state.state +1,
-                finishedInput: e.currentTarget.value
-            })
+        //attrs
+        if (state === 3 && (this.endsWithAny(LOGICAL_OPERATORS_API, userInput) || userInput.endsWith(" "))) {
+            console.log(" show attr suggestion ");
+           // filteredSuggestions = LOGICAL_OPERATORS_API;
         }
 
-        console.log(filteredSuggestions);
+       /* if (increaseState) {
+            this.setState({
+                state: this.state.state + 1,
+                finishedInput: e.currentTarget.value
+            })
+        }*/
+
+        console.log( e.currentTarget.value ); 
 
         // Update the user input and filtered suggestions, reset the active
         // suggestion and make sure the suggestions are shown
@@ -132,6 +193,13 @@ state: 3 - logical operator
         }
     };
 
+    onBlur = e => {
+        console.log("looooost focus");
+        this.setState({
+            showSuggestions: false
+        });
+    }
+
     // Event fired when the user clicks on a suggestion
     onClick = e => {
         console.log("onclick");
@@ -153,52 +221,85 @@ state: 3 - logical operator
                 showSuggestions: true
             });
         } else {
-            console.log("-----------------------------");
-
-            var input = this.state.finishedInput + e.currentTarget.innerText;
-            console.log("this.state.userInput");
-
-            console.log(this.state.userInput);
-            console.log("e.currentTarget.innerText");
-
-            console.log(e.currentTarget.innerText);
-
-            console.log(input);
-            console.log("this.state.finishedInput");
-
+            console.log("---------state click-----------");
             console.log(this.state.finishedInput);
-            if (this.state.state % 4 === 0 && this.props.type === "es") {
+            console.log(e.currentTarget.innerText);
+            console.log(e.currentTarget.value);
+            console.log(this.state.userInput);
+            console.log("this.state.state");
+            console.log(this.state.state);
+            var input = this.state.finishedInput + e.currentTarget.innerText;
+
+
+            if(this.state.state === 2 || this.state.saveInput){
+                input = this.state.userInput + e.currentTarget.innerText;
+            }
+            console.log(parseExpression(input));
+            var state = parseExpression(this.state.finishedInput + e.currentTarget.innerText);
+
+            //if parse exp return json object, show operator
+            if (state && state.constructor == Object) state = 3;
+
+            /*     console.log("this.state.userInput");
+     
+                 console.log(this.state.userInput);
+                 console.log("e.currentTarget.innerText");
+     
+                 console.log(e.currentTarget.innerText);
+     
+                 console.log(input);
+                 console.log("this.state.finishedInput");
+     
+                 console.log(this.state.finishedInput);
+                 */
+            if (state === 0 && this.props.type === "es") {
                 input = input + ": ";
             }
 
             var filteredSuggestions = [];
-            console.log(this.props.type);
-            console.log("input");
-            console.log(input);
-            console.log("this.state.finishedInput");
-            console.log(this.state.finishedInput);
-            console.log("this.state.state");
-            console.log(this.state.state);
+            /*      console.log(this.props.type);
+                  console.log("input");
+                  console.log(input);
+                  console.log("this.state.finishedInput");
+                  console.log(this.state.finishedInput);
+                  */
+
+            // let state = this.state.state + 1;
             if (this.props.type === "es") {
-                if (this.state.state % 4 === 0) {
+                //attribute case
+                if (state === 0) {
                     filteredSuggestions = [];
                 }
-                else if (this.state.state % 4 === 3) {
+                //logical operator case
+                else if (state === 3) {
                     filteredSuggestions = LOGICAL_OPERATORS_ES;
                 }
             }
             else if (this.props.type === "api") {
-                if (this.state.state % 4 === 2) {
+                //value case
+                if (state === 1) {
+                    console.log("shoowing suggestions");
                     filteredSuggestions = this.props.suggestions;
                 }
-                else if (this.state.state % 4 === 0) {
+                //attribute case
+                else if (state === 0) {
+                    console.log("showing operators");
                     filteredSuggestions = OPERATORS_API;
                 }
-                else if (this.state.state % 4 === 3) {
+                //logical operator case
+                else if (state === 3) {
+                    console.log("showing logical operators");
+
                     filteredSuggestions = LOGICAL_OPERATORS_API;
+                    //state = -1;
                 }
             }
 
+            console.log("focus!");
+            if (this.props.id) {
+                document.getElementById(this.props.id+"input").focus();
+
+            }
             console.log(filteredSuggestions);
 
             this.setState({
@@ -207,7 +308,8 @@ state: 3 - logical operator
                 filteredSuggestions: filteredSuggestions,
                 showSuggestions: true,
                 finishedInput: input,
-                state: this.state.state + 1
+                state: state,
+                saveInput: false
             });
         }
 
@@ -282,6 +384,7 @@ state: 3 - logical operator
             onClick,
             onClickInput,
             onKeyDown,
+            onBlur,
             state: {
                 activeSuggestion,
                 filteredSuggestions,
@@ -295,7 +398,7 @@ state: 3 - logical operator
         if (showSuggestions && userInput) {
             if (filteredSuggestions.length) {
                 suggestionsListComponent = (
-                    <ul className="suggestions" > {
+                    <ul className={this.props.type === "api" ? "suggestions" : "suggestions suggestionsMargin"}> {
                         filteredSuggestions.map((suggestion, index) => {
                             let className;
                             // Flag the active suggestion with a class
@@ -322,14 +425,17 @@ state: 3 - logical operator
         let barWidth = "94%";
         if (window.location.pathname === "/connectivityCA") barWidth = "70%";
         if (window.location.pathname === "/conference") barWidth = "84%";
+        if (this.props.type === "api") barWidth = "300px";
         return (<Fragment>
             <input
                 type="text"
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 onClick={onClickInput}
+                onBlur={onBlur}
                 value={userInput}
-                id="searchBar"
+                id={this.props.id ? this.props.id+"input" : "searchBar"}
+                className={this.props.type === "api" ? "searchBar" : "searchBar searchBarNoMargin"}
                 placeholder={this.props.placeholder ? this.props.placeholder : "FILTER: attribute:value"}
                 autoComplete="new-password"
                 style={{ "width": barWidth }}
