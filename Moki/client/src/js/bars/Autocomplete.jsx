@@ -3,11 +3,10 @@ import React, {
     Fragment
 } from "react";
 import PropTypes from "prop-types";
-import { parseExpression } from "../helpers/match";
-
-const LOGICAL_OPERATORS_ES = ["OR", "AND"];
+import { parseExpression } from '@moki-client/gui';
 const OPERATORS_API = ["=", "~", ">", "<"];
 const LOGICAL_OPERATORS_API = ["&"];
+const LOGICAL_OPERATORS_ES = ["OR", "AND"];
 
 class Autocomplete extends Component {
     static propTypes = {
@@ -37,12 +36,16 @@ state: 3 - logical operator
             // What the user has entered
             userInput: this.props.enter ? this.props.enter : "",
             tags: this.props.tags,
-            state: this.props.enter ? 2 : 0,
+            //fisnihed input without the part that users is actually writing
             finishedInput: this.props.enter ? this.props.enter : "",
-            saveInput: false
+            //if should close suggestions window
+            blur: null,
+            deleting: false,
+            state: null
         };
     }
 
+    //string ends with any of those characters
     endsWithAny(suffixes, string) {
         return suffixes.some(function (suffix) {
             return string.endsWith(suffix);
@@ -51,14 +54,37 @@ state: 3 - logical operator
 
     // Event fired when the input value is changed
     onChange = e => {
-        console.log("on change");
         const {
             suggestions
         } = this.props;
         let userInput = e.currentTarget.value;
 
-        //remove finish input
-        //userInput = userInput.substring(this.state.finishedInput.length, userInput.length);
+        if (this.props.type === "api") {
+            var LOGICAL_OPERATORS = LOGICAL_OPERATORS_API;
+            var OPERATORS = OPERATORS_API;
+        }
+        else {
+            var LOGICAL_OPERATORS = LOGICAL_OPERATORS_ES;
+            var OPERATORS = [];
+        }
+        let state = parseExpression(userInput, "parse");
+        if (state && state.logicalOp) {
+            userInput = "";
+        }
+
+        //if parse exp return json object, show operator
+        if (state && state.constructor == Object && !state.logicalOp) {
+            state = 3;
+        }
+
+        if (state === 0 && userInput.includes("&")) {
+            let userInputWhole = userInput;
+            userInput = userInput.substr(userInput.lastIndexOf("&") + 1, userInput.length);
+            if (userInput.charAt(0) === " ") userInput = userInput.substr(1, userInput.length);
+            this.setState({
+                finishedInput: userInputWhole.replace(userInput, '')
+            })
+        }
 
         // Filter our suggestions that don't contain the user's input
         let filteredSuggestions = suggestions.filter(
@@ -66,92 +92,35 @@ state: 3 - logical operator
                 suggestion.toLowerCase().indexOf(userInput.toLowerCase()) > -1
         );
 
-        console.log("focus!!");
         if (this.props.id) {
-            console.log(  document.getElementById(this.props.id+"input"));
-            document.getElementById(this.props.id+"input").focus();
-
+            document.getElementById(this.props.id + "input").focus();
         }
-
-        console.log(this.state.finishedInput);
-        console.log(e.currentTarget.innerText);
-        console.log(e.currentTarget.value);
-        console.log("userInput");
-        console.log(userInput);
-
-        console.log("---------state-----------");
-        console.log(parseExpression(userInput));
-        let state = parseExpression(userInput); 
-
-        //if parse exp return json object, show operator
-        if (state.constructor == Object) {
-            state = 3;
+        else {
+            document.getElementById("searchBar").focus();
         }
-
-        // console.log(this.state.state);
-        //check if input value finished so it can switch state to 3
-        //if " or ' was closed and last char is space
-        /*  let increaseState = false;
-          if (((userInput.match(/"/g) || []).length % 2 === 0) && ((userInput.match(/"/g) || []).length % 2 === 0) && userInput.endsWith(" ")) {
-              increaseState = true;
-              console.log("increase break");
-  
-          }
-  
-          if (((userInput.match(/"/g) || []).length % 2 === 0) && ((userInput.match(/"/g) || []).length % 2 === 0) && this.endsWithAny(OPERATORS_API, userInput)) {
-              console.log("increase operators");
-              increaseState = true;
-          }
-  
-  
-          console.log("increaseState");
-          console.log(increaseState);
-          */
-        //show attr
-        if (state === 0) {
-            console.log("suggestions attrs ");
-            // filteredSuggestions = this.props.suggestions;
-        }
-
 
         //attr selected, show operator: =, ~ >, <, undef
-        if (state === 1 ) {
-            console.log(" operators ")
-            filteredSuggestions = OPERATORS_API;
+        if (state === 1) {
+            filteredSuggestions = OPERATORS;
         }
 
         if (state === 1 && userInput.endsWith(" ")) {
-            console.log(" operators ")
-            filteredSuggestions = OPERATORS_API;
-            this.setState({saveInput: true})
+            filteredSuggestions = OPERATORS;
         }
 
-        if (state === 2 && this.endsWithAny(LOGICAL_OPERATORS_API, userInput)) {
-            console.log(" value ")
+        if (state === 2 && this.endsWithAny(LOGICAL_OPERATORS, userInput)) {
             filteredSuggestions = "";
-            this.setState({saveInput: true})
         }
 
         //show logical operator
-        if (state === 3 && !(this.endsWithAny(LOGICAL_OPERATORS_API, userInput) || userInput.endsWith(" ")))  {
-            console.log(" logical ope");
-            filteredSuggestions = LOGICAL_OPERATORS_API;
+        if (state === 3 && (!this.endsWithAny(LOGICAL_OPERATORS, userInput) || userInput.endsWith(" "))) {
+            filteredSuggestions = LOGICAL_OPERATORS;
         }
 
         //attrs
-        if (state === 3 && (this.endsWithAny(LOGICAL_OPERATORS_API, userInput) || userInput.endsWith(" "))) {
-            console.log(" show attr suggestion ");
-           // filteredSuggestions = LOGICAL_OPERATORS_API;
+        if (state === 3 && (this.endsWithAny(LOGICAL_OPERATORS, userInput) || userInput.endsWith(" "))) {
         }
 
-       /* if (increaseState) {
-            this.setState({
-                state: this.state.state + 1,
-                finishedInput: e.currentTarget.value
-            })
-        }*/
-
-        console.log( e.currentTarget.value ); 
 
         // Update the user input and filtered suggestions, reset the active
         // suggestion and make sure the suggestions are shown
@@ -159,7 +128,8 @@ state: 3 - logical operator
             activeSuggestion: -1,
             filteredSuggestions: filteredSuggestions,
             showSuggestions: true,
-            userInput: e.currentTarget.value
+            userInput: e.currentTarget.value,
+            state: state
         });
 
         if (userInput === "tags:" || userInput === "tags: ") {
@@ -172,11 +142,7 @@ state: 3 - logical operator
 
     // Event fired when the input value is changed
     onClickInput = e => {
-        console.log("onClickInput hide ---");
-        console.log(this.state.userInput);
         if (this.state.userInput.length === 0) {
-            console.log("show suggestion");
-            console.log(this.props.suggestions);
             this.setState({
                 activeSuggestion: -1,
                 filteredSuggestions: this.props.suggestions,
@@ -194,15 +160,19 @@ state: 3 - logical operator
     };
 
     onBlur = e => {
-        console.log("looooost focus");
+        let blur = setTimeout(() => {
+            this.setState({ showSuggestions: false });
+        }, 300);
+
         this.setState({
-            showSuggestions: false
+            blur: blur
         });
     }
 
     // Event fired when the user clicks on a suggestion
     onClick = e => {
-        console.log("onclick");
+        clearTimeout(this.state.blur);
+        this.setState({ blur: null });
         // if you already wrote whole tags string
         if (this.state.userInput === "tags:" || this.state.userInput === "tags: ") {
             this.setState({
@@ -221,49 +191,23 @@ state: 3 - logical operator
                 showSuggestions: true
             });
         } else {
-            console.log("---------state click-----------");
-            console.log(this.state.finishedInput);
-            console.log(e.currentTarget.innerText);
-            console.log(e.currentTarget.value);
-            console.log(this.state.userInput);
-            console.log("this.state.state");
-            console.log(this.state.state);
             var input = this.state.finishedInput + e.currentTarget.innerText;
-
-
-            if(this.state.state === 2 || this.state.saveInput){
-                input = this.state.userInput + e.currentTarget.innerText;
+            if (this.state.deleting) {
+                if (this.state.state !== 0) input = this.state.userInput + e.currentTarget.innerText;
             }
-            console.log(parseExpression(input));
-            var state = parseExpression(this.state.finishedInput + e.currentTarget.innerText);
+            var state = parseExpression(input, "parse");
+
+            if (state && state.logicalOp) {
+                state = 1;
+            }
 
             //if parse exp return json object, show operator
             if (state && state.constructor == Object) state = 3;
-
-            /*     console.log("this.state.userInput");
-     
-                 console.log(this.state.userInput);
-                 console.log("e.currentTarget.innerText");
-     
-                 console.log(e.currentTarget.innerText);
-     
-                 console.log(input);
-                 console.log("this.state.finishedInput");
-     
-                 console.log(this.state.finishedInput);
-                 */
             if (state === 0 && this.props.type === "es") {
                 input = input + ": ";
             }
 
             var filteredSuggestions = [];
-            /*      console.log(this.props.type);
-                  console.log("input");
-                  console.log(input);
-                  console.log("this.state.finishedInput");
-                  console.log(this.state.finishedInput);
-                  */
-
             // let state = this.state.state + 1;
             if (this.props.type === "es") {
                 //attribute case
@@ -278,29 +222,24 @@ state: 3 - logical operator
             else if (this.props.type === "api") {
                 //value case
                 if (state === 1) {
-                    console.log("shoowing suggestions");
                     filteredSuggestions = this.props.suggestions;
                 }
                 //attribute case
                 else if (state === 0) {
-                    console.log("showing operators");
                     filteredSuggestions = OPERATORS_API;
                 }
                 //logical operator case
                 else if (state === 3) {
-                    console.log("showing logical operators");
-
                     filteredSuggestions = LOGICAL_OPERATORS_API;
-                    //state = -1;
                 }
             }
 
-            console.log("focus!");
             if (this.props.id) {
-                document.getElementById(this.props.id+"input").focus();
-
+                document.getElementById(this.props.id + "input").focus();
             }
-            console.log(filteredSuggestions);
+            else {
+                document.getElementById("searchBar").focus();
+            }
 
             this.setState({
                 userInput: input,
@@ -309,11 +248,10 @@ state: 3 - logical operator
                 showSuggestions: true,
                 finishedInput: input,
                 state: state,
-                saveInput: false
+                blur: false,
+                deleting: false
             });
         }
-
-        //document.getElementById("searchBar").focus();
     };
 
 
@@ -323,6 +261,13 @@ state: 3 - logical operator
             activeSuggestion,
             filteredSuggestions
         } = this.state;
+
+        //whe user deletes something, store it
+        if (e.keyCode == 8 || e.keyCode == 46) {
+            this.setState({
+                deleting: true
+            });
+        }
 
         // User pressed the enter key, update the input and close the
         // suggestions
@@ -398,7 +343,7 @@ state: 3 - logical operator
         if (showSuggestions && userInput) {
             if (filteredSuggestions.length) {
                 suggestionsListComponent = (
-                    <ul className={this.props.type === "api" ? "suggestions" : "suggestions suggestionsMargin"}> {
+                    <ul className={this.props.type === "api" ? "suggestions" : "suggestions suggestionsMargin"} id={this.props.id ? this.props.id + "suggestions" : "suggestions"}> {
                         filteredSuggestions.map((suggestion, index) => {
                             let className;
                             // Flag the active suggestion with a class
@@ -434,8 +379,8 @@ state: 3 - logical operator
                 onClick={onClickInput}
                 onBlur={onBlur}
                 value={userInput}
-                id={this.props.id ? this.props.id+"input" : "searchBar"}
-                className={this.props.type === "api" ? "searchBar" : "searchBar searchBarNoMargin"}
+                id={this.props.id ? this.props.id + "input" : "searchBar"}
+                className={this.props.type !== "api" ? "searchBar" : "searchBar searchBarNoMargin"}
                 placeholder={this.props.placeholder ? this.props.placeholder : "FILTER: attribute:value"}
                 autoComplete="new-password"
                 style={{ "width": barWidth }}
