@@ -3,6 +3,10 @@ import React, {
     Fragment
 } from "react";
 import PropTypes from "prop-types";
+import { parseExpression } from '@moki-client/gui';
+const OPERATORS_API = ["=", "~", ">", "<"];
+const LOGICAL_OPERATORS_API = ["&"];
+const LOGICAL_OPERATORS_ES = ["OR", "AND"];
 
 class Autocomplete extends Component {
     static propTypes = {
@@ -13,6 +17,12 @@ class Autocomplete extends Component {
         suggestions: []
     };
 
+    /*
+state: 0 - attribute
+state: 1 - operator  (in ES case missing)
+state: 2 - value
+state: 3 - logical operator
+*/
     constructor(props) {
         super(props);
 
@@ -24,9 +34,22 @@ class Autocomplete extends Component {
             // Whether or not the suggestion list is shown
             showSuggestions: false,
             // What the user has entered
-            userInput: "",
-            tags: this.props.tags
+            userInput: this.props.enter ? this.props.enter : "",
+            tags: this.props.tags,
+            //fisnihed input without the part that users is actually writing
+            finishedInput: this.props.enter ? this.props.enter : "",
+            //if should close suggestions window
+            blur: null,
+            deleting: false,
+            state: null
         };
+    }
+
+    //string ends with any of those characters
+    endsWithAny(suffixes, string) {
+        return suffixes.some(function (suffix) {
+            return string.endsWith(suffix);
+        });
     }
 
     // Event fired when the input value is changed
@@ -34,20 +57,79 @@ class Autocomplete extends Component {
         const {
             suggestions
         } = this.props;
-        const userInput = e.currentTarget.value;
+        let userInput = e.currentTarget.value;
+
+        if (this.props.type === "api") {
+            var LOGICAL_OPERATORS = LOGICAL_OPERATORS_API;
+            var OPERATORS = OPERATORS_API;
+        }
+        else {
+            var LOGICAL_OPERATORS = LOGICAL_OPERATORS_ES;
+            var OPERATORS = [];
+        }
+        let state = parseExpression(userInput, "parse");
+        if (state && state.logicalOp) {
+            userInput = "";
+        }
+
+        //if parse exp return json object, show operator
+        if (state && state.constructor == Object && !state.logicalOp) {
+            state = 3;
+        }
+
+        if (state === 0 && userInput.includes("&")) {
+            let userInputWhole = userInput;
+            userInput = userInput.substr(userInput.lastIndexOf("&") + 1, userInput.length);
+            if (userInput.charAt(0) === " ") userInput = userInput.substr(1, userInput.length);
+            this.setState({
+                finishedInput: userInputWhole.replace(userInput, '')
+            })
+        }
+
         // Filter our suggestions that don't contain the user's input
-        const filteredSuggestions = suggestions.filter(
+        let filteredSuggestions = suggestions.filter(
             suggestion =>
                 suggestion.toLowerCase().indexOf(userInput.toLowerCase()) > -1
         );
+
+        if (this.props.id) {
+            document.getElementById(this.props.id + "input").focus();
+        }
+        else {
+            document.getElementById("searchBar").focus();
+        }
+
+        //attr selected, show operator: =, ~ >, <, undef
+        if (state === 1) {
+            filteredSuggestions = OPERATORS;
+        }
+
+        if (state === 1 && userInput.endsWith(" ")) {
+            filteredSuggestions = OPERATORS;
+        }
+
+        if (state === 2 && this.endsWithAny(LOGICAL_OPERATORS, userInput)) {
+            filteredSuggestions = "";
+        }
+
+        //show logical operator
+        if (state === 3 && (!this.endsWithAny(LOGICAL_OPERATORS, userInput) || userInput.endsWith(" "))) {
+            filteredSuggestions = LOGICAL_OPERATORS;
+        }
+
+        //attrs
+        if (state === 3 && (this.endsWithAny(LOGICAL_OPERATORS, userInput) || userInput.endsWith(" "))) {
+        }
+
 
         // Update the user input and filtered suggestions, reset the active
         // suggestion and make sure the suggestions are shown
         this.setState({
             activeSuggestion: -1,
-            filteredSuggestions,
+            filteredSuggestions: filteredSuggestions,
             showSuggestions: true,
-            userInput: e.currentTarget.value
+            userInput: e.currentTarget.value,
+            state: state
         });
 
         if (userInput === "tags:" || userInput === "tags: ") {
@@ -60,16 +142,37 @@ class Autocomplete extends Component {
 
     // Event fired when the input value is changed
     onClickInput = e => {
+        if (this.state.userInput.length === 0) {
+            this.setState({
+                activeSuggestion: -1,
+                filteredSuggestions: this.props.suggestions,
+                showSuggestions: true
+            });
+        }
         // hide suggestions
-        this.setState({
-            activeSuggestion: -1,
-            filteredSuggestions: [],
-            showSuggestions: false
-        });
+        else {
+            this.setState({
+                activeSuggestion: -1,
+                filteredSuggestions: [],
+                showSuggestions: false
+            });
+        }
     };
+
+    onBlur = e => {
+        let blur = setTimeout(() => {
+            this.setState({ showSuggestions: false });
+        }, 300);
+
+        this.setState({
+            blur: blur
+        });
+    }
 
     // Event fired when the user clicks on a suggestion
     onClick = e => {
+        clearTimeout(this.state.blur);
+        this.setState({ blur: null });
         // if you already wrote whole tags string
         if (this.state.userInput === "tags:" || this.state.userInput === "tags: ") {
             this.setState({
@@ -88,15 +191,67 @@ class Autocomplete extends Component {
                 showSuggestions: true
             });
         } else {
+            var input = this.state.finishedInput + e.currentTarget.innerText;
+            if (this.state.deleting) {
+                if (this.state.state !== 0) input = this.state.userInput + e.currentTarget.innerText;
+            }
+            var state = parseExpression(input, "parse");
+
+            if (state && state.logicalOp) {
+                state = 1;
+            }
+
+            //if parse exp return json object, show operator
+            if (state && state.constructor == Object) state = 3;
+            if (state === 0 && this.props.type === "es") {
+                input = input + ": ";
+            }
+
+            var filteredSuggestions = [];
+            // let state = this.state.state + 1;
+            if (this.props.type === "es") {
+                //attribute case
+                if (state === 0) {
+                    filteredSuggestions = [];
+                }
+                //logical operator case
+                else if (state === 3) {
+                    filteredSuggestions = LOGICAL_OPERATORS_ES;
+                }
+            }
+            else if (this.props.type === "api") {
+                //value case
+                if (state === 1) {
+                    filteredSuggestions = this.props.suggestions;
+                }
+                //attribute case
+                else if (state === 0) {
+                    filteredSuggestions = OPERATORS_API;
+                }
+                //logical operator case
+                else if (state === 3) {
+                    filteredSuggestions = LOGICAL_OPERATORS_API;
+                }
+            }
+
+            if (this.props.id) {
+                document.getElementById(this.props.id + "input").focus();
+            }
+            else {
+                document.getElementById("searchBar").focus();
+            }
+
             this.setState({
-                userInput: e.currentTarget.innerText + ": ",
-                activeSuggestion: -1,
-                filteredSuggestions: [],
-                showSuggestions: false,
+                userInput: input,
+                //activeSuggestion: -1,
+                filteredSuggestions: filteredSuggestions,
+                showSuggestions: true,
+                finishedInput: input,
+                state: state,
+                blur: false,
+                deleting: false
             });
         }
-
-        //document.getElementById("searchBar").focus();
     };
 
 
@@ -106,6 +261,13 @@ class Autocomplete extends Component {
             activeSuggestion,
             filteredSuggestions
         } = this.state;
+
+        //whe user deletes something, store it
+        if (e.keyCode == 8 || e.keyCode == 46) {
+            this.setState({
+                deleting: true
+            });
+        }
 
         // User pressed the enter key, update the input and close the
         // suggestions
@@ -120,7 +282,7 @@ class Autocomplete extends Component {
             }
             //no suggestion selected, create new filter on enter
             else {
-                document.getElementById("filterButton").click();
+                if (document.getElementById("filterButton")) document.getElementById("filterButton").click();
             }
 
         }
@@ -167,6 +329,7 @@ class Autocomplete extends Component {
             onClick,
             onClickInput,
             onKeyDown,
+            onBlur,
             state: {
                 activeSuggestion,
                 filteredSuggestions,
@@ -180,7 +343,7 @@ class Autocomplete extends Component {
         if (showSuggestions && userInput) {
             if (filteredSuggestions.length) {
                 suggestionsListComponent = (
-                    <ul className="suggestions" > {
+                    <ul className={this.props.type === "api" ? "suggestions" : "suggestions suggestionsMargin"} id={this.props.id ? this.props.id + "suggestions" : "suggestions"}> {
                         filteredSuggestions.map((suggestion, index) => {
                             let className;
                             // Flag the active suggestion with a class
@@ -207,17 +370,20 @@ class Autocomplete extends Component {
         let barWidth = "94%";
         if (window.location.pathname === "/connectivityCA") barWidth = "70%";
         if (window.location.pathname === "/conference") barWidth = "84%";
+        if (this.props.type === "api") barWidth = "300px";
         return (<Fragment>
             <input
                 type="text"
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 onClick={onClickInput}
+                onBlur={onBlur}
                 value={userInput}
-                id="searchBar"
-                placeholder="FILTER: attribute:value"
+                id={this.props.id ? this.props.id + "input" : "searchBar"}
+                className={this.props.type !== "api" ? "searchBar" : "searchBar searchBarNoMargin"}
+                placeholder={this.props.placeholder ? this.props.placeholder : "FILTER: attribute:value"}
                 autoComplete="new-password"
-                style={{"width" : barWidth}}
+                style={{ "width": barWidth }}
             />
             {suggestionsListComponent}
         </Fragment>
