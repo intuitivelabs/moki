@@ -9,6 +9,7 @@ import uncheckAll from "../../styles/icons/uncheckAll.png";
 import store from "../store/index";
 import { assignType } from "../actions/index";
 import { getLayoutSettings } from '../helpers/getLayout';
+import { ColorType, getExceededColor } from '@moki-client/gui';
 const STORED_TYPES_VERSION = "1.0";
 
 class Typebar extends Component {
@@ -16,11 +17,10 @@ class Typebar extends Component {
         super(props);
 
         this.state = {
-            icon: uncheckAll,
             types: [],
+            isAllSelected: true,
             isFetching: true
         }
-        this.enableType = this.enableType.bind(this);
         this.disableType = this.disableType.bind(this);
         this.checkAll = this.checkAll.bind(this);
         this.loadTypes = this.loadTypes.bind(this);
@@ -51,7 +51,7 @@ class Typebar extends Component {
         var jsonData = await getLayoutSettings();
         let name = window.location.pathname.substring(1);
 
-        if(name === "web"){
+        if (name === "web") {
             return;
         }
 
@@ -62,8 +62,8 @@ class Typebar extends Component {
         }
 
         if (storedTypes && storedTypes[name]) {
-
             //get types from template to keep it update it
+            let isAllSelected = true;
             var allTypes = [];
             if (name === "exceeded" || name === "alerts") {
                 allTypes = await getExceededTypes();
@@ -84,6 +84,7 @@ class Typebar extends Component {
                 }
 
                 if (typeExists) {
+                    isAllSelected = isAllSelected && thisType.state === "enable";
                     types.push({
                         id: thisType.id,
                         name: Types[thisType.id] ? Types[thisType.id] : thisType.name,
@@ -97,6 +98,9 @@ class Typebar extends Component {
                         state: "enable"
                     });
                 }
+
+                this.setState({ isAllSelected: isAllSelected });
+
             }
         }
         else if (name === "exceeded" || name === "alerts") {
@@ -131,23 +135,9 @@ class Typebar extends Component {
                 }
             }
         }
+
         store.dispatch(assignType(types));
-
-        //check if all types are disabled - change checkAll icon
-        let isAllDisabled = true;
-        for (let type of types) {
-            if (type.state !== "disable") {
-                isAllDisabled = false;
-                return;
-            }
-        }
-        if(isAllDisabled){
-            this.setState({
-                icon: checkAll,
-            })
-        }
         return types;
-
     }
 
     componentWillUnmount() {
@@ -179,13 +169,14 @@ class Typebar extends Component {
     }
 
     //check/uncheck all types
-    checkAll() {
+    checkAll(checkState) {
         let state = "enable";
-        if (this.state.icon === checkAll) {
-            this.setState({ icon: uncheckAll });
+        if (checkState === "check") {
+            this.setState({
+                isAllSelected: true
+            });
         }
         else {
-            this.setState({ icon: checkAll });
             state = "disable";
         }
 
@@ -198,28 +189,50 @@ class Typebar extends Component {
         store.dispatch(assignType(oldTypes));
     }
 
-    enableType(type) {
-        var oldTypes = this.state.types;
-        for (var i = 0; i < oldTypes.length; i++) {
-            if (oldTypes[i].id === type) {
-                oldTypes[i].state = 'enable';
+    /*
+    if all types selected - disable all types accept the selected one
+    if one or more types selected - add new type or deselect
+    */
+    disableType(type, state, color, click) {
+        var isAllSelected = true;
+        if (click === "double") {
+            //disable all except selected
+            var oldTypes = this.state.types;
+            for (var i = 0; i < oldTypes.length; i++) {
+                if (oldTypes[i].id !== type) {
+                    oldTypes[i].state = state;
+                    oldTypes[i].color = color;
+                }
+                else {
+                    oldTypes[i].state = "enable";
+                    let color = ColorType[type];
+                    if (window.location.pathname === "/exceeded" || window.location.pathname === "/alerts") {
+                        color = getExceededColor(oldTypes[i].id);
+                    }
+                    oldTypes[i].color = color;
+                }
+            }
+            isAllSelected = false;
+        }
+        else {
+            var oldTypes = this.state.types;
+            for (var i = 0; i < oldTypes.length; i++) {
+                if (oldTypes[i].id === type) {
+                    oldTypes[i].state = state;
+                }
+
+                if (oldTypes[i].state === "disable") {
+                    isAllSelected = isAllSelected && false;
+                }
             }
         }
 
+        this.setState({
+            types: oldTypes,
+            isAllSelected: isAllSelected
+        });
 
-        console.info("Type is enabled:" + JSON.stringify(oldTypes));
-        this.storeTypesInLocalStorage(oldTypes);
-        store.dispatch(assignType(oldTypes));
-    }
-
-    disableType(type) {
-        var oldTypes = this.state.types;
-        for (var i = 0; i < oldTypes.length; i++) {
-            if (oldTypes[i].id === type) {
-                oldTypes[i].state = 'disable';
-            }
-        }
-        console.info("Type is disabled:" + JSON.stringify(oldTypes));
+        console.info("Type is "+state+": " + JSON.stringify(oldTypes));
         this.storeTypesInLocalStorage(oldTypes);
         store.dispatch(assignType(oldTypes));
     }
@@ -231,14 +244,15 @@ class Typebar extends Component {
                 <div style={{ "display": "contents" }}>
                     {this.state.types.map((type, index) => {
                         return <Type key={type.id}
-                            name={type.name} id={type.id} state={type.state} description={type.description} disableType={this.disableType} enableType={this.enableType} />
+                            name={type.name} id={type.id} state={type.state} description={type.description} isAllSelected={this.state.isAllSelected} disableType={this.disableType} />
                     })}
                 </div>
             )
             return (
                 <div className="typeBar">
                     <div className="row align-items-center ">
-                        <img alt="checkAllIcon" onClick={this.checkAll} className="tabletd checkAll" src={this.state.icon} />
+                        <img alt="checkAllIcon" onClick={() => this.checkAll("check")} className="tabletd checkAll" src={checkAll} />
+                        <img alt="uncheckAllIcon" onClick={() => this.checkAll("uncheck")} className="tabletd checkAll" src={uncheckAll} />
                         {types}
                     </div>
 

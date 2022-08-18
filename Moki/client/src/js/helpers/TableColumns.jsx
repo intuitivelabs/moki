@@ -3,6 +3,7 @@ import Popup from "reactjs-popup";
 import detailsIcon from "../../styles/icons/details.png";
 import TagRanger from "../bars/TagRanger";
 import filterIcon from "../../styles/icons/filter.png";
+import clipboardIcon from "../../styles/icons/clipboard.png";
 import shareIcon from "../../styles/icons/share_dark.png";
 import overviewIcon from "../../styles/icons/alertProfile.png";
 import unfilterIcon from "../../styles/icons/unfilter.png";
@@ -21,10 +22,12 @@ import storePersistent from "../store/indexPersistent";
 import store from "../store/index";
 import { parseTimestamp } from "../helpers/parseTimestamp";
 import SimpleSequenceDiagram from "../charts/simpleSequenceDiagram";
+import { checkBLip } from "../helpers/alertProfile";
 import { getSearchableAttributes, getExceededName, isEncryptedAttr } from '@moki-client/gui';
 
 const attrsTypes = {
     "@timestamp": "time",
+    "timestamp": "time",
     "ts-start": "time",
     "rx": "round",
     "tx": "round",
@@ -32,6 +35,8 @@ const attrsTypes = {
     "midterm": "round",
     "longterm": "round"
 }
+
+const rawTables = ["apiLogs"];
 
 //support class for async value
 class ExceededName extends Component {
@@ -56,6 +61,36 @@ class ExceededName extends Component {
         return <span className="filterToggleActive"><span className="filterToggle">
             <img onClick={this.props.doFilterRaw} field="exceeded" value={this.props.value} className="icon" alt="filterIcon" src={filterIcon} /><img field="exceeded" value={this.props.notvalue} onClick={this.props.doFilterRaw} className="icon" alt="unfilterIcon" src={unfilterIcon} /></span >   {this.state.name}
         </span>
+    }
+}
+
+//support class for async value for checking IP blacklisted
+class BLcheck extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isBL: false
+        }
+        this.getBL = this.getBL.bind(this);
+    }
+
+    componentDidMount() {
+        this.getBL();
+    }
+
+    async getBL() {
+        this.setState({
+            isBL: await checkBLip(this.props.data)
+        })
+    }
+
+    render() {
+        if (this.state.isBL) {
+            return <span style={{ "marginLeft": "5px" }} title="blacklisted">BL</span>
+        }
+        else {
+            return "";
+        }
     }
 }
 
@@ -153,7 +188,22 @@ function getColumnWidth(column, width = 0) {
     }
 }
 
-function getColumn(column_name, tags, tag, width = 0, hidden = false) {
+//copy value in table to clipboard and show msg
+function copyToclipboard(value) {
+    var dummy = document.createElement("textarea");
+    document.body.appendChild(dummy);
+    dummy.value = value;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+
+    document.getElementById("copyToClipboardText" + value).style.display = "inline";
+    setTimeout(function () {
+        document.getElementById("copyToClipboardText" + value).style.display = "none";
+    }, 1000);
+}
+
+function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard) {
     switch (column_name.source) {
         case '_id': return {
             dataField: '_source._id',
@@ -171,12 +221,15 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
             text: 'REASON',
             formatter: (cell, obj) => {
                 var ob = obj._source;
+                let reason = ob.attrs.reason;
                 if (ob.attrs.type === "parse-error") {
-                    return ob.err_info;
+                    reason = ob.err_info;
                 }
-                else {
-                    return ob.attrs.reason;
-                }
+                return <span className="filterToggleActive"><div className="filterToggle">
+                    <span><img onClick={() => copyToclipboard(reason)} className="icon" title="copy to clipboard" alt="clipboardIcon" src={clipboardIcon} />
+                        <span id={"copyToClipboardText" + reason} className="copyToClip">copied to clipboard</span></span>
+                </div>{reason}
+                </span>
             }
         }
         case 'exceeded': return {
@@ -243,14 +296,15 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
                         value = "exceeded-by: " + ob["exceeded-by"];
                         notvalue = "NOT exceeded-by: " + ob["exceeded-by"];
                     }
-                    return <span className="filterToggleActive"><span className="filterToggle">
-                        <img onClick={doFilterRaw} field="exceeded-by" value={value} className="icon" alt="filterIcon" src={filterIcon} /><img field="exceeded-by" value={notvalue} onClick={doFilterRaw} className="icon" alt="unfilterIcon" src={unfilterIcon} /></span > {ob['exceeded-by'] ? ob['exceeded-by'].toString() : ""}
+                    return <span className="filterToggleActive"><div className="filterToggle">
+                        <img onClick={doFilterRaw} field="exceeded-by" value={value} className="icon" alt="filterIcon" src={filterIcon} />
+                        <img field="exceeded-by" value={notvalue} onClick={doFilterRaw} className="icon" alt="unfilterIcon" src={unfilterIcon} /></div > {ob['exceeded-by'] ? ob['exceeded-by'].toString() : ""}
                     </span>
                 }
             }
         }
-         //translate severity: 0 - hight, 1 - medium, 2 - low
-         case 'severity': return {
+        //translate severity: 0 - hight, 1 - medium, 2 - low
+        case 'severity': return {
             dataField: '_source.severity',
             text: 'SEVERITY',
             sort: true,
@@ -259,10 +313,11 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
             headerStyle: { width: getColumnWidth("SEVERITY", width) },
             formatter: (cell, obj) => {
                 var ob = obj._source;
-                return <span className="filterToggleActive"><span className="filterToggle">
-                    <img onClick={doFilter} field="severity" value={ob.severity} className="icon" alt="filterIcon" src={filterIcon} />
-                    <img field="severity" value={ob.severity} onClick={doUnfilter} className="icon" alt="unfilterIcon" src={unfilterIcon} />
-                </span >{ob.severity === 0 ? "high" : ob.severity === 1 ? "medium" : "low"}
+                return <span className="filterToggleActive"><div className="filterToggle">
+                    <img onClick={doFilter} field="severity" value={ob.severity} className="icon" title="filter" alt="filterIcon" src={filterIcon} />
+                    <img field="severity" value={ob.severity} onClick={doUnfilter} className="icon" title="unfilter" alt="unfilterIcon" src={unfilterIcon} />
+                    <span><img onClick={() => copyToclipboard(ob.severity)} className="icon" title="copy to clipboard" alt="clipboardIcon" src={clipboardIcon} /><span id={"copyToClipboardText" + ob.severity} className="copyToClip">copied to clipboard</span></span>
+                </div >{ob.severity === 0 ? "high" : ob.severity === 1 ? "medium" : "low"}
                 </span>
             }
         }
@@ -276,10 +331,11 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
             headerStyle: { width: getColumnWidth("DURATION", width) },
             formatter: (cell, obj) => {
                 var ob = obj._source;
-                return <span className="filterToggleActive"><span className="filterToggle">
-                    <img onClick={doFilter} field="attrs.duration" value={ob.attrs.duration} className="icon" alt="filterIcon" src={filterIcon} />
-                    <img field="attrs.duration" value={ob.attrs.duration} onClick={doUnfilter} className="icon" alt="unfilterIcon" src={unfilterIcon} />
-                </span >{formatDuration(ob.attrs.duration)}
+                return <span className="filterToggleActive"><div className="filterToggle">
+                    <img onClick={doFilter} field="attrs.duration" value={ob.attrs.duration} className="icon" title="filter" alt="filterIcon" src={filterIcon} />
+                    <img field="attrs.duration" value={ob.attrs.duration} onClick={doUnfilter} className="icon" title="unfilter" alt="unfilterIcon" src={unfilterIcon} />
+                    <span><img onClick={() => copyToclipboard(ob.attrs.duration)} className="icon" title="copy to clipboard" alt="clipboardIcon" src={clipboardIcon} /><span id={"copyToClipboardText" + ob.attrs.duration} className="copyToClip">copied to clipboard</span></span>
+                </div >{formatDuration(ob.attrs.duration)}
                 </span>
             }
         }
@@ -294,8 +350,9 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
             ),
             formatter: (cell, obj) => {
                 var ob = obj._source;
-                return <span className="filterToggleActive"><span className="filterToggle">
-                    <img onClick={doFilter} field="attrs.tags" value={ob.attrs.tags} className="icon" alt="filterIcon" src={filterIcon} /><img field="attrs.tags" value={ob.attrs.tags} onClick={doUnfilter} className="icon" alt="unfilterIcon" src={unfilterIcon} /></span > {ob.attrs.tags ? ob.attrs.tags.toString() : []}
+                return <span className="filterToggleActive"><div className="filterToggle">
+                    <img onClick={doFilter} field="attrs.tags" value={ob.attrs.tags} className="icon" alt="filterIcon" src={filterIcon} />
+                    <img field="attrs.tags" value={ob.attrs.tags} onClick={doUnfilter} className="icon" alt="unfilterIcon" src={unfilterIcon} /></div > {ob.attrs.tags ? ob.attrs.tags.toString() : []}
                 </span>
             }
         }
@@ -339,7 +396,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
                         )}
                     </Popup>
                     }
-                    {(storePersistent.getState().user.aws === true && storePersistent.getState().user.jwt !== 0 && window.location.pathname.includes("/exceeded")) && <Popup trigger={<img className="icon" alt="alertProfileIcon" src={alertProfileIcon} title="alert profile" />} modal>
+                    {(storePersistent.getState().user.aws === true && storePersistent.getState().user.jwt !== 0 && window.location.pathname.includes("/alerts")) && <Popup trigger={<img className="icon" alt="alertProfileIcon" src={alertProfileIcon} title="alert profile" />} modal>
                         {close => (
                             <div className="Advanced">
                                 <div className="contentAdvanced" style={{ "padding": "0px" }}>
@@ -397,15 +454,26 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
             }
             //time format
             else if (attrsTypes[column_name.source] && attrsTypes[column_name.source] === "time") {
+                let dataField = '_source.' + column_name.source;
+                if (rawTables.includes(dashboard)) {
+                    dataField = column_name.source;
+                }
                 return {
-                    dataField: '_source.' + column_name.source,
+                    dataField: dataField,
                     text: column_name ? column_name.name.toUpperCase() : "",
                     editable: false,
                     sort: true,
                     hidden: hidden,
                     headerStyle: { width: '170px' },
                     formatter: (cell, obj) => {
-                        var ob = obj._source[column_name.source];
+                        if (rawTables.includes(dashboard)) {
+                            var ob = obj[column_name.source];
+                            return parseTimestamp(new Date(parseInt(ob*1000)));
+                        }
+                        else {
+                            var ob = obj._source[column_name.source];
+                        }
+ 
                         if (parseTimestamp(ob) !== "Invalid date") {
                             return parseTimestamp(ob)
                         }
@@ -440,10 +508,12 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
                         }
                         if (value) {
                             return <span className="filterToggleActive" style={{ "color": isEncrypted ? "darkred" : "#212529" }}>
-                                <span className="filterToggle">
-                                    <img onClick={doFilter} field={field} value={value} className="icon" alt="filterIcon" src={filterIcon} />
-                                    <img field={field} value={value} onClick={doUnfilter} className="icon" alt="unfilterIcon" src={unfilterIcon} />
-                                </span >{value}
+                                <div className="filterToggle">
+                                    <img onClick={doFilter} field={field} value={value} className="icon" title="filter" alt="filterIcon" src={filterIcon} />
+                                    <img field={field} value={value} onClick={doUnfilter} className="icon" title="unfilter" alt="unfilterIcon" src={unfilterIcon} />
+                                    <span><img onClick={() => copyToclipboard(value)} className="icon" title="copy to clipboard" alt="clipboardIcon" src={clipboardIcon} /><span id={"copyToClipboardText" + value} className="copyToClip">copied to clipboard</span></span>
+                                </div >{value}
+                                {field === "attrs.source" && window.location.pathname.includes("/alerts") && ob["exceeded-by"] === "ip" && <BLcheck data={ob} />}
                             </span>
                         }
                     }
@@ -467,8 +537,13 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
                 }
             }
             else {
+                let dataField = '_source.' + column_name.source;
+                if (rawTables.includes(dashboard)) {
+                    dataField = column_name.source;
+                }
+
                 let col = {
-                    dataField: '_source.' + column_name.source,
+                    dataField: dataField,
                     text: column_name ? column_name.name.toUpperCase() : "",
                     editable: false,
                     sort: true,
@@ -478,7 +553,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false) {
                         var ob = obj._source;
                         var field = column_name.source;
                         let isEncrypted = false;
-                        if (ob.encrypt) {
+                        if (ob && ob.encrypt) {
                             isEncrypted = isEncryptedAttr(field, ob.encrypt);
                         }
                         return <span style={{ "color": isEncrypted ? "darkred" : "#212529" }}>{cell}</span>
@@ -557,13 +632,13 @@ export function tableColumns(dashboard, tags, layout) {
                 var width = field.headerStyle && field.headerStyle.width ? field.headerStyle.width : null;
                 var hidden = field.hidden ? field.hidden : false;
                 var source = field.text === "ADVANCED" ? "advanced" : field.dataField.slice(8);
-                result.push(getColumn({ source: source, name: field.text, "icons": ["download", "diagram", "details", "share"] }, tags, tag, width, hidden));
+                result.push(getColumn({ source: source, name: field.text, "icons": ["download", "diagram", "details", "share"] }, tags, tag, width, hidden, dashboard));
             }
             else {
                 let name = columnsTableDefaultListConcat[i].name ? columnsTableDefaultListConcat[i].name : columnsTableDefaultListConcat[i];
                 let source = columnsTableDefaultListConcat[i].source ? columnsTableDefaultListConcat[i].source : columnsTableDefaultListConcat[i];
                 let hidden = columnsTableDefaultListConcat[i].hasOwnProperty("hidden") ? columnsTableDefaultListConcat[i].hidden : false;
-                result.push(getColumn({ source: source, name: name, "icons": ["download", "diagram", "details", "share"] }, tags, tag, width = "50px", hidden));
+                result.push(getColumn({ source: source, name: name, "icons": ["download", "diagram", "details", "share"] }, tags, tag, width = "50px", hidden, dashboard));
             }
         }
         return result;
@@ -580,7 +655,7 @@ export function tableColumns(dashboard, tags, layout) {
             let name = columnsTableDefaultListConcat[i].name ? columnsTableDefaultListConcat[i].name : columnsTableDefaultListConcat[i];
             let source = columnsTableDefaultListConcat[i].source ? columnsTableDefaultListConcat[i].source : columnsTableDefaultListConcat[i];
             let hidden = columnsTableDefaultListConcat[i].hasOwnProperty("hidden") ? columnsTableDefaultListConcat[i].hidden : true;
-            result.push(getColumn({ source: source, name: name, "icons": ["download", "diagram", "details", "share"] }, tags, tag = null, width = "150px", hidden));
+            result.push(getColumn({ source: source, name: name, "icons": ["download", "diagram", "details", "share"] }, tags, tag = null, width = "150px", hidden, dashboard));
         }
         return result;
     }

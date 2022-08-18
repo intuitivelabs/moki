@@ -19,9 +19,18 @@ import search from "../../styles/icons/search.png";
 class filterBar extends Component {
     constructor(props) {
         super(props);
+        var oldFilters = store.getState().filters;
+        var newFilters = [];
+        for (var i = 0; i < oldFilters.length; i++) {
+            if (oldFilters[i].pinned !== 'false') {
+                newFilters.push(oldFilters[i]);
+            }
+        }
+        store.dispatch(setFilters(newFilters));
+        //remove unpinned filters
         this.state = {
             filterbar: "",
-            filters: store.getState().filters,
+            filters: newFilters,
             dstRealms: this.props.dstRealms ? this.props.dstRealms : [],
             srcRealms: this.props.srcRealms ? this.props.srcRealms : []
         }
@@ -57,10 +66,10 @@ class filterBar extends Component {
 
     //if store filters changes, render new state
     rerenderFilters() {
-        if (store.getState().filters !== this.state.filters) {
+        //if (store.getState().filters !== this.state.filters) {
             console.info("Filters are changed: " + JSON.stringify(store.getState().filters));
             this.setState({ filters: store.getState().filters });
-        }
+       // }
     }
 
     //check if attribute prefix is correct
@@ -184,7 +193,7 @@ class filterBar extends Component {
                 oldFilters[i].previousState = 'disable';
             }
         }
-        console.info("Filter is enabled: " + oldFilters);
+        console.info("Filter is enabled: " + JSON.stringify(oldFilters));
         store.dispatch(setFilters(oldFilters));
     }
 

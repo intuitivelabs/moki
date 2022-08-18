@@ -8,6 +8,7 @@ import emptyIcon from "../../styles/icons/empty_small.png";
 import Animation from '../helpers/Animation';
 import CountryFlag from "../helpers/countryFlag";
 import storePersistent from "../store/indexPersistent";
+import clipboardIcon from "../../styles/icons/clipboard.png";
 
 class TableChart extends Component {
   constructor(props) {
@@ -36,6 +37,22 @@ class TableChart extends Component {
 
   setData(data) {
     this.setState({ data: data });
+  }
+
+ encryptedAttr(value) {
+    let isEncrypted = false;
+    let field = this.props.field;
+
+    //fix for keyword type in attribute's name
+    field = field === "attrs.from.keyword" ? "attrs.from" : field;
+    field = field === "attrs.to.keyword" ? "attrs.to" : field;
+    field = field === "attrs.r-uri.keyword" ? "attrs.r-uri" : field;
+
+    if (storePersistent.getState().profile[0] && storePersistent.getState().profile[0].userprefs.mode && storePersistent.getState().profile[0].userprefs.mode === "anonymous" && storePersistent.getState().profile[0].userprefs.anonymizableAttrs[field] ) {
+      isEncrypted = true;
+    }
+
+    return <span style={{ "color": isEncrypted ? "darkred" : "#212529" }}>{value}</span>
   }
 
   render() {
@@ -82,6 +99,21 @@ class TableChart extends Component {
       }
     }
 
+    //copy value in table to clipboard and show msg
+    function copyToclipboard(value) {
+      var dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = value;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+
+      document.getElementById("copyToClipboardText" + value).style.display = "inline";
+      setTimeout(function () {
+        document.getElementById("copyToClipboardText" + value).style.display = "none";
+      }, 1000);
+    }
+
     function longestText(data) {
       var longestText = 0;
       for (var i = 0; i < data[0].length; i++) {
@@ -102,7 +134,7 @@ class TableChart extends Component {
 
       return (
         <div className="tableChart chart" >
-          <h3 className="alignLeft title" style={{ "float":  "inherit" }}>{this.props.name}</h3>
+          <h3 className="alignLeft title" style={{ "float": "inherit" }}>{this.props.name}</h3>
           <Animation display="none" name={this.props.name} type={this.props.type} setData={this.setData} dataAll={this.state.data} autoplay={this.props.autoplay} />
           {this.state.data[0] && this.state.data[0].length > 0 &&
             <table>
@@ -110,8 +142,8 @@ class TableChart extends Component {
                 return (
                   <tr key={key} style={{ "height": "30px" }}>
                     <td className="listChart filterToggleActiveWhite" id={item.key} style={{ "borderBottom": "none" }} title={item.key}>
-                      {(this.props.name.includes("COUNTRY") || this.props.name.includes("COUNTRIES")) && item.key !== "unknown" && item.key !== "" && (storePersistent.getState().profile[0] && storePersistent.getState().profile[0].mode  && storePersistent.getState().profile[0].mode !== "anonymous") ? <CountryFlag  countryCode={item.key} /> : <span />}
-                      {item.key.substring(0, 16)}
+                      {(this.props.name.includes("COUNTRY") || this.props.name.includes("COUNTRIES")) && item.key !== "unknown" && item.key !== "" && (storePersistent.getState().profile[0] && storePersistent.getState().profile[0].mode && storePersistent.getState().profile[0].mode !== "anonymous") ? <CountryFlag countryCode={item.key} /> : <span />}
+                      {this.encryptedAttr(item.key.substring(0, 16))}
                     </td>
                     {(item.doc_count !== "" && this.state.data[1]) && <td className="listChart" style={{ "borderBottom": "none", "color": "grey" }}>{roundNumber(item.doc_count / this.state.data[1] * 100) + "%"}</td>}
                   </tr>
@@ -141,11 +173,12 @@ class TableChart extends Component {
                 return (
                   <tr key={key}>
                     <td className="filtertd listChart filterToggleActiveWhite" id={item.key} title={item.key} style={{ "width": longestText(this.state.data) * 10 + 150 + "px" }}>
-                      {(this.props.name.includes("COUNTRY") || this.props.name.includes("COUNTRIES")) && item.key !== "unknown"  && storePersistent.getState().profile[0] && storePersistent.getState().profile[0].mode !== "anonymous" ? <CountryFlag  countryCode={item.key}  /> : <span />}
-                      {shortText(item.key)}
+                      {(this.props.name.includes("COUNTRY") || this.props.name.includes("COUNTRIES")) && item.key !== "unknown" && storePersistent.getState().profile[0] && storePersistent.getState().profile[0].mode !== "anonymous" ? <CountryFlag countryCode={item.key} /> : <span />}
+                      {this.encryptedAttr(shortText(item.key))}
                       {this.props.field && <span className="filterToggle">
                         <img onClick={this.filter} field={this.props.field} value={item.key} className="icon" alt="filterIcon" src={filter} />
                         <img field={this.props.field} value={item.key} onClick={this.unfilter} className="icon" alt="unfilterIcon" src={unfilter} />
+                        <span><img onClick={() => copyToclipboard(item.key)} className="icon" title="copy to clipboard" alt="clipboardIcon" src={clipboardIcon} /><span id={"copyToClipboardText" + item.key} className="copyToClip">copied to clipboard</span></span>
                       </span>}
                     </td>
                     <td className="alignRight listChart">{niceNumber(item.doc_count, this.props.name)}</td>

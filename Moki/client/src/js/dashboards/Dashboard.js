@@ -93,9 +93,11 @@ class Dashboard extends Component {
         }
         //need to pass types argument
         if(functors[j].func.name === "parseBucketData"){
-          
           this.transientState[functors[j].result] = await functors[j].func(data.responses[i], getTypes(), profile, attrs);
-
+        //parseEventsRateData - pass also hours and total count
+        else if (functors[j].type === "parseEventsRateData") {
+          let hours = (store.getState().timerange[1] -  store.getState().timerange[0])/3600000;
+          this.transientState[functors[j].result] = await functors[j].func(data.responses[i], data.responses[2], hours);
         }
         else {
           this.transientState[functors[j].result] =
