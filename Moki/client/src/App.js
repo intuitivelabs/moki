@@ -25,6 +25,7 @@ import { parseTimestamp } from "./js/helpers/parseTimestamp";
 import { setTimerange } from "./js/actions/index";
 import { setFilters } from "./js/actions/index";
 import { createFilter } from '@moki-client/gui';
+import { getUsername } from "./js/helpers/getUsername";
 
 //General class - check user level, profile from ES, monitor_layout before loading monitor
 //return router with dashboards and bars
@@ -59,7 +60,9 @@ class App extends Component {
         this.redirect = this.redirect.bind(this);
         this.getHostnames = this.getHostnames.bind(this);
         this.checkURLFilters = this.checkURLFilters.bind(this);
+        this.rerenderUsername = this.rerenderUsername.bind(this);
         this.getSipUser();
+        storePersistent.subscribe(() => this.rerenderUsername());
     }
 
     componentDidMount() {
@@ -72,6 +75,23 @@ class App extends Component {
             thiss.setState({ resizeId: setTimeout(thiss.windowResize, 500) });
         });
 
+    }
+
+    //when user has changed, rerender it in GUI
+    rerenderUsername() {
+        var sipUser = { ...storePersistent.getState().user };
+        if (sipUser) {
+            if (sipUser.aws === false) {
+                sipUser.account = "Account: " + sipUser.username;
+            }
+            else {
+                sipUser.account = sipUser.email ? sipUser.user + ": " + sipUser.email : sipUser.username ? sipUser.user + " " + sipUser.username : sipUser.user;
+            }
+        } else {
+            sipUser.account = "";
+        }
+
+        this.setState({ user: sipUser })
     }
 
     //check url parameters for filters
@@ -142,6 +162,7 @@ class App extends Component {
         } catch (error) {
             console.error(error);
         }
+
 
         var res = await getProfile(this.state.user);
 
@@ -253,8 +274,18 @@ class App extends Component {
                 document.body.style.setProperty('--main', jsonData.color);
                 document.body.style.setProperty('--second', jsonData.colorSecondary);
 
+                let monitorName = "";
+                if (!this.state.aws) {
+                    for (let hit of jsonSettings[0].attrs) {
+                        if (hit.attribute === "monitor_name") {
+                            monitorName = hit.value;
+                        }
+                    }
+                } else {
+                    monitorName = jsonData.name;
+                }
                 this.setState({
-                    monitorName: jsonData.name + " " + monitorVersion,
+                    monitorName: monitorName + " " + monitorVersion,
                     isLoading: false
                 });
             });
@@ -476,21 +507,7 @@ class App extends Component {
                     console.info("MOKI: sip user: " + sip.user);
 
                     //get username
-                    try {
-                        response = await fetch("/api/user/username", {
-                            method: "GET",
-                            credentials: 'include',
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Access-Control-Allow-Credentials": "include"
-                            }
-                        })
-
-                        var res = await response.json();
-                        sip.username =  res.username;
-                    } catch (error) {
-                       
-                    }
+                    sip.username = await getUsername();
 
                     //set user info :  email:email, domainID:domainID, jwt: jwtbit
                     storePersistent.dispatch(setUser(sip));
@@ -549,6 +566,8 @@ class App extends Component {
         }
     }
 
+
+
     /**
 * render layout based on user level
 * */
@@ -562,18 +581,12 @@ class App extends Component {
                 <div className="loaderr">
                     <div className="bar"></div>
                 </div>
-                {this.state.logo && <div><img src={this.state.logo} alt="logo" style={{ "marginLeft": "40%", "width": "300px"}} /></div>}
+                {this.state.logo && <div><img src={this.state.logo} alt="logo" style={{ "marginLeft": "40%", "width": "300px" }} /></div>}
             </div>
         </span>
 
         //get userto display
-        var sipUser = storePersistent.getState().user;
-        if (sipUser) {
-            sipUser = storePersistent.getState().user.email ? storePersistent.getState().user.user + ": " + storePersistent.getState().user.email : storePersistent.getState().user.username ? storePersistent.getState().user.user + " "+storePersistent.getState().user.username : storePersistent.getState().user.user ;
-        } else {
-            sipUser = "";
-        }
-
+        var sipUser = this.state.user;
         var sipUserSwitch;
         const aws = this.state.aws;
         var url = window.location.pathname;
@@ -602,13 +615,18 @@ class App extends Component {
                     dashboardAlter.push("connectivityIP");
                 }
 
+                var styleUser = { "display": "inline", "paddingTop": "7px", "position": "absolute" };
+                if (storePersistent.getState().user && storePersistent.getState().user.jwt === 0) {
+                    styleUser = { "display": "inline" };
+                }
+
                 //admin context
                 sipUserSwitch = <div className="row" id="body-row" >
                     <NavBar redirect={this.redirect} toggle={this.toggle} aws={this.state.aws} dashboardsUser={this.state.dashboardsUser} dashboards={this.state.dashboards} dashboardsSettings={this.state.dashboardsSettings} />
                     <div className="row justify-content-between header" style={{ "marginRight": 0, "marginLeft": 0 }} >
                         <span id="user" className="top" style={{ style }}>
                             {aws === true && <DecryptPasswordPopup />}
-                            {sipUser}
+                            <div style={styleUser}>{this.state.user.account}</div>
                             {aws === true && (!this.state.admin && !this.state.siteAdmin) && <a href="/logout" > Log out </a>}
                         </span>
 
@@ -628,6 +646,7 @@ class App extends Component {
                             </Switch>
                         </div>
                         <span className="footer" style={{ "float": "right" }}>
+                            <div>{this.state.monitorName}</div>
                             <img src={this.state.logo} alt="logo" id="footerlogo" />
                         </span>
                     </div>
@@ -643,7 +662,7 @@ class App extends Component {
                         <div className="d-flex justify-content-between header" >
                             <span id="user" className="top">
                                 {aws === true && <DecryptPasswordPopup />}
-                                {sipUser}
+                                {this.state.user.account}
                                 {aws === true && !this.state.admin && <a href="/logout"> Log out </a>}</span>
                             <TimerangeBar showError={this.showError} />
                         </div>
@@ -660,6 +679,7 @@ class App extends Component {
                                 <Redirect to="/" />
                             </Switch>
                             <span className="footer" style={{ "float": "right" }}>
+                                <div>{this.state.monitorName}</div>
                                 <img src={this.state.logo} alt="logo" id="footerlogo" />
                             </span>
                         </div>
@@ -685,3 +705,4 @@ class App extends Component {
 }
 
 export default App;
+
