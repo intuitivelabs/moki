@@ -85,32 +85,44 @@ class AlertProfile extends Component {
         if (hmac && hmac !== "plain") hmac = hmac.substring(0, hmac.indexOf(":"));
         let profile = storePersistent.getState().profile;
 
-        if (this.state.data["exceeded-by"] === "ip") {
-            let key = await cipherAttr("attrs.source", this.state.data.attrs.source, profile, "encrypt");
-            result = await this.get("api/bw/getip?key=" + key + "&list=ipprofile&hmac=" + hmac + "&pretty=true");
+        let key = this.state.data.alert.key.origval;
+        if (this.state.data.alert.key.encrypt === "encrypt") {
+            key = await cipherAttr(this.state.data.alert.key.attrName, this.state.data.alert.key.origval, profile, "encrypt");
         }
-        else if (this.state.data["exceeded-by"] === "uri") {
-            let key = await cipherAttr("attrs.from", this.state.data.attrs.from, profile, "encrypt");
-            result = await this.get("api/bw/geturi?key=" + key + "&list=uriprofile&hmac=" + hmac + "&pretty=true");
-        }
-        else {
-            //check if custom profile or not
-            if (this.state.data["exceeded-by"].startsWith("cstm_")) {
-                //.key.value should be taken and split in everything before the first occurrence of _ to become list and everything after to become key
-                if (this.state.data.alertv3) {
-                    let data = JSON.parse(this.state.data.alertv3).key.value;
-                    let list = data.substring(0, data.indexOf("_"));
-                    let key = data.substring(data.indexOf("_") + 1, data.length);
-                    result = await this.get("api/bw/getcustomprofile?pretty=true&key=" + key + "&list=" + list + "&hmac=" + hmac);
-                }
-            }
-            else {
-                result = await this.get("api/bw/gettenantprofile?pretty=true");
-            }
-        }
+        result = await this.get("api/alertapi/getprofile?keyval=" + key + "&keyname=" + this.state.data.alert.key.type + "&hmac=" + hmac);
+
+        /* if (this.state.data["exceeded-by"] === "ip") {
+             let key = await cipherAttr("attrs.source", this.state.data.attrs.source, profile, "encrypt");
+             result = await this.get("api/bw/getip?key=" + key + "&list=ipprofile&hmac=" + hmac + "&pretty=true");
+         }
+         else if (this.state.data["exceeded-by"] === "uri") {
+             let key = await cipherAttr("attrs.from", this.state.data.attrs.from, profile, "encrypt");
+             result = await this.get("api/bw/geturi?key=" + key + "&list=uriprofile&hmac=" + hmac + "&pretty=true");
+         }
+         else {
+             //check if custom profile or not
+             if (this.state.data["exceeded-by"].startsWith("cstm_")) {
+                 //.key.value should be taken and split in everything before the first occurrence of _ to become list and everything after to become key
+                 if (this.state.data.alertv3) {
+                     let data = JSON.parse(this.state.data.alertv3).key.value;
+                     let list = data.substring(0, data.indexOf("_"));
+                     let key = data.substring(data.indexOf("_") + 1, data.length);
+                     result = await this.get("api/bw/getcustomprofile?pretty=true&key=" + key + "&list=" + list + "&hmac=" + hmac);
+                 }
+             }
+             else {
+                 result = await this.get("api/bw/gettenantprofile?pretty=true");
+             }
+             
+         }
+ */
 
         //add exceeded name from settings
-        if (result && result.statusCode !== 400) {
+        if (!result || (result && result.statusCode)) {
+            this.close();
+        }
+        else {
+            
             if (storePersistent.getState().layout.types.exceeded) {
                 for (let item of Object.keys(result.Item)) {
                     for (let template of storePersistent.getState().layout.types.exceeded) {
@@ -248,11 +260,12 @@ class AlertProfile extends Component {
     render() {
         return (
             <div className="row no-gutters" >
+                <div onClick={() => this.close()} style={{ "cursor": "pointer", "marginLeft": "95%" }}>X</div>
                 <div style={{ "marginRight": "5px", "marginTop": "20px" }} className="preStyle">
                     {this.renderAlertProfile(this.state.result)}
                     {(this.state.result !== null && Object.keys(this.state.result).length !== 0) && <button className="btn btn-secondary" style={{ "float": "right" }} onClick={() => this.resetProfile()}>Reset</button>}
                 </div>
-                <div onClick={() => this.close()} style={{ "cursor": "pointer" }}>X</div>
+
             </div>
         )
     }
