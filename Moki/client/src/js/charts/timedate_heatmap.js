@@ -208,6 +208,9 @@ export default class timedateHeatmap extends Component {
                     }
                     return xScale(d.attr1) - cellSize / 2;
                 })
+                .attr('value', function (d) {
+                    return d.value;
+                })
                 .attr('fill', function (d) {
                     //special case
                     if (name === "CA AVAILABILITY") {

@@ -181,6 +181,9 @@ export default class heatmap extends Component {
                 .attr('x', function (d) {
                     return xScale(d.attr1);
                 })
+                .attr('value', function (d) {
+                    return d.value;
+                })
                 .attr('fill', function (d) {
                     if (name === "CONNECTION FAILURE RATIO CA") {
                         if (d.value <= 10) { return "#1a321a" }
@@ -243,10 +246,10 @@ export default class heatmap extends Component {
                 // d3.select(this).style("stroke", "none");
                 tooltip.style("visibility", "hidden");
                 if (field2) {
-                    createFilter(field2 + ":" + el.attr2);
+                    createFilter(field2 + ":\"" + el.attr2+ "\"");
                 }
 
-                createFilter(field + ":" + el.attr1);
+                createFilter(field + ":\"" + el.attr1+ "\"");
 
 
                 var tooltips = document.getElementById("tooltip" + id);
