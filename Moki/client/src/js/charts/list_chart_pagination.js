@@ -120,6 +120,7 @@ class TableChart extends Component {
     }
 
     return (
+
       <div className="tableChart chart chartMinHeight">
         <h3 className="alignLeft title" style={{"float": "inherit"}}>{this.props.name}</h3>
         {(window.location.pathname !== "/web" && (this.props.name === "EVENTS BY IP ADDR" || this.props.name === "TOP SUBNETS" || this.props.name === "EVENTS BY COUNTRY")) && <Animation name={this.props.name} type={this.props.type} setData={this.setData} dataAll={this.state.data} />}
@@ -128,10 +129,11 @@ class TableChart extends Component {
             <tbody>{this.state.pagginationData[0].map((item, key) => {
               return (
                 <tr key={key}>
-                  <td className="filtertd listChart filterToggleActiveWhite" id={item.key} >  <span className="filterToggle">
-                    <img onClick={this.filter} field={this.props.field} value={item.key} className="icon" alt="filterIcon" src={filter} />
+                  <td className="filtertd listChart filterToggleActiveWhite" id={item.key} > 
+                  { this.props.disableFilter !== true &&  <span className="filterToggle">
+                   <img onClick={this.filter} field={this.props.field} value={item.key} className="icon" alt="filterIcon" src={filter} />
                     <img field={this.props.field} value={item.key} onClick={this.unfilter} className="icon" alt="unfilterIcon" src={unfilter} />
-                  </span>
+                  </span>}
                     {(this.props.name.includes("COUNTRY") || this.props.name.includes("COUNTRIES")) && item.key !== "unknown" ? <ReactCountryFlag style={{ "marginRight": "5px" }} countryCode={item.key} svg /> : <span />}
                     {item.key}
                   </td>
