@@ -212,12 +212,15 @@ export default class StackedChart extends Component {
                         .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 15) + "px");
                 })
                 .on("click", el => {
-                    createFilter(field + ":\"" + el.data.key + "\"");
-                    //bug fix: if you click but not move out
-                    var tooltips = document.getElementsByClassName("tooltipDonut");
-                    if (tooltip) {
-                        for (var j = 0; j < tooltips.length; j++) {
-                            tooltips[j].remove();
+                    if (this.props.disableFilter !== true) {
+
+                        createFilter(field + ":\"" + el.data.key + "\"");
+                        //bug fix: if you click but not move out
+                        var tooltips = document.getElementsByClassName("tooltipDonut");
+                        if (tooltip) {
+                            for (var j = 0; j < tooltips.length; j++) {
+                                tooltips[j].remove();
+                            }
                         }
                     }
                 });
@@ -270,12 +273,14 @@ export default class StackedChart extends Component {
                 .attr('fill', function (d, i) {
                     return color(thiss.getArcId(d.key), i);
                 }).on("click", el => {
-                    createFilter(field + ":\"" + el.key + "\"");
-                    //bug fix: if you click but not move out
-                    var tooltips = document.getElementsByClassName("tooltipDonut");
-                    if (tooltip) {
-                        for (var j = 0; j < tooltips.length; j++) {
-                            tooltips[j].remove();
+                    if (this.props.disableFilter !== true) {
+                        createFilter(field + ":\"" + el.key + "\"");
+                        //bug fix: if you click but not move out
+                        var tooltips = document.getElementsByClassName("tooltipDonut");
+                        if (tooltip) {
+                            for (var j = 0; j < tooltips.length; j++) {
+                                tooltips[j].remove();
+                            }
                         }
                     }
                 });
@@ -286,7 +291,7 @@ export default class StackedChart extends Component {
                 .text(function (d) {
                     for (var i = 0; i < pie(data).length; i++) {
                         d.key = d.key.toString();
-                        
+
                         var key = d.key;
                         if (field === "severity") {
                             key = thiss.getSeverityString(key);
@@ -298,11 +303,11 @@ export default class StackedChart extends Component {
                             }
                             else if (field === "exceeded") {
                                 return getExceededName(key).then(val => {
-                                    if(val.length <= 20){
+                                    if (val.length <= 20) {
                                         this.textContent = val + " (" + d.doc_count + ")";
                                     }
                                     else {
-                                        this.textContent =  val.substring(0, 20) + "...  ("+ d.doc_count + ")";
+                                        this.textContent = val.substring(0, 20) + "...  (" + d.doc_count + ")";
                                     }
                                 })
                             }
@@ -316,12 +321,14 @@ export default class StackedChart extends Component {
                     }
                 })
                 .on("click", el => {
-                    createFilter(field + ":\"" + el.key + "\"");
-                    //bug fix: if you click but not move out
-                    var tooltips = document.getElementsByClassName("tooltipDonut");
-                    if (tooltip) {
-                        for (var j = 0; j < tooltips.length; j++) {
-                            tooltips[j].remove();
+                    if (this.props.disableFilter !== true) {
+                        createFilter(field + ":\"" + el.key + "\"");
+                        //bug fix: if you click but not move out
+                        var tooltips = document.getElementsByClassName("tooltipDonut");
+                        if (tooltip) {
+                            for (var j = 0; j < tooltips.length; j++) {
+                                tooltips[j].remove();
+                            }
                         }
                     }
                 })

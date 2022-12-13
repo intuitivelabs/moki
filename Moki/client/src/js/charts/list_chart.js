@@ -239,7 +239,7 @@ class TableChart extends Component {
                     <td className="filtertd listChart filterToggleActiveWhite" id={item.key} title={item.key} style={{ "width": longestText(this.state.data) * 10 + 150 + "px" }}>
                       {(this.props.name.includes("COUNTRY") || this.props.name.includes("COUNTRIES")) && item.key !== "unknown" && storePersistent.getState().profile[0] && storePersistent.getState().profile[0].mode !== "anonymous" ? <CountryFlag countryCode={item.key} /> : <span />}
                       {this.encryptedAttr(shortText(item.key, this.props.name))}
-                      {this.props.field && <span className="filterToggle">
+                      {this.props.field &&  this.props.disableFilter !== true &&  <span className="filterToggle">
                         <img onClick={this.filter} field={this.props.field} value={item.key} className="icon" alt="filterIcon" src={filter} />
                         <img field={this.props.field} value={item.key} onClick={this.unfilter} className="icon" alt="unfilterIcon" src={unfilter} />
                         <span><img onClick={() => copyToclipboard(item.key)} className="icon" title="copy to clipboard" alt="clipboardIcon" src={clipboardIcon} /><span id={"copyToClipboardText" + item.key} className="copyToClip">copied to clipboard</span></span>

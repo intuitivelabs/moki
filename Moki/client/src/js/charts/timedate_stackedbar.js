@@ -8,7 +8,7 @@ import { createFilter, getExceededTypes } from '@moki-client/gui';
 import { getTimeBucket, getTimeBucketInt } from "../helpers/getTimeBucket";
 import emptyIcon from "../../styles/icons/empty_small.png";
 import { parseTimestamp, parseTimestampD3js, parseTimeData, parseTimestampUTC } from "../helpers/parseTimestamp";
-import {setTickNrForTimeXAxis} from "../helpers/chart";
+import { setTickNrForTimeXAxis } from "../helpers/chart";
 
 /*
 format:
@@ -27,7 +27,7 @@ export default class StackedChart extends Component {
     }
 
 
-    async  componentWillReceiveProps(nextProps) {
+    async componentWillReceiveProps(nextProps) {
         if (this.state.data !== nextProps.data) {
             //var isFirst = this.state.data && this.state.data.length === 0 ? true : false;
             var isFirst = true;
@@ -287,8 +287,8 @@ export default class StackedChart extends Component {
                 .attr("y", function (d) {
                     var height = yScale(d[0]) - yScale(d[1]);
                     if (height) {
-                       if (height < 1.5) {
-                            return yScale(d[1])-1;
+                        if (height < 1.5) {
+                            return yScale(d[1]) - 1;
                         }
                         return yScale(d[1]);
                     }
@@ -333,20 +333,22 @@ export default class StackedChart extends Component {
                         .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 15) + "px");
                 });
 
-            //filter type onClick
-            layer.on("click", el => {
-                if (window.location.pathname === "/exceeded" || window.location.pathname.includes("/alerts")) {
-                    createFilter("exceeded:" + el.key);
-                }
-                else {
-                    createFilter("attrs.type:" + el.key);
-                }
+            if (this.props.disableFilter !== true) {
+                //filter type onClick
+                layer.on("click", el => {
+                    if (window.location.pathname === "/exceeded" || window.location.pathname.includes("/alerts")) {
+                        createFilter("exceeded:" + el.key);
+                    }
+                    else {
+                        createFilter("attrs.type:" + el.key);
+                    }
 
-                var tooltips = document.getElementById("tooltip" + id);
-                if (tooltips) {
-                    tooltips.style.opacity = 0;
-                }
-            });
+                    var tooltips = document.getElementById("tooltip" + id);
+                    if (tooltips) {
+                        tooltips.style.opacity = 0;
+                    }
+                });
+            }
 
             //turn off animation for web page because we need refresh every minute there
             if (window.location.pathname !== "/web") {
