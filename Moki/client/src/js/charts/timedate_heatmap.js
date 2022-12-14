@@ -271,7 +271,7 @@ export default class timedateHeatmap extends Component {
                     tooltip
                         .style("visibility", "visible")
                         .style("left", (d3.event.clientX - chartRect.left + document.body.scrollLeft - (tooltipDim.width / 2)) + "px")
-                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 15) + "px");
+                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 30) + "px");
 
                 })
                 .on("mouseout", function () {

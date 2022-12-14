@@ -154,7 +154,7 @@ export default class sunburst extends Component {
                     var chartRect = d3.select('#sunburstChart').node().getBoundingClientRect();
                     tooltip
                         .style("left", (d3.event.clientX - chartRect.left + document.body.scrollLeft - (tooltipDim.width / 2)) + "px")
-                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 15) + "px");
+                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 30) + "px");
                 })
                 .on('mouseout', () => tooltip.remove())
                 .on("mousemove", function (d) {
@@ -162,7 +162,7 @@ export default class sunburst extends Component {
                     var chartRect = d3.select('#sunburstChart').node().getBoundingClientRect();
                     tooltip
                         .style("left", (d3.event.clientX - chartRect.left + document.body.scrollLeft - (tooltipDim.width / 2)) + "px")
-                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 15) + "px");
+                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 30) + "px");
                 })
                 .on("click", el => {
                     if (parseInt(el.data.key, 10)) {

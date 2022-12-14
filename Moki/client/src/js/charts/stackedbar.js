@@ -266,7 +266,7 @@ export default class StackedChart extends Component {
                     tooltip
                         .style("visibility", "visible")
                         .style("left", (d3.event.clientX - chartRect.left + document.body.scrollLeft - (tooltipDim.width / 2)) + "px")
-                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 15) + "px");
+                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 30) + "px");
                 })
                 .on("mouseout", function () {
                     //  d3.select(this).style("stroke","none");
@@ -277,7 +277,7 @@ export default class StackedChart extends Component {
                     var chartRect = d3.select('#' + id).node().getBoundingClientRect();
                     tooltip
                         .style("left", (d3.event.clientX - chartRect.left + document.body.scrollLeft - (tooltipDim.width / 2)) + "px")
-                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 15) + "px");
+                        .style("top", (d3.event.clientY - chartRect.top + document.body.scrollTop + 30) + "px");
                 });
 
 
