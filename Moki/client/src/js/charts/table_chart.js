@@ -184,7 +184,14 @@ export default class listChart extends Component {
             if (obj.alert.elasticFilter.gui.lucene && obj.alert.elasticFilter.gui.lucene.length > 0) {
                 for (let hit of obj.alert.elasticFilter.gui.lucene) {
                     //pass encrypt value because alert can be plain or encrypt
-                    createFilter(hit, null, true, false, obj.alert.key.encrypt);
+                    let profile = storePersistent.getState().profile;
+                    if (profile && profile[0] && profile[0].userprefs.mode === "encrypt") {
+                        createFilter(hit, null, true, true, obj.alert.key.encrypt);
+                    }
+                    else {
+                        createFilter(hit, null, true, false, obj.alert.key.encrypt);
+                    }
+
                 }
             }
 
