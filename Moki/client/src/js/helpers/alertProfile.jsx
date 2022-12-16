@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { parseTimestamp } from "./parseTimestamp";
 import storePersistent from "../store/indexPersistent";
+import clipboardIcon from "../../styles/icons/clipboard.png";
 import { cipherAttr } from '@moki-client/gui';
 const DATEFORMATS = ["lastModified", "created", "lastLogin", "lastExceeded", "ts", "lastRaised", "lastLaunchedTimer", "lastRaisedTS", "lastExceededTS", "timestamp", "lastTimerTS", "lastExpired", "lastReceivedTimer"];
 
@@ -51,6 +52,25 @@ class AlertProfile extends Component {
             data: [],
             result: []
         })
+    }
+
+    //copy value in table to clipboard and show msg
+    copyToclipboard(value, id) {
+        var dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = value;
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+
+        if (!id) {
+            id = value;
+        }
+
+        document.getElementById("copyToClipboardText" + id).style.display = "inline";
+        setTimeout(function () {
+            document.getElementById("copyToClipboardText" + id).style.display = "none";
+        }, 1000);
     }
 
     async load() {
@@ -202,7 +222,13 @@ class AlertProfile extends Component {
     render() {
         return (
             <div className="row no-gutters" >
-                <div onClick={() => this.close()} style={{ "cursor": "pointer", "marginLeft": "97%" }}>X</div>
+                <span>
+                    <button className="link close" onClick={() => this.copyToclipboard(JSON.stringify(this.state.result), "Profile")} style={{ "position": "absolute",  "right": "28px", "top": "1px"}}>
+                        <img className="icon" alt="clipboardIcon" src={clipboardIcon} title="copy to clipboard" />
+                    </button>
+                    <span id={"copyToClipboardTextProfile"} className="copyToClip" style={{ "position": "absolute", "right": "28px", "top": "18px" }}>copied to clipboard</span>
+                </span>
+                <div onClick={() => this.close()} style={{ "cursor": "pointer", "marginLeft": "97%", "color": "#B8B8B8" }}>X</div>
                 <div style={{ "marginRight": "5px", "marginTop": "20px" }} className="preStyle">
                     {this.renderAlertProfile(this.state.result)}
                     {(this.state.result !== null && Object.keys(this.state.result).length !== 0) && <button className="btn btn-secondary" style={{ "float": "right" }} onClick={() => this.resetProfile()}>Reset</button>}
