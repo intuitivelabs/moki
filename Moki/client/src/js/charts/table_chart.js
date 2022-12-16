@@ -167,6 +167,8 @@ export default class listChart extends Component {
     createFilterAndRedirect(ob) {
         let obj = ob._source;
         if (obj.alert && obj.alert.elasticFilter) {
+            //elasticFilter is string in JSON format
+            let esFilters =  JSON.parse(obj.alert.elasticFilter);
             //disable old filters
             var oldFilters = store.getState().filters;
             if (oldFilters.length > 0) {
@@ -176,13 +178,13 @@ export default class listChart extends Component {
                 store.dispatch(setFilters(oldFilters));
             }
             //create new filter for types
-            if (obj.alert.elasticFilter.gui.types && obj.alert.elasticFilter.gui.types.query_string.query) {
-                createFilter(obj.alert.elasticFilter.gui.types.query_string.query);
+            if (esFilters.gui.types && esFilters.gui.types.query_string.query) {
+                createFilter(esFilters.gui.types.query_string.query);
             }
 
             //filters
-            if (obj.alert.elasticFilter.gui.lucene && obj.alert.elasticFilter.gui.lucene.length > 0) {
-                for (let hit of obj.alert.elasticFilter.gui.lucene) {
+            if (esFilters.gui.lucene && esFilters.gui.lucene.length > 0) {
+                for (let hit of esFilters.gui.lucene) {
                     //pass encrypt value because alert can be plain or encrypt
                     let profile = storePersistent.getState().profile;
                     if (profile && profile[0] && profile[0].userprefs.mode === "encrypt") {
@@ -198,12 +200,12 @@ export default class listChart extends Component {
             //timerange
             let timerange_gte = store.getState().timerange[0];
             let timerange_lte = store.getState().timerange[1];
-            if (obj.alert.elasticFilter.gui.timerange_gte && obj.alert.elasticFilter.gui.timerange_gte !== null) {
-                timerange_gte = obj.alert.elasticFilter.gui.timerange_gte;
+            if (esFilters.gui.timerange_gte && esFilters.gui.timerange_gte !== null) {
+                timerange_gte = esFilters.gui.timerange_gte;
             }
 
-            if (obj.alert.elasticFilter.gui.timerange_lte && obj.alert.elasticFilter.gui.timerange_lte !== null) {
-                timerange_lte = obj.alert.elasticFilter.gui.timerange_lte;
+            if (esFilters.gui.timerange_lte && esFilters.gui.timerange_lte !== null) {
+                timerange_lte = esFilters.gui.timerange_lte;
             }
             window.timebar.changeTimerange(timerange_gte, timerange_lte);
             this.setState({
