@@ -168,7 +168,7 @@ export default class listChart extends Component {
         let obj = ob._source;
         if (obj.alert && obj.alert.elasticFilter) {
             //elasticFilter is string in JSON format
-            let esFilters =  JSON.parse(obj.alert.elasticFilter);
+            let esFilters =  JSON.parse(obj.alert.elasticFilterS);
             //disable old filters
             var oldFilters = store.getState().filters;
             if (oldFilters.length > 0) {
