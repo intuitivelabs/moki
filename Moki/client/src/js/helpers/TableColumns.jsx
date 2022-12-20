@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Popup from "reactjs-popup";
-import { cipherAttr } from '@moki-client/gui';
 import detailsIcon from "../../styles/icons/details.png";
 import TagRanger from "../bars/TagRanger";
 import filterIcon from "../../styles/icons/filter.png";
@@ -205,7 +204,7 @@ export const syntaxHighlight = (json) => {
         //sort rtp-stats-a - is an array
         if (json.attrs && json.attrs["rtp-stats-a"] && json.attrs["rtp-stats-a"][0]) {
             for (let k = 0; k < json.attrs["rtp-stats-a"].length; k++) {
-                not_sorted = json.attrs["rtp-stats-a"][k];
+                let not_sorted = json.attrs["rtp-stats-a"][k];
                 json.attrs["rtp-stats-a"][k] = Object.keys(not_sorted)
                     .sort(function (a, b) {
                         return a.toLowerCase().localeCompare(
@@ -220,7 +219,7 @@ export const syntaxHighlight = (json) => {
 
         if (json.attrs && json.attrs["rtp-stats-b"] && json.attrs["rtp-stats-b"][0]) {
             for (let k = 0; k < json.attrs["rtp-stats-b"].length; k++) {
-                not_sorted = json.attrs["rtp-stats-b"][k];
+                let not_sorted = json.attrs["rtp-stats-b"][k];
                 json.attrs["rtp-stats-b"][k] = Object.keys(not_sorted)
                     .sort(function (a, b) {
                         return a.toLowerCase().localeCompare(
@@ -639,7 +638,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                             return parseTimestamp(new Date(parseInt(ob * 1000)));
                         }
                         else {
-                            var ob = obj._source[column_name.source];
+                            ob = obj._source[column_name.source];
                         }
 
                         if (parseTimestamp(ob) !== "Invalid date") {

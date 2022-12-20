@@ -172,7 +172,7 @@ class navBar extends Component {
 
 
                 try {
-                    var response = await fetch("/api/user/create", {
+                    response = await fetch("/api/user/create", {
                         method: "POST",
                         credentials: 'include',
                         body:
@@ -189,7 +189,7 @@ class navBar extends Component {
                     if (response.status !== 200) {
                         window.mainPopup.error("Problem to create user.");
                     }
-                    var res = await response.json();
+                    res = await response.json();
                     if (res.error) {
                         window.mainPopup.error(res.error);
                     }

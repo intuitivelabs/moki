@@ -8,21 +8,16 @@ import TransportCharts from './TransportCharts';
 import TypeBar from '../../bars/Typebar';
 import FilterBar from '../../bars/FilterBar';
 
-
 class Transport extends Component {
-    constructor(props) {
-        super(props);    
-    }
-    
     render() {
         return (
-                   <div className="container-fluid" style={{"paddingRight": "0"}}>
-                            <FilterBar tags={this.props.tags} />
-                            <TypeBar/>
-                            <TransportCharts />
-                            <TransportTable tags={this.props.tags}  />
+            <div className="container-fluid" style={{ "paddingRight": "0" }}>
+                <FilterBar tags={this.props.tags} />
+                <TypeBar />
+                <TransportCharts />
+                <TransportTable tags={this.props.tags} />
             </div>
-                       
+
         );
     }
 }

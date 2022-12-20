@@ -72,7 +72,8 @@ class timerangeBar extends Component {
             history: [],
             timeFormat: timeFormat,
             dateFormat: dateFormat,
-            exportJSONOpen: false
+            exportJSONOpen: false,
+            timezone: timezone
         }
 
         //no timerange set in URL parameters

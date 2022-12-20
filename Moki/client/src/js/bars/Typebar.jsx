@@ -195,9 +195,10 @@ class Typebar extends Component {
     */
     disableType(type, state, color, click) {
         var isAllSelected = true;
+        var oldTypes = this.state.types;
         if (click === "double") {
             //disable all except selected
-            var oldTypes = this.state.types;
+          
             for (var i = 0; i < oldTypes.length; i++) {
                 if (oldTypes[i].id !== type) {
                     oldTypes[i].state = state;
@@ -215,8 +216,7 @@ class Typebar extends Component {
             isAllSelected = false;
         }
         else {
-            var oldTypes = this.state.types;
-            for (var i = 0; i < oldTypes.length; i++) {
+            for (i = 0; i < oldTypes.length; i++) {
                 if (oldTypes[i].id === type) {
                     oldTypes[i].state = state;
                 }

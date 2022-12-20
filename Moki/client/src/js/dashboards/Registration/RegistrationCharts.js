@@ -11,7 +11,7 @@ import Geoipchart from '../../charts/geoip_map.js';
 import DonutChart from '../../charts/donut_chart.js';
 import ListChart from '../../charts/list_chart.js';
 import store from "../../store/index";
-import { parseListData, parseBucketData, parseAggCities, parseAggQuerySumValue, parseMultipleLineDataShareAxis, parseStackedbarTimeData } from '@moki-client/es-response-parser';
+import { parseListData, parseBucketData, parseAggCities, parseMultipleLineDataShareAxis, parseStackedbarTimeData } from '@moki-client/es-response-parser';
 
 
 class RegistrationCharts extends Dashboard {
@@ -73,7 +73,7 @@ class RegistrationCharts extends Dashboard {
                 }
             }
             else {
-                var lastValue = data[1].values[data[1].values.length - 1];
+                lastValue = data[1].values[data[1].values.length - 1];
                 if (lastValue) {
                     return lastValue.value
                 }

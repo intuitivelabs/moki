@@ -6,10 +6,6 @@ import React, {
 import MonitoringCharts from './MonitoringCharts';
 
 class Monitoring extends Component {
-    constructor(props) {
-        super(props);    
-    }
-    
     render() {
         return (
             <div className="container">

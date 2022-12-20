@@ -9,11 +9,6 @@ import TypeBar from '../../bars/Typebar';
 import FilterBar from '../../bars/FilterBar';
 
 class Registration extends Component {
-    constructor(props) {
-        super(props);    
-    }
-    
-    
     render() {
         return (
                    <div className="container-fluid" style={{"paddingRight": "0"}}>

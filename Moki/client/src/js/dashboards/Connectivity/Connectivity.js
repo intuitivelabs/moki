@@ -7,10 +7,6 @@ import ConnectivityCharts from './ConnectivityCharts';
 import FilterBar from '../../bars/FilterBar';
 
 class Connectivity extends Component {
-    constructor(props) {
-        super(props);    
-    }
-
     render() {
         return (
            <div className="container-fluid" style={{"paddingRight": "0"}}>

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { getSearchableFields } from "../helpers/SearchableFields.js";
 import { elasticsearchConnection } from '@moki-client/gui';
 import { parseTableHits, decrypt } from '@moki-client/es-response-parser';
 import storePersistent from "../store/indexPersistent";
@@ -46,7 +45,7 @@ class Export extends Component {
 
     showDownloadingSize(value) {
         this.setState({ downloadValue: Math.round(value / 1000000) + "MB" })
-        window.notification.update({ errno: 5, text: "Downloading data, it can take a while! " + "Downloading " + Math.round(value / 1000000) + "MB", level: "info" });
+        window.notification.update({ errno: 5, text: "Downloading data, it can take a while! Downloading " + Math.round(value / 1000000) + "MB", level: "info" });
 
     }
 

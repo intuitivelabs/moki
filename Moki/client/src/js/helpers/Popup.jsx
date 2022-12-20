@@ -23,9 +23,9 @@ class Popup extends Component {
     setPopup(visibility, text, showOKAnnoying = false, style="popupsmall") {
         this.setState({
             visible: visibility,
-            text, text,
+            text: text,
             showOKAnnoying: showOKAnnoying,
-            style:style
+            style: style
         })
     }
 

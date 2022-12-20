@@ -8,12 +8,7 @@ import ConferenceCharts from './ConferenceCharts';
 import FilterBar from '../../bars/FilterBar';
 import TypeBar from '../../bars/Typebar';
 
-class Conference extends Component {
-    constructor(props) {
-        super(props);    
-    }
-     
-      
+class Conference extends Component {     
     render() {
         return (
            <div className="container-fluid" style={{"paddingRight": "0"}}>
