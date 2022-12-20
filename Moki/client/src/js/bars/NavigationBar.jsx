@@ -25,7 +25,7 @@ class navBar extends Component {
         storePersistent.subscribe(() => this.updateState());
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.dashboards !== this.props.dashboards) {
             this.setState({ dashboards: nextProps.dashboards });
         }

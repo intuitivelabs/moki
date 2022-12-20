@@ -18,7 +18,7 @@ export default class CountUpChart extends Component {
         this.setData = this.setData.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (this.props !== nextProps) {
             this.setState(nextProps);
             this.countUp(nextProps.data);

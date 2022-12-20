@@ -171,7 +171,7 @@ class Autocomplete extends Component {
         }
     };
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.enter !== this.props.userInput) {
             this.setState({
                 userInput: ""

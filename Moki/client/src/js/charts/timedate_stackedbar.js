@@ -27,7 +27,7 @@ export default class StackedChart extends Component {
     }
 
 
-    async componentWillReceiveProps(nextProps) {
+    async UNSAFE_componentWillReceiveProps(nextProps) {
         if (this.state.data !== nextProps.data) {
             //var isFirst = this.state.data && this.state.data.length === 0 ? true : false;
             var isFirst = true;
