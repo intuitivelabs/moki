@@ -80,12 +80,12 @@ class Settings extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.load("/api/setting");
     }
 
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.tags !== this.props.tags) {
             this.setState({
                 tags: nextProps.tags
@@ -483,7 +483,7 @@ class Settings extends Component {
                                     <label> {data[i].label} </label>
                                     {data[i].details ? <div className="smallText">{data[i].details}</div> : ""}
                                 </span>
-                                {<select className="text-left form-control form-check-input" defaultValue={data[i].value} id={data[i].attribute} restriction={JSON.stringify(data[i].restriction)} label={data[i].label} isRequired={data[i].required} onChange={(e) => { this.check(e.target.getAttribute("id"), e.target.value, e.target.getAttribute("label"), e.target.getAttribute("restriction"), e.target.getAttribute("isRequired")) }} >
+                                {<select className="text-left form-control form-check-input" defaultValue={data[i].value} id={data[i].attribute} restriction={JSON.stringify(data[i].restriction)} label={data[i].label} isrequired={data[i].required} onChange={(e) => { this.check(e.target.getAttribute("id"), e.target.value, e.target.getAttribute("label"), e.target.getAttribute("restriction"), e.target.getAttribute("isrequired")) }} >
                                     <option value={"DD/MM/YYYY"} key={"20/12/2020"}>20/12/2020</option>
                                     <option value={"MM/DD/YYYY"} key={"12/20/2020"}>12/20/2020</option>
                                     <option value={"YYYY-MM-DD"} key={"2020-20-12"}>2020-20-12</option>
@@ -502,7 +502,7 @@ class Settings extends Component {
                                     <label> {data[i].label} </label>
                                     {data[i].details ? <div className="smallText">{data[i].details}</div> : ""}
                                 </span>
-                                {<select className="text-left form-control form-check-input" defaultValue={data[i].value} id={data[i].attribute} restriction={JSON.stringify(data[i].restriction)} label={data[i].attribute} isRequired={data[i].required} onChange={(e) => { this.check(e.target.getAttribute("label"), e.target.value, e.target.getAttribute("restriction"), e.target.getAttribute("isRequired")) }} >
+                                {<select className="text-left form-control form-check-input" defaultValue={data[i].value} id={data[i].attribute} restriction={JSON.stringify(data[i].restriction)} label={data[i].attribute} isrequired={data[i].required} onChange={(e) => { this.check(e.target.getAttribute("label"), e.target.value, e.target.getAttribute("restriction"), e.target.getAttribute("isrequired")) }} >
                                     <option value={"hh:mm:ss A"} key={"9:40 AM"}>7:40:20 AM</option>
                                     <option value={"HH:mm:ss"} key={"9:40:20"}>19:40:20</option>
                                 </select>}
@@ -517,7 +517,7 @@ class Settings extends Component {
                                     <label> {data[i].label} </label>
                                     {data[i].details ? <div className="smallText">{data[i].details}</div> : ""}
                                 </span>
-                                {<input className="text-left form-control form-check-input" type="number" min={data[i].restriction.min} max={data[i].restriction.max ? data[i].restriction.max : ""} defaultValue={data[i].value} id={data[i].attribute} isRequired={data[i].required} restriction={JSON.stringify(data[i].restriction)} label={data[i].label} onChange={(e) => { this.check(e.target.getAttribute("id"), e.target.value, e.target.getAttribute("label"), e.target.getAttribute("restriction"), e.target.getAttribute("isRequired")) }} />}
+                                {<input className="text-left form-control form-check-input" type="number" min={data[i].restriction.min} max={data[i].restriction.max ? data[i].restriction.max : ""} defaultValue={data[i].value} id={data[i].attribute} isrequired={data[i].required} restriction={JSON.stringify(data[i].restriction)} label={data[i].label} onChange={(e) => { this.check(e.target.getAttribute("id"), e.target.value, e.target.getAttribute("label"), e.target.getAttribute("restriction"), e.target.getAttribute("isrequired")) }} />}
                                 {this.state[data[i].attribute] ? <span className="col-3 errorStay" >{this.state[data[i].attribute]}</span> : ""}
                             </span></div>);
                 }
@@ -530,7 +530,7 @@ class Settings extends Component {
                                     <label> {data[i].label} </label>
                                     {data[i].details ? <div className="smallText">{data[i].details}</div> : ""}
                                 </span>
-                                {<select className="text-left form-control form-check-input" defaultValue={data[i].value} id={data[i].attribute} restriction={JSON.stringify(data[i].restriction)} label={data[i].label} isRequired={data[i].required} onChange={(e) => { this.check(e.target.getAttribute("id"), e.target.value, e.target.getAttribute("label"), e.target.getAttribute("restriction"), e.target.getAttribute("isRequired")) }} >
+                                {<select className="text-left form-control form-check-input" defaultValue={data[i].value} id={data[i].attribute} restriction={JSON.stringify(data[i].restriction)} label={data[i].label} isrequired={data[i].required} onChange={(e) => { this.check(e.target.getAttribute("id"), e.target.value, e.target.getAttribute("label"), e.target.getAttribute("restriction"), e.target.getAttribute("isrequired")) }} >
                                     {data[i].restriction.type.enum.map((e, i) => {
                                         return (<option value={e} key={e}>{e}</option>)
                                     })}
@@ -555,8 +555,8 @@ class Settings extends Component {
                                     <input className="text-left form-check-input" type="checkbox" id={data[i].attribute} onClick={(e) => this.checkboxClick(e.target.getAttribute("id"))} />
                                     : data[i].type === "file" && data[i].value !== "" ? ""
                                         :
-                                        <input className="text-left form-control form-check-input" type={data[i].type} autocomplete="off" accept={data[i].restriction && data[i].restriction.extensions ? data[i].restriction.extensions : null} defaultValue={data[i].type !== "file" ? data[i].value : ""}
-                                            id={data[i].attribute} label={data[i].label} isRequired={data[i].required} restriction={JSON.stringify(data[i].restriction)} onChange={(e) => { this.check(e.target.getAttribute("id"), e.target.value, e.target.getAttribute("label"), e.target.getAttribute("restriction"), e.target.getAttribute("isRequired")) }} />
+                                        <input className="text-left form-control form-check-input" type={data[i].type} autoComplete="off" accept={data[i].restriction && data[i].restriction.extensions ? data[i].restriction.extensions : null} defaultValue={data[i].type !== "file" ? data[i].value : ""}
+                                            id={data[i].attribute} label={data[i].label} isrequired={data[i].required} restriction={JSON.stringify(data[i].restriction)} onChange={(e) => { this.check(e.target.getAttribute("id"), e.target.value, e.target.getAttribute("label"), e.target.getAttribute("restriction"), e.target.getAttribute("isrequired")) }} />
 
                                 }
                                 {data[i].type === "file" && data[i].value !== "" && cert ? <span style={{ "fontSize": "0.8rem" }}>{data[i].label}
