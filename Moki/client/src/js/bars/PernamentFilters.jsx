@@ -67,7 +67,7 @@ class PernamentFilters extends Component {
             <div className="row" style={{ "marginLeft": "8px" }}>
                 <div className="filterBar" id="filterBarPernament">
                     {pernamentFilters[this.props.dashboard] && pernamentFilters[this.props.dashboard].map((par, i) => {
-                        return (<span className="filterBody">
+                        return (<span className="filterBody" key={par.id}>
                             <button style={{ backgroundColor: this.state[par.id] === false ? "transparent" : par.color }} 
                                 type="button"
                                 name={par.id}

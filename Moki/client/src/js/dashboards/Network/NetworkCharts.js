@@ -5,7 +5,6 @@ Class to get data for all charts iin Call dashboard
 import React from 'react';
 import Dashboard from '../Dashboard.js';
 import LoadingScreenCharts from '../../helpers/LoadingScreenCharts';
-import store from "../../store/index";
 import MultipleLineChart from '../../charts/multipleLine_chart';
 import {parseMultipleLineData} from '@moki-client/es-response-parser';
 

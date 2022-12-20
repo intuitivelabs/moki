@@ -11,7 +11,7 @@ import store from "../../store/index";
 import LoadingScreenCharts from '../../helpers/LoadingScreenCharts';
 import MultivalueChart from '../../charts/multivalue_chart.js';
 import ListChart from '../../charts/list_chart.js';
-import { parseQueryStringData, parseDateHeatmap,parseRatio, parseAggData, parseListData, parseAggSumBucketData, parseMultipleData, parseAggDistinct, parseMultipleLineDataShareAxis, parseMultipleLineDataShareAxisWithoutAgg, parseAggQuerySumValue } from '@moki-client/es-response-parser';
+import { parseQueryStringData, parseDateHeatmap,parseRatio, parseAggData, parseListData, parseAggSumBucketData, parseMultipleData, parseAggDistinct, parseMultipleLineDataShareAxis, parseMultipleLineDataShareAxisWithoutAgg } from '@moki-client/es-response-parser';
 
 class HomeCharts extends Dashboard {
 
@@ -103,7 +103,7 @@ class HomeCharts extends Dashboard {
                 }
             }
             else {
-                var lastValue = data[1].values[data[1].values.length - 1];
+                lastValue = data[1].values[data[1].values.length - 1];
                 if (lastValue) {
                     return lastValue.value
                 }

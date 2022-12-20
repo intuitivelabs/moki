@@ -139,7 +139,7 @@ export default class topology extends Component {
                 .attr('height', height)
                 .call(zoom)
 
-            var g = svg.append('g')
+            g = svg.append('g')
                 .attr("class", "everything");
             //.attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
 

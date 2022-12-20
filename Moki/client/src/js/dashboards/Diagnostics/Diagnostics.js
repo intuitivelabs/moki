@@ -10,10 +10,6 @@ import FilterBar from '../../bars/FilterBar';
 
 
 class Diagnostics extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
                    <div className="container-fluid" style={{"paddingRight": "0"}}>

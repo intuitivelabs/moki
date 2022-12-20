@@ -3,7 +3,6 @@ Class to get data for all charts iin Call dashboard
 */
 import React from 'react';
 import Dashboard from '../Dashboard.js';
-import TimedateStackedChart from '../../charts/timedate_stackedbar.js';
 import SunburstChart from '../../charts/sunburst_chart.js';
 import DonutChart from '../../charts/donut_chart.js';
 import DatebarChart from '../../charts/datebar_chart.js';

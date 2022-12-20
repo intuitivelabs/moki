@@ -549,7 +549,6 @@ class App extends Component {
         </span>
 
         //get userto display
-        var sipUser = this.state.user;
         var sipUserSwitch;
         const aws = this.state.aws;
         var url = window.location.pathname;

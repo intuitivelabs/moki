@@ -3,7 +3,7 @@ import status from '../helpers/status';
 import { Redirect } from 'react-router';
 import infoIcon from "../../styles/icons/info.png";
 import warningIcon from "../../styles/icons/warning.png";
-import errorIcon from "../../styles/icons/error.png";
+//import errorIcon from "../../styles/icons/error.png";
 
 
 /*

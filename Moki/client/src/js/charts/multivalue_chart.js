@@ -138,7 +138,7 @@ export default class multivalueChart extends Component {
                         <div title={data[i].name} className="table-text-truncate">{data[i].name}</div>
                     </div>
                 </td>
-                    { data[i] && data[i] && data[i].values &&  Object.keys(data[i].values).length > 0 &&    Object.keys(data[i].values).map((value, j) => {
+                    { data[i] && data[i].values &&  Object.keys(data[i].values).length > 0 &&    Object.keys(data[i].values).map((value, j) => {
                         return  data[i] && data[i].values[value] ? <td className="filtertd text-nowrap" key={value}>{j === 2 && this.props.name2 === "Minutes" ?  durationFormat(data[i].values[value]) : niceNumber(data[i].values[value])}</td> : 0
                     })}
                 </tr>
@@ -169,7 +169,7 @@ export default class multivalueChart extends Component {
                         <tbody>
                             <tr>
                                 {columnNames.length > 0 && columnNames.map((value, i) => {
-                                    return <th><h3 className="text-nowrap">{value}<img onClick={this.order} field={"value" + i} className="icon" alt="filterIcon" src={sortIcon} /></h3></th>
+                                    return <th key={value}><h3 className="text-nowrap">{value}<img onClick={this.order} field={"value" + i} className="icon" alt="filterIcon" src={sortIcon} /></h3></th>
                                 })}
                             </tr>
                             {items}

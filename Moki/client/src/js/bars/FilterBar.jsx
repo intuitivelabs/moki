@@ -50,7 +50,7 @@ class filterBar extends Component {
 
 
     //after redirect delete unpinned filters
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (this.props.redirect !== nextProps.redirect) {
             this.pinnedFilters();
         }
@@ -63,6 +63,14 @@ class filterBar extends Component {
             this.setState({ srcRealms: nextProps.srcRealms });
         }
     }
+
+    
+    componentWillUnmount() {
+        // fix Warning: Can't perform a React state update on an unmounted component
+        this.setState = (state, callback) => {
+           return;
+       };
+   }
 
     //if store filters changes, render new state
     rerenderFilters() {

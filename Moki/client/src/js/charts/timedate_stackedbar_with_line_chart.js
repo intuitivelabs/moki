@@ -190,10 +190,10 @@ export default class StackedChartLine extends Component {
                 });
 
             // gridlines in y axis function
-            function make_y_gridlines() {
+           /* function make_y_gridlines() {
                 return d3.axisLeft(yScale)
                     .ticks(5)
-            }
+            }*/
 
 
             layer.selectAll("rect")

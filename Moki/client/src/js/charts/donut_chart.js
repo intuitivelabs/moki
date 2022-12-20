@@ -38,8 +38,8 @@ export default class StackedChart extends Component {
     }
 
     getSeverityString(severity) {
-        if (severity == 0) return "high";
-        else if (severity == 1) return "medium";
+        if (severity === 0) return "high";
+        else if (severity === 1) return "medium";
         else return "low";
     }
 
@@ -95,8 +95,8 @@ export default class StackedChart extends Component {
             } else if (field === "attrs.type") {
                 return ColorType[nmb];
             } else if (field === "severity") {
-                if (nmb == 0) return "red";
-                else if (nmb == 1) return "orange";
+                if (nmb === 0) return "red";
+                else if (nmb === 1) return "orange";
                 else return "green";
             } else if (field === "encrypt") {
                 var hmac = profile[0] ? profile[0].userprefs.validation_code : "";

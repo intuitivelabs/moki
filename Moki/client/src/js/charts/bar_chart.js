@@ -95,7 +95,7 @@ export default class barChart extends Component {
             var yAxis = d3.axisLeft().scale(yScale).tickValues(yValues).tickFormat(d3.format('d'));
         }
         else {
-            var yAxis = d3.axisLeft()
+            yAxis = d3.axisLeft()
                 .scale(yScale)
                 .ticks(5);
         }

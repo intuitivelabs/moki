@@ -19,7 +19,7 @@ class Type extends Component {
 
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         // if (nextProps.state !== this.props.state) {
         let color = ColorType[this.props.id];
         if (window.location.pathname === "/exceeded" || window.location.pathname === "/alerts") {

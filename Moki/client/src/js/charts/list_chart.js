@@ -29,8 +29,8 @@ class TableChart extends Component {
     let value = event.currentTarget.getAttribute('value');
     value = value.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
     createFilter(event.currentTarget.getAttribute('field') + ":\"" + value + "\"");
-    if(this.props.name === "SEVERITY"){
-      this.setState({redirect: true})
+    if (this.props.name === "SEVERITY") {
+      this.setState({ redirect: true })
     }
   }
 
@@ -65,9 +65,9 @@ class TableChart extends Component {
   //change paggination page
   setPage(i) {
     i = parseInt(i);
-    i = i-1;
-  //  var pagginationData = i === 1 ? [this.state.data[0].slice(i - 1, i * 10), this.state.data[1]] : [this.state.data[0].slice(i - 1, (i - 1) * 10), this.state.data[1]];
-  var pagginationData =  [this.state.data[0].slice(i *10, i * 10+10), this.state.data[1]] 
+    i = i - 1;
+    //  var pagginationData = i === 1 ? [this.state.data[0].slice(i - 1, i * 10), this.state.data[1]] : [this.state.data[0].slice(i - 1, (i - 1) * 10), this.state.data[1]];
+    var pagginationData = [this.state.data[0].slice(i * 10, i * 10 + 10), this.state.data[1]]
     this.setState({
       page: i,
       pagginationData: pagginationData
@@ -90,7 +90,7 @@ class TableChart extends Component {
 
     }
   }
-  
+
 
   encryptedAttr(value) {
     let isEncrypted = false;
@@ -101,7 +101,7 @@ class TableChart extends Component {
     field = field === "attrs.to.keyword" ? "attrs.to" : field;
     field = field === "attrs.r-uri.keyword" ? "attrs.r-uri" : field;
 
-    if (storePersistent.getState().profile[0] && storePersistent.getState().profile[0].userprefs.mode && storePersistent.getState().profile[0].userprefs.mode === "anonymous" && storePersistent.getState().profile[0].userprefs.anonymizableAttrs[field]  && !storePersistent.getState().profile[0].userprefs.anonymizableAttrs[field].includes("NOT-")) {
+    if (storePersistent.getState().profile[0] && storePersistent.getState().profile[0].userprefs.mode && storePersistent.getState().profile[0].userprefs.mode === "anonymous" && storePersistent.getState().profile[0].userprefs.anonymizableAttrs[field] && !storePersistent.getState().profile[0].userprefs.anonymizableAttrs[field].includes("NOT-")) {
       isEncrypted = true;
     }
 
@@ -144,11 +144,11 @@ class TableChart extends Component {
     }
 
     function shortText(string, name) {
-      if(name === "SEVERITY"){
-        if(string === 0){
+      if (name === "SEVERITY") {
+        if (string === 0) {
           return "high";
         }
-        else if (string === 1){
+        else if (string === 1) {
           return "medium";
         }
         else {
@@ -202,7 +202,7 @@ class TableChart extends Component {
           <Animation display="none" name={this.props.name} type={this.props.type} setData={this.setData} dataAll={this.state.data} autoplay={this.props.autoplay} />
           {this.state.pagginationData[0] && this.state.pagginationData[0].length > 0 &&
             <table>
-                 <tbody>{this.state.pagginationData[0].map((item, key) => {
+              <tbody>{this.state.pagginationData[0].map((item, key) => {
                 return (
                   <tr key={key} style={{ "height": "30px" }}>
                     <td className="listChart filterToggleActiveWhite" id={item.key} style={{ "borderBottom": "none" }} title={item.key}>
@@ -239,7 +239,7 @@ class TableChart extends Component {
                     <td className="filtertd listChart filterToggleActiveWhite" id={item.key} title={item.key} style={{ "width": longestText(this.state.data) * 10 + 150 + "px" }}>
                       {(this.props.name.includes("COUNTRY") || this.props.name.includes("COUNTRIES")) && item.key !== "unknown" && storePersistent.getState().profile[0] && storePersistent.getState().profile[0].mode !== "anonymous" ? <CountryFlag countryCode={item.key} /> : <span />}
                       {this.encryptedAttr(shortText(item.key, this.props.name))}
-                      {this.props.field &&  this.props.disableFilter !== true &&  <span className="filterToggle">
+                      {this.props.field && this.props.disableFilter !== true && <span className="filterToggle">
                         <img onClick={this.filter} field={this.props.field} value={item.key} className="icon" alt="filterIcon" src={filter} />
                         <img field={this.props.field} value={item.key} onClick={this.unfilter} className="icon" alt="unfilterIcon" src={unfilter} />
                         <span><img onClick={() => copyToclipboard(item.key)} className="icon" title="copy to clipboard" alt="clipboardIcon" src={clipboardIcon} /><span id={"copyToClipboardText" + item.key} className="copyToClip">copied to clipboard</span></span>
@@ -253,11 +253,11 @@ class TableChart extends Component {
               })}</tbody>
             </table>
           }
-           <div style={{"marginTop": "5px", "marginLeft": "25%", "marginBottom": "5px"}}>{this.createPaggination()}</div>
+          <div style={{ "marginTop": "5px", "marginLeft": "25%", "marginBottom": "5px" }}>{this.createPaggination()}</div>
           {((this.state.data && this.state.data[0] && this.state.data[0].length === 0) || (this.state.data && this.state.data[0] === "")) &&
             <table style={{ "minWidth": "17em" }}>
               <tbody>
-                <span className="noDataIcon"> <img alt="nodata" src={emptyIcon} className="noDataList" />  </span>
+                <tr className="noDataIcon"><td><img alt="nodata" src={emptyIcon} className="noDataList" /></td></tr>
               </tbody>
             </table>
           }

@@ -92,7 +92,7 @@ export default class listChart extends Component {
         window.tableChart = this;
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.data !== this.state.data) {
             this.setState({ data: nextProps.data, total: nextProps.total });
         }

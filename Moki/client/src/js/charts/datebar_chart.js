@@ -8,7 +8,7 @@ import { Colors } from '@moki-client/gui';
 import emptyIcon from "../../styles/icons/empty_small.png";
 import { getTimeBucket, getTimeBucketInt } from "../helpers/getTimeBucket";
 import { durationFormat } from "../helpers/durationFormat";
-import { parseTimestamp, parseTimestampD3js, parseTimeData, parseTimestampUTC } from "../helpers/parseTimestamp";
+import { parseTimestamp, parseTimestampD3js, parseTimeData } from "../helpers/parseTimestamp";
 import {setTickNrForTimeXAxis} from "../helpers/chart";
 
 export default class datebarChart extends Component {

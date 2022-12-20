@@ -7,7 +7,7 @@ import { setTimerange } from "../actions/index";
 import { createFilter, getExceededTypes } from '@moki-client/gui';
 import { getTimeBucket, getTimeBucketInt } from "../helpers/getTimeBucket";
 import emptyIcon from "../../styles/icons/empty_small.png";
-import { parseTimestamp, parseTimestampD3js, parseTimeData, parseTimestampUTC } from "../helpers/parseTimestamp";
+import { parseTimestamp, parseTimestampD3js, parseTimeData} from "../helpers/parseTimestamp";
 import { setTickNrForTimeXAxis } from "../helpers/chart";
 
 /*
@@ -27,7 +27,7 @@ export default class StackedChart extends Component {
     }
 
 
-    async componentWillReceiveProps(nextProps) {
+    async UNSAFE_componentWillReceiveProps(nextProps) {
         if (this.state.data !== nextProps.data) {
             //var isFirst = this.state.data && this.state.data.length === 0 ? true : false;
             var isFirst = true;

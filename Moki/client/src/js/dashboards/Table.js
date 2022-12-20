@@ -51,14 +51,16 @@ class Table extends Component {
     } catch (e) {
       console.log("Error: " + e);
     }
-    this.state["calls"] = data;
-    this.state["total"] = total;
+    this.setState({
+      calls: data,
+      total: total
+    })
   }
 
   async loadData() {
     //wait for types to load, it will trigger again
     if (window.dashboard.finishedLoadingInicialValues() === false || this.state.dashboardName === "alerts/tableHighSeverity") {
-     
+
       try {
         var data = await elasticsearchConnection(this.state.dashboardName);
         if (typeof data === "string") {
