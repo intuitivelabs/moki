@@ -79,6 +79,13 @@ class BLcheck extends Component {
         this.getBL();
     }
 
+    componentWillUnmount() {
+        // fix Warning: Can't perform a React state update on an unmounted component
+        this.setState = (state, callback) => {
+           return;
+       };
+   }
+
     async getBL() {
         this.setState({
             isBL: await checkBLip(this.props.data)
@@ -316,7 +323,7 @@ function getColumnWidth(column, width = 0) {
 //IL suppress alert  /api/alertapi/supress?toggle=true&key=37.128.36.211&hmac=a2b87&alertid=TMAA
 async function supressAlert(ob) {
     let id = ob.alert.alertId;
-    let url = "api/alertapi/supress?keyRef=" + ob.alert.key.keyRef + "&toggle=false&alertid="+id;
+    let url = "api/alertapi/supress?keyRef=" + ob.alert.key.keyRef + "&toggle=false&alertid=" + id;
 
     try {
         const response = await fetch(url, {
@@ -532,6 +539,22 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
             formatter: (cell, obj) => {
 
                 var ob = obj._source;
+
+                //remove _attr
+                const iterate = (obj) => {
+                    Object.keys(obj).forEach(key => {
+                        if (key.startsWith("_")) {
+                            delete obj[key];
+                        }
+                        if (typeof obj[key] === 'object' && obj[key] !== null) {
+                            iterate(obj[key])
+                        }
+                    })
+
+                    return obj;
+                }
+                ob = iterate(ob);
+
                 return <span>
                     {(ob.attrs.filenameDownload && column_name.icons.includes("download")) &&
                         <button className="noFormatButton" onClick={getPcap} file={ob.attrs.filenameDownload}>  <img className="icon" alt="downloadIcon" src={downloadPcapIcon} title="download PCAP" /></button>

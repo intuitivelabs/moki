@@ -79,6 +79,16 @@ class AlertProfile extends Component {
         if (this.state.data.alert && this.state.data.alert.key && this.state.data.alert.key.keyRef) {
             result = await this.get("api/alertapi/getprofile?keyRef=" + this.state.data.alert.key.keyRef);
         }
+        else {
+            if (this.state.data.IP) {
+                result = await this.get("api/alertapi/getprofile?kevyval=" + this.state.data.ipaddr + "&keyname=ip");
+
+            }
+            else if (this.state.data.URI) {
+                result = await this.get("api/alertapi/getprofile?kevyval=" + this.state.data.URI + "&keyname=uri");
+
+            }
+        }
         //add exceeded name from settings
         if (!result || (result && result.statusCode)) {
             this.close();
@@ -112,48 +122,6 @@ class AlertProfile extends Component {
                 }
             }
 
-
-            /*
-            //show only result for this alarms
-            var newDataFormat = { domain: result.domain };
-    
-            if (result.IP) {
-                newDataFormat.IP = result.IP;
-            }
-            else if (result.URI) {
-                newDataFormat.URI = result.URI;
-            }
-    
-            //exceded is an array
-            for (let hit of this.props.data.exceeded) {
-                if (result[hit]) {
-                    newDataFormat.exceeded = hit;
-                    newDataFormat.name = getExceededName(hit);
-    
-                    for (let key of Object.keys(result[hit])) {
-                        if (DATEFORMATS.includes(key)) {
-                            newDataFormat[key] = parseTimestamp(result[hit][key] * 1000);
-                        }
-                        else {
-                            newDataFormat[key] = result[hit][key];
-                        }
-                    }
-                }
-    
-                //get alert info from layout
-                if (storePersistent.getState().layout.types.exceeded) {
-                    for (let template of storePersistent.getState().layout.types.exceeded) {
-                        if (template.id === hit) {
-                            newDataFormat.description = template.description;
-                            newDataFormat.key = template.key;
-                            if (template.eventTypes.length > 0) newDataFormat.eventTypes = template.eventTypes.toString(",");
-                        }
-                    }
-                }
-            }
-    
-            */
-
             this.setState({
                 result: result.Item
             })
@@ -182,7 +150,7 @@ class AlertProfile extends Component {
                     result.push(<div key={row} style={style}><b style={{ "display": "inline" }}>{row}</b></div>)
                     for (let row2 of Object.keys(data[row])) {
                         if (typeof data[row][row2] === 'object') {
-                            result.push(<div key={row2} ><b style={{ "display": "inline", "marginLeft": "15px" }}>{row2}</b></div>)
+                            result.push(<div key={row +"-"+row2} ><b style={{ "display": "inline", "marginLeft": "15px" }}>{row2}</b></div>)
                             for (let row3 of Object.keys(data[row][row2])) {
                                 if (DATEFORMATS.includes(row3)) {
                                     result.push(<div key={Math.random()} ><b style={{ "display": "inline", "marginLeft": "30px" }}>{row3}:</b><p style={{ "display": "inline", "marginLeft": "10px" }}>{parseTimestamp(data[row][row2][row3] * 1000)}</p></div>)
@@ -223,7 +191,7 @@ class AlertProfile extends Component {
         return (
             <div className="row no-gutters" >
                 <span>
-                    <button className="link close" onClick={() => this.copyToclipboard(JSON.stringify(this.state.result), "Profile")} style={{ "position": "absolute",  "right": "28px", "top": "1px"}}>
+                    <button className="link close" onClick={() => this.copyToclipboard(JSON.stringify(this.state.result), "Profile")} style={{ "position": "absolute", "right": "28px", "top": "1px" }}>
                         <img className="icon" alt="clipboardIcon" src={clipboardIcon} title="copy to clipboard" />
                     </button>
                     <span id={"copyToClipboardTextProfile"} className="copyToClip" style={{ "position": "absolute", "right": "28px", "top": "18px" }}>copied to clipboard</span>
