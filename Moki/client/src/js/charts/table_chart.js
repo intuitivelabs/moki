@@ -166,9 +166,9 @@ export default class listChart extends Component {
     //create exceeded-by filter and redirect to overview
     createFilterAndRedirect(ob) {
         let obj = ob._source;
-        if (obj.alert && obj.alert.elasticFilterS) {
+        if (obj.alert && obj.alert._elasticFilterS) {
             //elasticFilter is string in JSON format
-            let esFilters = JSON.parse(obj.alert.elasticFilterS);
+            let esFilters = JSON.parse(obj.alert._elasticFilterS);
             //disable old filters
             var oldFilters = store.getState().filters;
             if (oldFilters.length > 0) {
