@@ -81,11 +81,11 @@ class AlertProfile extends Component {
         }
         else {
             if (this.state.data.IP) {
-                result = await this.get("api/alertapi/getprofile?kevyval=" + this.state.data.ipaddr + "&keyname=ip");
+                result = await this.get("api/alertapi/getprofile?keyval=" + this.state.data.ipaddr + "&keyname=ip");
 
             }
             else if (this.state.data.URI) {
-                result = await this.get("api/alertapi/getprofile?kevyval=" + this.state.data.URI + "&keyname=uri");
+                result = await this.get("api/alertapi/getprofile?keyval=" + this.state.data.URI + "&keyname=uri");
 
             }
         }
