@@ -82,9 +82,9 @@ class BLcheck extends Component {
     componentWillUnmount() {
         // fix Warning: Can't perform a React state update on an unmounted component
         this.setState = (state, callback) => {
-           return;
-       };
-   }
+            return;
+        };
+    }
 
     async getBL() {
         this.setState({
@@ -537,7 +537,6 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
             headerStyle: { width: "150px" },
             editable: false,
             formatter: (cell, obj) => {
-
                 var ob = obj._source;
 
                 //remove _attr
@@ -553,7 +552,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
 
                     return obj;
                 }
-                ob = iterate(ob);
+                ob = iterate(JSON.parse(JSON.stringify(ob)));
 
                 return <span>
                     {(ob.attrs.filenameDownload && column_name.icons.includes("download")) &&
@@ -591,7 +590,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                         <button className="noFormatButton" onClick={() => supressAlert(ob)} data={obj}>  <img className="icon" alt="suppressIcon" src={suppressIcon} title="suppress alert" /></button>
                     }
                     {storePersistent.getState().user.aws === true && (window.location.pathname.includes("/exceeded") || window.location.pathname.includes("/alerts")) &&
-                        <button className="noFormatButton" onClick={() => window.tableChart.createFilterAndRedirect(obj)} data={obj}>  <img className="icon" alt="overview" src={overviewIcon} title="show records in cause analysis" /></button>
+                        <button className="noFormatButton" onClick={() => window.tableChart.createFilterAndRedirect(obj)} data={obj}>  <img className="icon" alt="cause analysis redirect" src={overviewIcon} title="show records in cause analysis" /></button>
                     }
                     {column_name.icons.includes("details") && <Popup trigger={<img className="icon" alt="detailsIcon" src={detailsIcon} title="details" />} modal>
                         {close => (
