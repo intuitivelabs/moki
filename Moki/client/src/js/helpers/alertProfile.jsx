@@ -2,6 +2,7 @@ import { Component } from 'react';
 import { parseTimestamp } from "./parseTimestamp";
 import storePersistent from "../store/indexPersistent";
 import clipboardIcon from "../../styles/icons/clipboard.png";
+import removeIcon from "../../styles/icons/delete_lightgrey.png";
 import { cipherAttr } from '@moki-client/gui';
 const DATEFORMATS = ["lastModified", "created", "lastLogin", "lastExceeded", "ts", "lastRaised", "lastLaunchedTimer", "lastRaisedTS", "lastExceededTS", "timestamp", "lastTimerTS", "lastExpired", "lastReceivedTimer"];
 
@@ -196,10 +197,10 @@ class AlertProfile extends Component {
                     </button>
                     <span id={"copyToClipboardTextProfile"} className="copyToClip" style={{ "position": "absolute", "right": "28px", "top": "18px" }}>copied to clipboard</span>
                 </span>
-                <div onClick={() => this.close()} style={{ "cursor": "pointer", "marginLeft": "97%", "color": "#B8B8B8" }}>X</div>
+                <img onClick={() => this.resetProfile()} title="reset profile"  src={removeIcon} style={{ "cursor": "pointer", "height": "16px", "marginLeft": "88%", "color": "#B8B8B8" }}/>
+                <div onClick={() => this.close()} style={{ "cursor": "pointer", "marginLeft": "97%", "color": "#B8B8B8", "marginTop": "-15px"}}>X</div>
                 <div style={{ "marginRight": "5px", "marginTop": "20px" }} className="preStyle">
                     {this.renderAlertProfile(this.state.result)}
-                    {(this.state.result !== null && Object.keys(this.state.result).length !== 0) && <button className="btn btn-secondary" style={{ "float": "right" }} onClick={() => this.resetProfile()}>Reset</button>}
                 </div>
             </div>
         )
