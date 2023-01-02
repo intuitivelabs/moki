@@ -44,11 +44,11 @@ class ConnectivityCACharts extends Dashboard {
         //DURATION SUM
         [{result: 'durationSum', func: parseAggData, attrs:["attrs.duration"]}],
 
+        //SUM CALL-END
+        [{result: 'sumCallEnd', func: parseQueryStringData}],  
+
         //SUM CALL-ATTEMPT
         [{result: 'sumCallAttempt', func: parseQueryStringData}],
-
-        //SUM CALL-END
-        [{result: 'sumCallEnd', func: parseQueryStringData}],
 
         //CONNECTION FAILURE RATIO CA
         [{result: 'failureCA', func: parseHeatmapDataAgg,  attrs:["attrs.src_ca_id", "attrs.dst_ca_id"]}],
