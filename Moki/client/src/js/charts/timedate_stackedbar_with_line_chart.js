@@ -243,6 +243,9 @@ export default class StackedChartLine extends Component {
                 .attr("y", function (d) {
                     return yScale(d[1]);
                 })
+                .attr('value', function (d) {
+                    return d[1] - d[0];
+                })
                 .attr("height", function (d) {
                     var height = yScale(d[0]) - yScale(d[1]);
                     if (height) {

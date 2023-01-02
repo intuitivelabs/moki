@@ -232,6 +232,9 @@ export default class StackedChart extends Component {
                 .attr('width', function (d, i) {
                     return x.bandwidth();
                 })
+                .attr('value', function (d) {
+                    return d[1] - d[0];
+                })
                 .attr("y", function (d) {
                     var height = yScale(d[0]) - yScale(d[1]);
                     if (height) {

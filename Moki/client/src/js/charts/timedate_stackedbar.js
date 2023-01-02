@@ -295,6 +295,9 @@ export default class StackedChart extends Component {
                     else {
                         return 0;
                     }
+                })  
+                .attr('value', function (d) {
+                    return d[1] - d[0];
                 })
                 .attr("height", function (d) {
                     var height = yScale(d[0]) - yScale(d[1]);
