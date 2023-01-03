@@ -267,7 +267,7 @@ class Controller {
         types = await checkSelectedTypes([], dashboard);
       }
       //or if client request types, use this instead 
-      else {
+      else if(requests.types !== "*") {
         if (req.url.includes("exceeded") || req.url.includes("alerts")) {
           types = getTypesConcat(types, "exceeded");
         }
@@ -291,6 +291,12 @@ class Controller {
       //disable types for specific requests (e.g. different index in dashboard)
       if (requests.types === "*") {
         types = "*";
+      }
+
+       //disable types for specific requests that are coming from request (e.g. different index in dashboard)
+      if(req.body.types === "*"){
+        types = "*";
+        requests.filter = "*";
       }
 
 
@@ -344,7 +350,7 @@ class Controller {
         filters = "*";
       }
 
-      console.info("SERVER search with filters: " + filters + " types: " + types + " timerange: " + timestamp_gte + "-" + timestamp_lte + " timebucket: " + timebucket + " userFilter: " + userFilter + " domainFilter: " + domainFilter + " encrypt checksum filter: " + isEncryptChecksumFilter);
+      console.info("SERVER search with filters: " + JSON.stringify(filters) + " types: " + types + " timerange: " + timestamp_gte + "-" + timestamp_lte + " timebucket: " + timebucket + " userFilter: " + userFilter + " domainFilter: " + domainFilter + " encrypt checksum filter: " + isEncryptChecksumFilter);
       //always timerange_query
       let shouldSortByTime = requests.index.includes("logstash") || requests.index.includes("collectd") || requests.index.includes("exceeded") ? true : false;
       requests.query = timerange_query.getTemplate(getQueries(filters, types, timestamp_gte, timestamp_lte, userFilter, requests.filter, domainFilter, isEncryptChecksumFilter, false, requests.index), supress, source, shouldSortByTime, querySize);
