@@ -38,8 +38,8 @@ export default class StackedChart extends Component {
     }
 
     getSeverityString(severity) {
-        if (severity === 0) return "high";
-        else if (severity === 1) return "medium";
+        if (severity === "0") return "high";
+        else if (severity === "1") return "medium";
         else return "low";
     }
 
@@ -95,8 +95,8 @@ export default class StackedChart extends Component {
             } else if (field === "attrs.type") {
                 return ColorType[nmb];
             } else if (field === "severity") {
-                if (nmb === 0) return "red";
-                else if (nmb === 1) return "orange";
+                if (nmb === "0") return "red";
+                else if (nmb === "1") return "orange";
                 else return "green";
             } else if (field === "encrypt") {
                 var hmac = profile[0] ? profile[0].userprefs.validation_code : "";
@@ -214,7 +214,11 @@ export default class StackedChart extends Component {
                 .on("click", el => {
                     if (this.props.disableFilter !== true) {
 
-                        createFilter(field + ":\"" + el.data.key + "\"");
+                        let key = el.data.key;
+                        if (field === "severity") {
+                            key = parseInt(el.data.key)
+                        }
+                        createFilter(field + ":\"" + key + "\"");
                         //bug fix: if you click but not move out
                         var tooltips = document.getElementsByClassName("tooltipDonut");
                         if (tooltip) {
@@ -274,7 +278,11 @@ export default class StackedChart extends Component {
                     return color(thiss.getArcId(d.key), i);
                 }).on("click", el => {
                     if (this.props.disableFilter !== true) {
-                        createFilter(field + ":\"" + el.key + "\"");
+                        let key = el.key;
+                        if (field === "severity") {
+                            key = parseInt(el.data.key)
+                        }
+                        createFilter(field + ":\"" + key + "\"");
                         //bug fix: if you click but not move out
                         var tooltips = document.getElementsByClassName("tooltipDonut");
                         if (tooltip) {
@@ -322,7 +330,12 @@ export default class StackedChart extends Component {
                 })
                 .on("click", el => {
                     if (this.props.disableFilter !== true) {
-                        createFilter(field + ":\"" + el.key + "\"");
+                        let key = el.key;
+                        if (field === "severity") {
+                            key = parseInt(el.data.key)
+                        }
+                        createFilter(field + ":\"" + key + "\"");
+
                         //bug fix: if you click but not move out
                         var tooltips = document.getElementsByClassName("tooltipDonut");
                         if (tooltip) {
@@ -335,7 +348,11 @@ export default class StackedChart extends Component {
                 .append("svg:title")
                 .text(function (d) { return d.key })
                 .on("click", el => {
-                    createFilter(field + ":\"" + el.key + "\"");
+                    let key = el.data.key;
+                    if (field === "severity") {
+                        key = parseInt(el.key)
+                    }
+                    createFilter(field + ":\"" + key + "\"");
                     //bug fix: if you click but not move out
                     var tooltips = document.getElementsByClassName("tooltipDonut");
                     if (tooltip) {
