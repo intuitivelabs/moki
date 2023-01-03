@@ -77,16 +77,35 @@ class AlertProfile extends Component {
     async load() {
         let result = null;
         let profile = storePersistent.getState().profile;
+        let mode = profile[0].userprefs.mode;
+        let storedProfile = localStorage.getItem('profile');
+        if (storedProfile) {
+            storedProfile = JSON.parse(storedProfile);
+            mode = storedProfile[0].userprefs.mode;
+        }
+
         if (this.state.data.alert && this.state.data.alert.key && this.state.data.alert.key.keyRef) {
             result = await this.get("api/alertapi/getprofile?keyRef=" + this.state.data.alert.key.keyRef);
         }
         else {
             if (this.state.data.IP) {
-                result = await this.get("api/alertapi/getprofile?keyval=" + this.state.data.ipaddr + "&keyname=ip");
+                let ip = this.state.data.ipaddr;
+                if (mode === "encrypt") {
+                    if (!this.state.data.encrypt.includes("plain")) {
+                       ip = await cipherAttr("attrs.source", this.state.data.ipaddr, profile, "encrypt");
+                    }
+                }
+                result = await this.get("api/alertapi/getprofile?keyval=" + ip + "&keyname=ip");
 
             }
             else if (this.state.data.URI) {
-                result = await this.get("api/alertapi/getprofile?keyval=" + this.state.data.URI + "&keyname=uri");
+                let uri = this.state.data.URI;
+                if (mode === "encrypt") {
+                    if (!this.state.data.encrypt.includes("plain")) {
+                       uri = await cipherAttr("attrs.from", this.state.data.URI, profile, "encrypt");
+                    }
+                }
+                result = await this.get("api/alertapi/getprofile?keyval=" + uri + "&keyname=uri");
 
             }
         }
@@ -151,7 +170,7 @@ class AlertProfile extends Component {
                     result.push(<div key={row} style={style}><b style={{ "display": "inline" }}>{row}</b></div>)
                     for (let row2 of Object.keys(data[row])) {
                         if (typeof data[row][row2] === 'object') {
-                            result.push(<div key={row +"-"+row2} ><b style={{ "display": "inline", "marginLeft": "15px" }}>{row2}</b></div>)
+                            result.push(<div key={row + "-" + row2} ><b style={{ "display": "inline", "marginLeft": "15px" }}>{row2}</b></div>)
                             for (let row3 of Object.keys(data[row][row2])) {
                                 if (DATEFORMATS.includes(row3)) {
                                     result.push(<div key={Math.random()} ><b style={{ "display": "inline", "marginLeft": "30px" }}>{row3}:</b><p style={{ "display": "inline", "marginLeft": "10px" }}>{parseTimestamp(data[row][row2][row3] * 1000)}</p></div>)
@@ -197,8 +216,8 @@ class AlertProfile extends Component {
                     </button>
                     <span id={"copyToClipboardTextProfile"} className="copyToClip" style={{ "position": "absolute", "right": "28px", "top": "18px" }}>copied to clipboard</span>
                 </span>
-                <img onClick={() => this.resetProfile()} title="reset profile"  src={removeIcon} style={{ "cursor": "pointer", "height": "16px", "marginLeft": "88%", "color": "#B8B8B8" }}/>
-                <div onClick={() => this.close()} style={{ "cursor": "pointer", "marginLeft": "97%", "color": "#B8B8B8", "marginTop": "-15px"}}>X</div>
+                <img onClick={() => this.resetProfile()} title="reset profile" src={removeIcon} style={{ "cursor": "pointer", "height": "16px", "marginLeft": "88%", "color": "#B8B8B8" }} />
+                <div onClick={() => this.close()} style={{ "cursor": "pointer", "marginLeft": "97%", "color": "#B8B8B8", "marginTop": "-15px" }}>X</div>
                 <div style={{ "marginRight": "5px", "marginTop": "20px" }} className="preStyle">
                     {this.renderAlertProfile(this.state.result)}
                 </div>
