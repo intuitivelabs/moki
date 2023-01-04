@@ -34,7 +34,8 @@ class App extends Component {
     // Initialize the state
     constructor(props) {
         super(props);
-        this.state = {            redirect: false,
+        this.state = {
+            redirect: false,
             firstTimeLogin: false,
             isLoading: true,
             aws: false,
@@ -93,10 +94,10 @@ class App extends Component {
     async checkURLFilters() {
         //change timerange if set in url
         //format: from=XXXXXXX&to=YYYYYYYY
-        var parameters = decodeURIComponent(window.location.search);
-        if (parameters) {
-            var timestamp_gte = parseInt(parameters.substring(parameters.indexOf("from=") + 5, parameters.indexOf("to=")));
-            var timestamp_lte = parseInt(parameters.substring(parameters.indexOf("to=") + 3));
+        let params = (new URL(decodeURI(window.location))).searchParams;
+        if (params) {
+            var timestamp_gte = parseInt(params.get("from"));
+            var timestamp_lte = parseInt(params.get("to"));
             if (timestamp_gte && timestamp_lte) {
                 var timestamp_readiable = parseTimestamp(new Date(timestamp_gte)) + " - " + parseTimestamp(new Date(timestamp_lte));
 
@@ -110,18 +111,11 @@ class App extends Component {
             }
 
             var result = [];
-            var filters = parameters.indexOf("filter=");
-            if (parameters && filters !== -1) {
+            var filters = params.getAll("filter");
+            if (filters) {
                 var id = 1;
-                while (filters !== -1) {
-                    var last = parameters.indexOf("&", filters + 7);
-                    if (last === -1) {
-                        result.push(await createFilter(parameters.substring(filters + 7), id, false, true, false));
-                    }
-                    else {
-                        result.push(await createFilter(parameters.substring(filters + 7, last), id, false, true, false));
-                    }
-                    filters = parameters.indexOf("filter=", (filters + 1));
+                for (let filter of filters) {
+                    result.push(await createFilter(filter, id, false, true, false));
                     id++;
                 }
                 store.dispatch(setFilters(result));
@@ -282,7 +276,7 @@ class App extends Component {
 * */
     async getLogo(type) {
         let path = "/api/monitor/favicon";
-        if(type === "logo"){
+        if (type === "logo") {
             path = "/api/monitor/logo";
         }
 
@@ -414,7 +408,7 @@ class App extends Component {
                 });
             }
             catch (er) {
-                window.notification.showError( { errno: 6, text: er, level: "error" });
+                window.notification.showError({ errno: 6, text: er, level: "error" });
             }
         }
         request();
@@ -442,7 +436,7 @@ class App extends Component {
                 "Access-Control-Allow-Credentials": "include"
             });
             if (!response.ok) {
-                window.notification.showError( { errno: 6, text: "Monitor server is not running.", level: "error" });
+                window.notification.showError({ errno: 6, text: "Monitor server is not running.", level: "error" });
             }
             else {
                 sip = await response.json();
@@ -507,11 +501,11 @@ class App extends Component {
             }
         } catch (error) {
             if (response.status === 500) {
-                window.notification.showError( { errno: 6, text: "Monitor server is not running.", level: "error" });
+                window.notification.showError({ errno: 6, text: "Monitor server is not running.", level: "error" });
 
             } else {
                 console.error(error);
-                window.notification.showError( { errno: 2, text: "Check elasticsearch connection and restart the page.", level: "error" });
+                window.notification.showError({ errno: 2, text: "Check elasticsearch connection and restart the page.", level: "error" });
             }
         }
     }
@@ -552,10 +546,10 @@ class App extends Component {
         var sipUserSwitch;
         const aws = this.state.aws;
         var url = window.location.pathname;
-        var styleAws ={ "paddingLeft": "7px",  "paddingBottom": "5px"};
+        var styleAws = { "paddingLeft": "7px", "paddingBottom": "5px" };
 
         if (storePersistent.getState().user) {
-            var style = storePersistent.getState().user.aws === false ? { "paddingBottom": "27px", "paddingLeft": "7px"} : styleAws;
+            var style = storePersistent.getState().user.aws === false ? { "paddingBottom": "27px", "paddingLeft": "7px" } : styleAws;
         }
         //show just diagram
         if (this.state.dashboards.length > 0) {
@@ -586,7 +580,7 @@ class App extends Component {
                 sipUserSwitch = <div className="row" id="body-row" >
                     <NavBar redirect={this.redirect} toggle={this.toggle} aws={this.state.aws} dashboardsUser={this.state.dashboardsUser} dashboards={this.state.dashboards} dashboardsSettings={this.state.dashboardsSettings} />
                     <div className="row justify-content-between header" style={{ "marginRight": 0, "marginLeft": 0 }} >
-                        <span id="user" className="top" style={ style }>
+                        <span id="user" className="top" style={style}>
                             {aws === true && <DecryptPasswordPopup />}
                             <div style={styleUser}>{this.state.user.account}</div>
                             {aws === true && (!this.state.admin && !this.state.siteAdmin) && <a href="/logout" > Log out </a>}
