@@ -167,6 +167,9 @@ export default class datebarChart extends Component {
                 .enter()
                 .append('rect')
                 .attr('class', 'bar')
+                .attr('value', function (d) {
+                    return d.agg.value;
+                })
                 .attr('fill', function (d) {
                     if (name === "ASR OVER TIME") {
                         if (d.agg.value >= 50) return "#58a959";

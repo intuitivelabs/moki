@@ -209,6 +209,9 @@ export default class barChart extends Component {
                 .attr('x', d => xScale(d.key))
                 .attr('width', xScale.bandwidth())
                 .attr('y', d => yScale(d.doc_count))
+                .attr('value', function (d) {
+                    return d.doc_count;
+                })
                 .style("fill", function (d) {
                     if (name === "QoS HISTOGRAM") {
                         if (d.key === "*-2.58") { return "#FE2E2E"; }

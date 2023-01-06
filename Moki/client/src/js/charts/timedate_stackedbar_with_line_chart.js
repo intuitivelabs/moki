@@ -383,6 +383,9 @@ export default class StackedChartLine extends Component {
                     .attr("cx", function (d, i) { if (xScale(d.key) < 0) { return -1000 } else { return xScale(d.key) } })
                     .attr("cy", function (d) { return yLine(d.agg.value) })
                     .attr("r", 3)
+                    .attr('value', function (d) {
+                        return d.agg.value;
+                    })
                     .on("mouseover", function (d, i) {
                         var tooltipDim = tooltip.node().getBoundingClientRect();
                         var chartRect = d3.select('#' + id).node().getBoundingClientRect();
