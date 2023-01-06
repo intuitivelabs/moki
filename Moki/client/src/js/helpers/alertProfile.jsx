@@ -92,7 +92,7 @@ class AlertProfile extends Component {
                 let ip = this.state.data.ipaddr;
                 if (mode === "encrypt") {
                     if (!this.state.data.encrypt.includes("plain")) {
-                       ip = await cipherAttr("attrs.source", this.state.data.ipaddr, profile, "encrypt");
+                        ip = await cipherAttr("attrs.source", this.state.data.ipaddr, profile, "encrypt");
                     }
                 }
                 result = await this.get("api/alertapi/getprofile?keyval=" + ip + "&keyname=ip");
@@ -102,7 +102,7 @@ class AlertProfile extends Component {
                 let uri = this.state.data.URI;
                 if (mode === "encrypt") {
                     if (!this.state.data.encrypt.includes("plain")) {
-                       uri = await cipherAttr("attrs.from", this.state.data.URI, profile, "encrypt");
+                        uri = await cipherAttr("attrs.from", this.state.data.URI, profile, "encrypt");
                     }
                 }
                 result = await this.get("api/alertapi/getprofile?keyval=" + uri + "&keyname=uri");
@@ -227,14 +227,17 @@ class AlertProfile extends Component {
 }
 
 //check if IP is blacklisted
-export async function checkBLip(ob) {
+export async function checkBLip(ob, type = "ipblack", get = "ip", cipherAttr = true) {
     try {
         let hmac = ob.encrypt;
         if (hmac && hmac !== "plain") hmac = hmac.substring(0, hmac.indexOf(":"));
         let profile = storePersistent.getState().profile;
-        let key = await cipherAttr("attrs.source", ob.attrs.source, profile, "encrypt");
-
-        let url = "api/bw/getip?key=" + key + "&list=ipblack&hmac=" + hmac + "&pretty=true"
+        let key = ob.alert.key.value;
+        if(cipherAttr){
+            key = await cipherAttr(ob.alert.key.attrName, ob.alert.key.value, profile, "encrypt");
+        }
+        
+        let url = "api/bw/get"+get+"?key=" + key + "&list=" + type + "&hmac=" + hmac + "&pretty=true"
         const response = await fetch(url, {
             method: "GET",
             credentials: 'include',
@@ -254,7 +257,7 @@ export async function checkBLip(ob) {
                 return false;
             }
             else {
-                return true;
+                    return true;
             }
         }
     } catch (error) {
