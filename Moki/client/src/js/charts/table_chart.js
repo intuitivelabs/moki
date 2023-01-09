@@ -92,9 +92,18 @@ export default class listChart extends Component {
         window.tableChart = this;
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
+    async UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.data !== this.state.data) {
             this.setState({ data: nextProps.data, total: nextProps.total });
+            let copy = JSON.parse(JSON.stringify(nextProps.data));
+            let parseData = await decryptTableHits(copy, storePersistent.getState().profile, this.state.count, this.state.page, this.state.decryptAttrs);
+            this.setState({
+                data: parseData,
+                seenPages: [this.state.page],
+                total: nextProps.total,
+                dataEncrypted: this.props.data
+            });
+
         }
     }
 
@@ -102,7 +111,7 @@ export default class listChart extends Component {
         if (prevProps.data !== this.props.data) {
             if (this.props.type !== "raw") {
                 let copy = JSON.parse(JSON.stringify(this.props.data));
-                let parseData = await decryptTableHits(copy, storePersistent.getState().profile, this.state.count, this.state.page);
+                let parseData = await decryptTableHits(copy, storePersistent.getState().profile, this.state.count, this.state.page, this.state.decryptAttrs);
                 this.setState({
                     data: parseData,
                     seenPages: [this.state.page],
@@ -951,6 +960,12 @@ export default class listChart extends Component {
                 if (page === "<") page = this.state.page - 1;
 
                 let profile = storePersistent.getState().profile;
+                //if there is mode stored in local storage, use this
+                let storedProfile = localStorage.getItem('profile');            
+                if (storedProfile) {
+                  profile = JSON.parse(storedProfile);
+                }
+
                 if (profile && profile[0] && profile[0].userprefs.mode === "encrypt") {
                     //decrypt only not seen data
                     if (!this.state.seenPages.includes(page)) {
