@@ -88,7 +88,7 @@ class BLcheck extends Component {
 
     async getBL() {
         this.setState({
-            isBL: await checkBLip(this.props.data)
+            isBL: await checkBLip(this.props.data, "ipblack", true)
         })
     }
 
