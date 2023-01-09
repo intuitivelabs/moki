@@ -227,17 +227,17 @@ class AlertProfile extends Component {
 }
 
 //check if IP is blacklisted
-export async function checkBLip(ob, type = "ipblack", get = "ip", cipherAttr = true) {
+export async function checkBLip(ob, type = "ipblack", shouldCipherAttr = true) {
     try {
         let hmac = ob.encrypt;
         if (hmac && hmac !== "plain") hmac = hmac.substring(0, hmac.indexOf(":"));
         let profile = storePersistent.getState().profile;
-        let key = ob.alert.key.value;
-        if(cipherAttr){
-            key = await cipherAttr(ob.alert.key.attrName, ob.alert.key.value, profile, "encrypt");
+        let key = ob.attrs.source;
+        if(shouldCipherAttr){
+            key = await cipherAttr("attrs.source", ob.attrs.source, profile, "encrypt");
         }
         
-        let url = "api/bw/get"+get+"?key=" + key + "&list=" + type + "&hmac=" + hmac + "&pretty=true"
+        let url = "api/bw/getip"+"?key=" + key + "&list=" + type + "&hmac=" + hmac + "&pretty=true"
         const response = await fetch(url, {
             method: "GET",
             credentials: 'include',
