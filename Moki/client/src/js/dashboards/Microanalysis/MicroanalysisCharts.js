@@ -48,6 +48,7 @@ class MicroanalysisCharts extends Dashboard {
             callingCountries: [],
             serverIP: [],
             durationGroup: [],
+            signature: [],
             isLoading: true
         }
         this.callBacks = {
@@ -135,7 +136,9 @@ class MicroanalysisCharts extends Dashboard {
                 //SERVER IP 
                 [{ result: 'serverIP', func: parseListData, attrs: ["server.ip"] }],
                 //DURATION GROUP 27
-                [{ result: 'durationGroup', func: parseListData, attrs: ["attrs.durationGroup"] }]
+                [{ result: 'durationGroup', func: parseListData, attrs: ["attrs.durationGroup"] }],
+                //EVENTS BY SIGNATURE 28
+                [{ result: 'signature', func: parseListData, attrs: ["sip.request.sig"] }],
             ]
         }
     }
@@ -259,6 +262,18 @@ class MicroanalysisCharts extends Dashboard {
                     <ListChart data={this.state.destination}
                         name={"DESTINATION BY R-URI"}
                         field={"attrs.r-uri.keyword"}
+                    />  </div>}
+                {this.state.charts["EVENTS BY SIGNATURE"] && <div className="col-auto" >
+                    <ListChart data={
+                        this.state.signature
+                    }
+                        name={
+                            "EVENTS BY SIGNATURE"
+                        }
+                        type="list"
+                        field={
+                            "sip.request.sig"
+                        }
                     />  </div>}
 
                 {this.state.charts["SUM DURATION"] && <div className="col-auto" >

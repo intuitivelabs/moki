@@ -56,7 +56,7 @@ class MicronalysisController extends Controller {
       //4 TOP SUBNETS
       { index: "logstash*", template: agg_filter, params: ["attrs.sourceSubnets", 128], filter: "*" },
       //5 r-URI PREFIX STRIPPED
-      { index: "logstash*", template: agg_filter, params: [ "attrs.r-uri-shorted", 128], filter: "*" },
+      { index: "logstash*", template: agg_filter, params: ["attrs.r-uri-shorted", 128], filter: "*" },
       //6 SOURCE IP ADDRESS
       { index: "logstash*", template: agg_filter, params: ["attrs.source", 128], filter: "*" },
       //7 TOP 10 FROM
@@ -84,9 +84,9 @@ class MicronalysisController extends Controller {
       //18 SRC CA
       { index: "logstash*", template: agg_filter, params: ["attrs.src_ca_id", 128], filter: "*" },
       //19 DST CA
-      { index: "logstash*", template: agg_filter, params: [ "attrs.dst_ca_id", 128], filter: "*" },
+      { index: "logstash*", template: agg_filter, params: ["attrs.dst_ca_id", 128], filter: "*" },
       //20 ORIGINATOR
-      { index: "logstash*", template: agg_filter, params: [ "attrs.originator", 128], filter: "*" },
+      { index: "logstash*", template: agg_filter, params: ["attrs.originator", 128], filter: "*" },
       //21 DISTINCT IP
       { index: "logstash*", template: distinct_query_string, params: ["attrs.source"], filter: "*" },
       //22 TOP NODEs LIST
@@ -96,11 +96,13 @@ class MicronalysisController extends Controller {
       //24 DISTINCT URI
       { index: "logstash*", template: distinct_query_string, params: ["attrs.from.keyword"], filter: "*" },
       //25 CALLING COUNTRIES
-      { index: "logstash*", template: agg_filter, params: [ "geoip.country_code2", 128], filter: "*" },
+      { index: "logstash*", template: agg_filter, params: ["geoip.country_code2", 128], filter: "*" },
       //26 TOP SERVER IP
       { index: "logstash*", template: agg_filter, params: ["server.ip", 128], filter: "*" },
       //27 DURATION GROUP
       { index: "logstash*", template: agg_filter, params: ["attrs.durationGroup", 128], filter: "*" },
+      //7 EVENTS BY signature
+      { index: "logstash*", template: agg_filter, params: ['sip.request.sig', 128], filter: "*" },
     ], "microanalysis");
   }
 
