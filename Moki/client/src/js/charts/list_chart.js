@@ -227,8 +227,14 @@ class TableChart extends Component {
 
     }
     else {
+      let className = "tableChart chart chartMinHeight";
+      let style = {};
+      if (this.props.minHeight === "true"){
+        className = "tableChart chart";
+        style = {"minHeight": "100px"};
+      } 
       var isAnimation = window.location.pathname !== "/web" && (this.props.name === "EVENTS BY IP ADDR" || this.props.name === "TOP SUBNETS" || this.props.name === "EVENTS BY COUNTRY"); return (
-        <div className="tableChart chart chartMinHeight">
+        <div className={className} style={style}>
           <h3 className="alignLeft title" style={{ "float": isAnimation ? "left" : "inherit" }}>{this.props.name}</h3>
           {isAnimation && <Animation name={this.props.name} type={this.props.type} setData={this.setData} dataAll={this.state.data} />}
           {this.state.pagginationData[0] && this.state.pagginationData[0].length > 0 &&
