@@ -114,7 +114,7 @@ a {
 }
 
 .chartMinHeight {
-    min-height: 293px;
+    min-height: 335px;
 }
 
 
@@ -341,6 +341,7 @@ label {
     vertical-align: -moz-middle-with-baseline;
     color: black;
     padding-left: 2px;
+    padding-top: 15px;
 }
 
 .activeDashboard {
@@ -373,7 +374,6 @@ label {
 }
 
 body {
-    font: 14px sans-serif;
     box-sizing: content-box;
     min-width: fit-content;
     color: black !important;
@@ -414,8 +414,16 @@ svg {
     margin-bottom: 0 !important;
 }
 
+
 h3 {
     font-size: medium !important;
+    color: gray !important;
+    /*  margin-left: 20px;*/
+    font-weight: 550;
+}
+
+h1 {
+    font-size: x-large !important;
     color: gray !important;
     /*  margin-left: 20px;*/
     font-weight: 350;
@@ -468,7 +476,7 @@ p {
 }
 
 .listChart {
-    font-size: 0.9rem !important;
+    font-size: 1rem !important;
     font-weight: 350;
 }
 
@@ -1385,7 +1393,7 @@ a.nav-item {
 
 .buttonHover {
     display: none;
-    margin-top: -18px;
+    margin-top: -25px;
 }
 
 button {
@@ -1503,6 +1511,7 @@ pre {
     outline: 1px solid #ccc;
     padding: 5px;
     margin: 5px;
+    font-size: 12px;
 }
 
 .preStyle {

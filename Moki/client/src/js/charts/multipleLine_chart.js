@@ -99,11 +99,18 @@ export default class MultipleLineChart extends Component {
                 if (i < 7) return (i * 17) + 5;
             })
             .text(function (d, i) {
-                if (i < 7) return d.name;
+                if (d.name.length <= 20) {
+                    if (i < 7) return d.name;
+                }
+                else {
+                    if (i < 7) return d.name.substring(0, 20)+"...";
+                }
             })
             .on("click", el => {
                 createFilter(field + ":\"" + el.name + "\"");
-            });
+            })
+            .append("svg:title")
+                .text(function (d) { return d.name });
 
         return legendGroup;
     }
@@ -460,7 +467,7 @@ export default class MultipleLineChart extends Component {
                 this.props.name
             } <span className="smallText"> (interval: {bucket})</span></h3>
             {this.props.data && this.props.data.length > 0 && !DONT_DISPLAY_OPTION.includes(this.props.name) && 
-                <div style={{ "marginLeft": "83%" }}>
+                <div style={{ "marginLeft": "83%", "marginTop": "-25px" }}>
                     <input type="radio" value="rate" style={{ "width": "34px" }} name={"ratio" + this.props.name} onClick={() => this.changeState("rate")} defaultChecked={this.state.state === "rate" ? true : false} />
                     rate
                     <br />

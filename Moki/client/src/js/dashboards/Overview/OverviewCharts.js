@@ -98,7 +98,7 @@ class OverviewCharts extends Dashboard {
                     {this.state.charts["TOTAL EVENTS IN INTERVAL"] && <div className="col">
                         <StackedChart data={
                             this.state.totalEventsInInterval
-                        } units={"count"} id="totalEvents" bottomMargin={80} keys={"overview"} name={"TOTAL EVENTS IN INTERVAL"} width={store.getState().width / 2}
+                        } units={"count"} id="totalEvents" bottomMargin={80} keys={"overview"} name={"TOTAL EVENTS IN INTERVAL"} width={store.getState().width-300}
                         />
                     </div>
                     }

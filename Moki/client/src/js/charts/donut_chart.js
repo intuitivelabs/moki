@@ -136,7 +136,8 @@ export default class StackedChart extends Component {
             }
 
         } else {
-
+            //show only top 10 
+            if (data.length > 10) data = data.slice(0, 10);
             legendSVG = document.getElementById("divLegend" + this.props.id);
             if (legendSVG) {
                 legendSVG.style.height = "170px";
