@@ -29,7 +29,7 @@ function CollapseArea(data) {
                 {data.description && <span style={{ "color": "grey" }}>{" - " + data.description}</span>}
             </Button>
             <Collapse in={open}>
-                <div id="example-collapse-text" style={{ "width": "716px" }}>
+                <div id="example-collapse-text" style={{ "width": "880px" }}>
                     <div className="card card-body">
                         {data.data}
                     </div>
