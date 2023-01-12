@@ -233,11 +233,11 @@ export async function checkBLip(ob, type = "ipblack", shouldCipherAttr = true) {
         if (hmac && hmac !== "plain") hmac = hmac.substring(0, hmac.indexOf(":"));
         let profile = storePersistent.getState().profile;
         let key = ob.attrs.source;
-        if(shouldCipherAttr){
+        if (shouldCipherAttr) {
             key = await cipherAttr("attrs.source", ob.attrs.source, profile, "encrypt");
         }
-        
-        let url = "api/bw/getip"+"?key=" + key + "&list=" + type + "&hmac=" + hmac + "&pretty=true"
+
+        let url = "api/bw/getip" + "?key=" + key + "&list=" + type;
         const response = await fetch(url, {
             method: "GET",
             credentials: 'include',
@@ -253,11 +253,11 @@ export async function checkBLip(ob, type = "ipblack", shouldCipherAttr = true) {
         }
         else {
             //no result
-            if (Object.keys(jsonData.Item).length === 0) {
+            if (jsonData && !jsonData.Item) {
                 return false;
             }
             else {
-                    return true;
+                return true;
             }
         }
     } catch (error) {

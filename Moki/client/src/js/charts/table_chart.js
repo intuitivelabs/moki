@@ -219,7 +219,7 @@ export default class listChart extends Component {
             window.timebar.changeTimerange(timerange_gte, timerange_lte);
             this.setState({
                 redirect: true,
-                redirectLink: "/causeAnalysis?event_id=" + ob._id + "&alert_id=" + obj.alert.key.keyRef
+                redirectLink: "/causeAnalysis?event_id=" + ob._id + "&alert_id=" + obj.alert.key.keyRef+ "&timestamp=" + obj["@timestamp"]
             });
         }
     }
