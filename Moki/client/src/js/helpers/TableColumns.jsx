@@ -9,6 +9,7 @@ import overviewIcon from "../../styles/icons/alertProfile.png";
 import suppressIcon from "../../styles/icons/suppress.png";
 import unfilterIcon from "../../styles/icons/unfilter.png";
 import alertProfileIcon from "../../styles/icons/alert_profile.png";
+import BLIcon from "../../styles/icons/blacklist.png";
 import AlertProfile from "../helpers/alertProfile";
 import downloadPcapIcon from "../../styles/icons/downloadPcap.png";
 import downloadIcon from "../../styles/icons/download.png";
@@ -94,7 +95,7 @@ class BLcheck extends Component {
 
     render() {
         if (this.state.isBL) {
-            return <span style={{ "marginLeft": "5px" }} title="blacklisted">BL</span>
+            return <span style={{ "marginLeft": "5px" }} title="blacklisted"><img style={{"height": "20px"}}className="icon" title="blacklisted" alt="BLicon" src={BLIcon} /></span>
         }
         else {
             return "";
