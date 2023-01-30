@@ -187,8 +187,8 @@ export default class listChart extends Component {
                 store.dispatch(setFilters(oldFilters));
             }
             //create new filter for types
-            if (esFilters.gui.types && esFilters.gui.types.query_string.query) {
-                createFilter(esFilters.gui.types.query_string.query);
+            if (esFilters.gui.types && esFilters.gui.types) {
+                createFilter(esFilters.gui.types);
             }
 
             //filters
