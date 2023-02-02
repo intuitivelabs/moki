@@ -5,6 +5,7 @@ import SavingScreen from '../helpers/SavingScreen';
 import isNumber from '../helpers/isNumber';
 import isIP from '../helpers/isIP';
 import isLDAPIP from '../helpers/isLDAPIP';
+import isHostnameOrIp from '../helpers/isHostnameOrIp';
 import isEmail from '../helpers/isEmail';
 import deleteIcon from "../../styles/icons/delete_grey.png";
 import { elasticsearchConnection } from '@moki-client/gui';
@@ -109,7 +110,7 @@ class Settings extends Component {
     }
 
     /*
-       Load data 
+       Load data
        */
     async load(url) {
         var jsonData;
@@ -242,6 +243,14 @@ class Settings extends Component {
                 return "Error: field '" + label + "' must have format 'ldap:// + ipv4 or ipv4:port or ipv6 or ip6:port or dns";
             }
 
+            if (restriction.type === "hostnameOrIp") {
+                if (value === "") return true;
+                else if (isHostnameOrIp(value)) {
+                    return true;
+                }
+                return "Error: field '" + label + "' must contain hostname or IP address";
+            }
+
             if (restriction.type && restriction.type.enum) {
                 if (restriction.type.enum.includes(value)) {
                     return true;
@@ -277,7 +286,7 @@ class Settings extends Component {
     }
 
 
-    //save data   
+    //save data
     async save() {
         if (this.state.wait !== true) {
             var jsonData = this.state.data;
