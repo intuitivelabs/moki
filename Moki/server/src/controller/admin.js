@@ -397,18 +397,43 @@ create new user with password in htpasswd
 
     const jsonData = JSON.parse(fs.readFileSync(cfg.fileMonitor));
 
+    console.debug('JSON config to be updated: %O', jsonData);
+
+    let appExists = false;
     for (let i = 0; i < jsonData["general"]["global-config"].length; i++) {
       if (jsonData["general"]["global-config"][i]["app"] === "m_config") {
 
+        let attrExists = false;
         for (let j = 0; j < jsonData["general"]["global-config"][i]["attrs"].length; j++) {
           if (jsonData["general"]["global-config"][i]["attrs"][j]["attribute"] === "ccmAddr") {
             jsonData["general"]["global-config"][i]["attrs"][j]["value"] = req.body.ccmAddr;
+            attrExists = true;
             break;
           }
         }
+        if (!attrExists){
+          jsonData["general"]["global-config"][i]["attrs"].push({
+            attribute : "ccmAddr",
+            value     : req.body.ccmAddr
+          });
+        }
+
+        appExists = true;
         break;
       }
     }
+
+    if (!appExists){
+      jsonData["general"]["global-config"].push({
+        app   : "m_config",
+        attrs : [{
+            attribute : "ccmAddr",
+            value     : req.body.ccmAddr
+          }]
+      });
+    }
+
+    console.debug('updated JSON: %O', jsonData);
 
     SettingController.saveSettings(jsonData)
       .then((msg) => {
