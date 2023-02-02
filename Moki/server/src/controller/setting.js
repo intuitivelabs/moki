@@ -26,12 +26,12 @@ let monitorVersion = "4.6";
  * definitions:
  *   Settings:
  *     type: "array"
- *     description: JSON settings file contains just global-config optios - general, sns and alarms setting 
+ *     description: JSON settings file contains just global-config optios - general, sns and alarms setting
  *     example:
  *         [{app: "m_config", attrs: []},{app: "m_alarms", attrs: []},{app: "m_sns",attrs: []}]
  *   SettingFile:
  *     type: "array"
- *     description: JSON settings file contains whole stored settings 
+ *     description: JSON settings file contains whole stored settings
  *     example:
  *         [general: { global-config: [{app: "gconfig", attrs: []}, {app: "m_config",attrs: []}, {app: "m_alarms",attrs: []}, {app: "m_sns",attrs: []}], m_filters: [{id: "filterID",attribute: [ filters: [], name: "dashboard name", types: []]}]}, m_version: "4.5", version: "1.0"]
  */
@@ -294,7 +294,7 @@ class SettingController {
   *               description: timestamp from and to
   *               example: {"timerange":[1610683132626,1610683145434]}
 *         required: true
-*         type: application/json 
+*         type: application/json
 *     responses:
 *       200:
 *         description: new settings file
@@ -303,7 +303,7 @@ class SettingController {
 *             schema:
 *               $ref: '#/definitions/SettingFile'
 *       400:
-*         description: problem with writing data to file 
+*         description: problem with writing data to file
 *         content:
 *           application/json:
 *             example:
@@ -413,7 +413,7 @@ class SettingController {
       *               description: timestamp from and to
       *               example: {"timerange":[1610683132626,1610683145434]}
    *         required: true
-   *         type: application/json                    
+   *         type: application/json
    *     responses:
    *       200:
    *         description: Setting payload
@@ -512,7 +512,7 @@ class SettingController {
       *               description: timestamp from and to
       *               example: {"timerange":[1610683132626,1610683145434]}
    *         required: true
-   *         type: application/json 
+   *         type: application/json
    *     responses:
    *       200:
    *         description: new settings file
@@ -521,25 +521,16 @@ class SettingController {
    *             schema:
    *               $ref: '#/definitions/SettingFile'
    *       400:
-   *         description: problem with writing data to file 
+   *         description: problem with writing data to file
    *         content:
    *           application/json:
    *             example:
    *               error: "Config checked failed. Writing old config back."
    */
   static async save(request, respond) {
-    try {
-      //rename old config file
-      fs.renameSync(cfg.fileMonitor, cfg.fileMonitor + "_backup");
-    }
-    catch (err) {
-      console.error("Problem with creating backup file. " + err);
-      respond.status(400).send({ "msg": "Problem with creating backup file. " + err });
-      return;
-    }
 
-    //read from renamed config file
-    const jsonData = JSON.parse(fs.readFileSync(cfg.fileMonitor + "_backup"));
+    //read from config file
+    const jsonData = JSON.parse(fs.readFileSync(cfg.fileMonitor));
     let m_config = [];
     //if filters paste it on top layer
     if (request.body.app === "m_filters") {
@@ -730,6 +721,40 @@ class SettingController {
 
     let certCheck = await checkCertificate(m_config, respond);
     if (certCheck !== false) {
+
+      //write it to monitor file
+      this.constructor.saveSettings(jsonData)
+        .then((msg) => {
+          respond.status(200).send({ "msg": msg });
+
+        })
+        .catch((err) => {
+          respond.status(400).send({ "msg": err });
+        });
+
+    }
+  }
+
+  /**
+   * Save settings into json file
+   *
+   * @param {object} jsonData
+   * @returns Promise
+   */
+  static saveSettings(jsonData){
+
+    const promise = new Promise(function(resolve, reject) {
+
+      try {
+        //rename old config file
+        fs.renameSync(cfg.fileMonitor, cfg.fileMonitor + "_backup");
+      }
+      catch (err) {
+        console.error("Problem with creating backup file. " + err);
+        reject("Problem with creating backup file. " + err);
+        return;
+      }
+
       //write it to monitor file
       fs.writeFile(cfg.fileMonitor, JSON.stringify(jsonData, null, 2), function (error, stdout, stderr) {
         if (error) {
@@ -738,16 +763,17 @@ class SettingController {
             fs.renameSync(cfg.fileMonitor + "_backup", cfg.fileMonitor);
           }
           catch (err) {
-            respond.status(400).send({ "msg": err });
+            reject(err);
             return;
           }
           //remove backup file
-         // fs.unlinkSync(cfg.fileMonitor + "_backup");
+          // fs.unlinkSync(cfg.fileMonitor + "_backup");
           console.error("Config checked failed. Writing old config back. " + stderr);
-          respond.status(400).send({ "msg": error });
+          reject(error);
           return;
         }
         console.info("Writing new config to file. " + JSON.stringify(jsonData));
+
         //call check config script
         exec("sudo /usr/sbin/abc-monitor-check-config", function (error, stdout, stderr) {
           if (error) {
@@ -756,16 +782,14 @@ class SettingController {
               fs.renameSync(cfg.fileMonitor + "_backup", cfg.fileMonitor);
             }
             catch (err) {
-              respond.status(400).send({ "msg": err });
+              reject(err);
               return;
             }
             //remove backup file
-             //fs.unlinkSync(cfg.fileMonitor + "_backup");
+              //fs.unlinkSync(cfg.fileMonitor + "_backup");
 
             console.error("Config checked failed. Writing old config back. " + stderr);
-            respond.status(400).send({
-              "msg": stderr
-            });
+            reject(stderr);
             return;
 
           } else {
@@ -778,34 +802,30 @@ class SettingController {
                   fs.renameSync(cfg.fileMonitor + "_backup", cfg.fileMonitor);
                 }
                 catch (err) {
-                  respond.status(400).send({ "msg": err });
+                  reject(err);
                   return;
                 }
                 //remove backup file
-                 //fs.unlinkSync(cfg.fileMonitor + "_backup");
+                  //fs.unlinkSync(cfg.fileMonitor + "_backup");
                 console.error("Config checked failed. Writing old config back. " + stderr);
-                respond.status(400).send({
-                  "msg": stderr
-                });
                 console.error("Config cannot be activated. " + stderr);
-                respond.end();
+                reject(stderr);
                 return;
               } else {
                 console.info("New config activated.");
                 //remove backup file
-                 //fs.unlinkSync(cfg.fileMonitor + "_backup");
-                respond.status(200).send({
-                  "msg": "Data has been saved."
-                });
+                  //fs.unlinkSync(cfg.fileMonitor + "_backup");
+
+                resolve("Data has been saved.");
               }
             });
           }
         });
       });
-    }
+    });
+
+    return promise;
   }
-
-
 
 
   /**
@@ -836,7 +856,7 @@ class SettingController {
   *               description: array of tags
   *               example: {"tags":["coolEvent"]}
    *         required: true
-   *         type: application/json 
+   *         type: application/json
    *     responses:
    *       200:
    *         description: Elasticsearch payload
@@ -908,7 +928,7 @@ class SettingController {
   *               description: array of tags
   *               example: {"tags":["coolEvent"]}
    *         required: true
-   *         type: application/json 
+   *         type: application/json
    *     responses:
    *       200:
    *         description: Elasticsearch payload
