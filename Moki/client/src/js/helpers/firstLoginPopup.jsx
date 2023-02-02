@@ -1,88 +1,89 @@
 import React, { Component } from 'react';
+import isHostnameOrIp from './isHostnameOrIp';
+
+const ccmAddrLabel = "Hostname or IP of CCM";
 
 export default class FirstLoginPopup extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
             error: ""
         };
-        this.createUser = this.createUser.bind(this);
-        this.keyPressCheckPassword = this.keyPressCheckPassword.bind(this);
+        this.save = this.save.bind(this);
+        this.keyDown = this.keyDown.bind(this);
     }
 
-    async createUser() {
+
+    validate(){
+
+        const ccmAddr = document.getElementById("ccmAddr").value;
+
+        if (ccmAddr.trim() === "") {
+            this.setState({ "error": `${ccmAddrLabel} must be filled.` });
+            return false;
+        }
+
+        if (!isHostnameOrIp(ccmAddr)) {
+            this.setState({ "error": `${ccmAddrLabel} must contain hostname or IP address.` });
+            return false;
+        }
+
+        return true;
+    }
+
+    async save() {
         this.setState({ "error": "" });
+
+        if (!this.validate()) return;
+
         document.getElementById("createR").style.display = "none";
         document.getElementById("create").style.display = "block";
 
-        var password = document.getElementById("password").value;
-        var password2 = document.getElementById("password2").value;
+        const ccmAddr = document.getElementById("ccmAddr").value;
 
-        //password length > 8
-        if (password.length < 8) {
-            this.setState({ "error": "Password must have at least 8 characters." });
-            document.getElementById("createR").style.display = "block";
-            document.getElementById("create").style.display = "none";
-
-        }
-        else if (password.indexOf("'") >= 0 || password.indexOf('"') >= 0) {
-            this.setState({ "error": "Passwords can't contains any quotes." });
-            document.getElementById("createR").style.display = "block";
-            document.getElementById("create").style.display = "none";
-        }
-        else if (password !== password2) {
-            this.setState({ "error": "Passwords are not the same." });
-            document.getElementById("createR").style.display = "block";
-            document.getElementById("create").style.display = "none";
-
-        }
-        else {
-
-            try {
-                var response = await fetch("/api/user/create", {
-                    method: "POST",
-                    credentials: 'include',
-                    body:
-                        JSON.stringify({
-                            name: document.getElementById("name").value,
-                            password: password
-                        }),
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Access-Control-Allow-Credentials": "include"
-                    }
-                })
-
-                if (response.status !== 200) {
-                    document.getElementById("createR").style.display = "block";
-                    document.getElementById("create").style.display = "none";
-                    this.setState({ "error": "Problem to create user." });
+        try {
+            var response = await fetch("/api/firsttimelogin/save", {
+                method: "POST",
+                body:
+                    JSON.stringify({
+                        ccmAddr: ccmAddr
+                    }),
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Credentials": "include"
                 }
+            })
 
-                var res = await response.json();
-                if (res.error) {
-                    this.setState({ "error": res.error });
-                }
-                else {
-                    var thiss = this;
-                    setTimeout(function () {
-                        thiss.props.setFirstTimeLogin(false);
-                        window.location.reload();
-                    }, 5000);
-                }
-            }
-            catch (error) {
-                this.setState({ "error": error });
+            if (response.status !== 200) {
                 document.getElementById("createR").style.display = "block";
                 document.getElementById("create").style.display = "none";
+                this.setState({ "error": "Problem to save values." });
             }
+
+            var res = await response.json();
+            if (res.error) {
+                this.setState({ "error": res.error });
+            }
+            else {
+                var thiss = this;
+                setTimeout(function () {
+                    // thiss.props.setFirstTimeLogin(false);
+                    window.location.reload();
+                }, 5000);
+            }
+        }
+        catch (error) {
+            this.setState({ "error": error });
+            document.getElementById("createR").style.display = "block";
+            document.getElementById("create").style.display = "none";
         }
     }
 
-    keyPressCheckPassword(e){
+    keyDown(e){
         if (e.key === "Enter") {
             e.preventDefault();
-            this.createUser();
+            this.save();
           }
     }
 
@@ -90,20 +91,15 @@ export default class FirstLoginPopup extends Component {
         return (
             <div className="popupOverlay" style={{ "visibility": "visible" }}>
                 <div id="popupsmall" style={{ "maxWidth": "550px" }}>
-                    <h3 style={{ "marginBottom": "15px" }}>It seems to be your first time to log in. Please create a new user:</h3>
+                    <h3 style={{ "marginBottom": "15px" }}>It seems this is fresh installation of monitor. Please enter hostname of CCM used for user authentication:</h3>
                     <div className="form-group row">
-                        <label className="col-sm-4 col-form-label" style={{ "color": "grey" }}>Name </label>
-                        <input type="text" id="name" required className="form-control" placeholder="username"></input>
+                        <label className="col-md-5 col-form-label text-nowrap" style={{ "color": "grey" }}>{ccmAddrLabel}</label>
+                        <input type="text" id="ccmAddr" required className="form-control col" onKeyDown={(e) => this.keyDown(e)} />
+
                     </div>
-                    <div className="form-group row">
-                        <label className="col-sm-4 col-form-label" style={{ "color": "grey" }}>Password </label>
-                        <input type="password" id="password" required className="form-control" placeholder="password"></input>
-                        <label className="col-sm-4 col-form-label" style={{ "color": "grey" }}>Password again</label>
-                        <input type="password" id="password2" required className="form-control" placeholder="same password again" onKeyPress={(e) => this.keyPressCheckPassword(e)} ></input>
-                    </div>
-                    {this.state.error ? <p className="erro" style={{"color": "red"}}>{this.state.error}</p> : ""}
+                    {this.state.error ? <p className="error" style={{"color": "red"}}>{this.state.error}</p> : ""}
                     <div style={{ "textAlign": "center" }}>
-                        <button onClick={this.createUser} style={{ "marginRight": "5px" }} className="btn btn-primary"><i className="fa fa-circle-o-notch fa-spin" id="create" style={{ "display": "none" }}></i> <span id="createR">Create</span> </button>
+                        <button onClick={this.save} style={{ "marginRight": "5px" }} className="btn btn-primary"><i className="fa fa-circle-o-notch fa-spin" id="create" style={{ "display": "none" }}></i> <span id="createR">Save</span> </button>
                     </div>
                 </div>
             </div>

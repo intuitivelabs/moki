@@ -4,6 +4,7 @@ const { isRequireJWT } = require('../modules/config');
 const { exec } = require("child_process");
 const fs = require('fs');
 const { cfg } = require('../modules/config');
+const SettingController = require('./setting');
 
 let oldJti = "";
 const hfName = 'x-amzn-oidc-data';
@@ -119,7 +120,7 @@ class AdminController {
       return res.json({ redirect: "errorInConfigProcessing" });
     }
 
-    // JWT not required -- open up 
+    // JWT not required -- open up
     if (!isAccept) {
       console.log(`ACCESS getJWTsipUserFilter: * permitted because no JWT required`);
       return res.json({ user: `ADMIN`, aws: false });
@@ -154,7 +155,7 @@ class AdminController {
     const sourceIP = IPs[0];
 
     if (jwtbit === undefined) {
-      //default user for web dashboard          
+      //default user for web dashboard
       console.info("ACCESS web user - jwtbit undefined");
       return res.json({ user: `DEFAULT`, aws: true });
     }
@@ -246,7 +247,7 @@ class AdminController {
     const email = parsedHeader['email'];
     const sourceIP = IPs[0];
     const mode = req.body.mode;
-    
+
     let insert = await client.index({
       index: index,
       refresh: true,
@@ -364,6 +365,60 @@ create new user with password in htpasswd
     return res.json({ username: req.headers.authorization });
   }
 
+
+  static firstTimeLoginCheck(req, res) {
+
+    let ccmAddr = null;
+    const jsonData = JSON.parse(fs.readFileSync(cfg.fileMonitor));
+
+    for (let i = 0; i < jsonData["general"]["global-config"].length; i++) {
+      if (jsonData["general"]["global-config"][i]["app"] === "m_config") {
+
+        for (let j = 0; j < jsonData["general"]["global-config"][i]["attrs"].length; j++) {
+          if (jsonData["general"]["global-config"][i]["attrs"][j]["attribute"] === "ccmAddr") {
+            ccmAddr = jsonData["general"]["global-config"][i]["attrs"][j]["value"];
+            break;
+          }
+        }
+        break;
+      }
+    }
+
+    if (ccmAddr){
+      res.json({ "msg": false });
+    }
+    else{
+      res.json({ "msg": true });
+    }
+
+  }
+
+  static async firstTimeLoginSave(req, res) {
+
+    const jsonData = JSON.parse(fs.readFileSync(cfg.fileMonitor));
+
+    for (let i = 0; i < jsonData["general"]["global-config"].length; i++) {
+      if (jsonData["general"]["global-config"][i]["app"] === "m_config") {
+
+        for (let j = 0; j < jsonData["general"]["global-config"][i]["attrs"].length; j++) {
+          if (jsonData["general"]["global-config"][i]["attrs"][j]["attribute"] === "ccmAddr") {
+            jsonData["general"]["global-config"][i]["attrs"][j]["value"] = req.body.ccmAddr;
+            break;
+          }
+        }
+        break;
+      }
+    }
+
+    SettingController.saveSettings(jsonData)
+      .then((msg) => {
+        console.log(`Settings updated`);
+        res.send({ "msg": "Settings updated" });
+      })
+      .catch((err) => {
+        res.send({ "error": err });
+      });
+  }
 
 }
 

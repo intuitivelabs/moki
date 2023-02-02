@@ -172,7 +172,7 @@ class App extends Component {
             storePersistent.dispatch(setSettings(jsonSettings));
 
             //check if first time login
-            const response = await fetch(BASE_NAME + "/api/user/check", {
+            const response = await fetch(BASE_NAME + "/api/firsttimelogin/check", {
                 method: "GET",
                 timeout: 10000,
                 credentials: 'include',
@@ -415,7 +415,7 @@ class App extends Component {
         request();
     }
 
-    //change charts width if windows width changes 
+    //change charts width if windows width changes
     windowResize() {
         if (window.innerWidth !== store.getState().width) store.dispatch(setWidthChart(window.innerWidth));
     }

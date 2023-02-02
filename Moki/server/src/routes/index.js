@@ -24,7 +24,9 @@ module.exports = () => {
     .get('/user/check', AdminController.noNginxUser)
     .get('/user/username', AdminController.getUsername)
     .post('/user/mode/change', AdminController.storeModeChange)
-    .post('/user/create', AdminController.createUser);
+    .post('/user/create', AdminController.createUser)
+    .get('/firsttimelogin/check', AdminController.firstTimeLoginCheck)
+    .post('/firsttimelogin/save', AdminController.firstTimeLoginSave);
 
   router
     .post('/calls/charts', CallsController.getCharts)
