@@ -45,9 +45,9 @@ class restrictedController extends Controller {
   static getCharts(req, res, next) {
     super.request(req, res, next, [
       //SUM CALL-END
-      { index: "logstash*", template: query_string, filter: "attrs.type:call-end" },
+      { index: "logstash*", template: query_string, filter: "attrs.type:call-end", filter: "*" },
       //SUM CALL-ATTEMPT
-      { index: "logstash*", template: query_string, filter: "attrs.type:call-attempt" },
+      { index: "logstash*", template: query_string, filter: "attrs.type:call-attempt",filter: "*" },
       //CALLING COUNTRIES
       { index: "logstash*", template: agg_query, params: ["terms", "geoip.country_code2"], filter: "*" },
       //DURATION SUM 
@@ -75,7 +75,7 @@ class restrictedController extends Controller {
 
   /**
    * @swagger
-   * /api/restricted/calls:
+   * /api/restricted/overiew:
    *   post:
    *     description: Get data for calls, in AWS after no-admin user login
    *     tags: [Restricted]
@@ -108,7 +108,7 @@ class restrictedController extends Controller {
    *             schema:
    *               $ref: '#/definitions/ChartResponseError'
    */
-  static getCalls(req, res, next) {
+  static getOverview(req, res, next) {
     super.requestTable(req, res, next, { index: "logstash*", filter: "attrs.type:call-end OR attrs.type:call-start OR attrs.type:call-attempt OR attrs.type:message-dropped OR attrs.type:auth-failed OR attrs.type:limit OR attrs.type:reg-new OR attrs.type:reg-expired OR attrs.type:reg-del" });
   }
 
@@ -148,7 +148,7 @@ class restrictedController extends Controller {
    *               $ref: '#/definitions/ChartResponseError'
    */
   static getTable(req, res, next) {
-    super.requestTable(req, res, next, { index: "excceded*", filter: "*" });
+    super.requestTable(req, res, next, { index: "alert*", filter: "*" });
   }
 
 }

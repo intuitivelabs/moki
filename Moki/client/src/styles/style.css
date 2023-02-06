@@ -1491,6 +1491,7 @@ button {
     min-height: 200px;
     margin-top: 50px !important;
     background-color: white;
+    border: 1px solid gray;
 }
 
 .close {

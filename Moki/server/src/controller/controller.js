@@ -140,7 +140,7 @@ class Controller {
           isEncryptChecksumFilter = "*";
         }
 
-        if (requests[i].params) {
+       
 
           //check if domain fiter should be use
           const isDomainFilter = await getJWTsipUserFilter(req);
@@ -152,6 +152,7 @@ class Controller {
             }
           }
 
+          if (requests[i].params) {
           //check if params contains "timebucket", insert it
           let params = requests[i].params;
           if (params.includes("timebucket")) {
@@ -211,7 +212,6 @@ class Controller {
         if (cfg.debug) console.info(requests[j].index);
         if (cfg.debug) console.info(JSON.stringify(requests[j].query));
 
-        // console.log(JSON.stringify(requests[j].query));
         requestList.push(
           {
             index: requests[j].index,
@@ -221,7 +221,6 @@ class Controller {
           requests[j].query
         );
       }
-      userFilter = "*";
 
       const response = await client.msearch({
         body: requestList

@@ -577,18 +577,20 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                         )}
                     </Popup>
                     }
-                    {(storePersistent.getState().user.aws === true && storePersistent.getState().user.jwt !== 0 && window.location.pathname.includes("/alerts")) && <Popup trigger={<img className="icon" alt="alertProfileIcon" src={alertProfileIcon} title="alert profile" />} modal>
+                     {(storePersistent.getState().user.aws === true && storePersistent.getState().user.jwt !== 0 && window.location.pathname.includes("/alerts")) && <Popup trigger={<img className="icon" data={obj} alt="suppressIcon" src={suppressIcon} title="suppress alert" />} modal>
                         {close => (
                             <div className="Advanced">
-                                <div className="contentAdvanced" style={{ "padding": "0px" }}>
-                                    <AlertProfile data={ob} />
+                                <button className="close" onClick={close}>
+                                    &times;
+                                </button>
+                                <div className="contentAdvanced" style={{ "padding": "35px" }}>
+                                    <p>Are you sure, you want to suppress {ob.alert.desc} for key <b>{ob.alert.key.name}</b></p>
+                                    <p>and value <b>{ob.alert.key.value}</b>?</p>
+                                    <button  className="btn btn-primary shadow" style={{"marginLeft": "40%", "marginTop": "6px"}} onClick={() => supressAlert(ob)} data={obj}> Yes </button>
                                 </div>
                             </div>
                         )}
                     </Popup>
-                    }
-                    {(storePersistent.getState().user.aws === true && storePersistent.getState().user.jwt !== 0 && window.location.pathname.includes("/alerts")) &&
-                        <button className="noFormatButton" onClick={() => supressAlert(ob)} data={obj}>  <img className="icon" alt="suppressIcon" src={suppressIcon} title="suppress alert" /></button>
                     }
                     {storePersistent.getState().user.aws === true && (window.location.pathname.includes("/exceeded") || window.location.pathname.includes("/alerts")) &&
                         <button className="noFormatButton" onClick={() => window.tableChart.createFilterAndRedirect(obj)} data={obj}>  <img className="icon" alt="cause analysis redirect" src={overviewIcon} title="show records in cause analysis" /></button>
