@@ -3,6 +3,7 @@ import status from '../helpers/status';
 import { Redirect } from 'react-router';
 import infoIcon from "../../styles/icons/info.png";
 import warningIcon from "../../styles/icons/warning.png";
+import storePersistent from "../store/indexPersistent";
 //import errorIcon from "../../styles/icons/error.png";
 
 
@@ -49,19 +50,23 @@ class Notificationbar extends Component {
 
     componentDidMount() {
         var self = this;
-        let statusCheck = setInterval(async function () {
+        var user = storePersistent.getState().user;
+        console.log(user);
+        if (user && user.user !== "DEFAULT") {
+            let statusCheck = setInterval(async function () {
 
-            //ES, logstash status check every 30s
-            let result = await status();
-            if(result.status !== "ok")     {
-                self.showError(result.status);
-            }
-            else {
-                self.remove(1);
-                self.remove(2);
-            }
-        }, 30000);
-        this.setState({ statusCheck: statusCheck });
+                //ES, logstash status check every 30s
+                let result = await status();
+                if (result.status !== "ok") {
+                    self.showError(result.status);
+                }
+                else {
+                    self.remove(1);
+                    self.remove(2);
+                }
+            }, 30000);
+            this.setState({ statusCheck: statusCheck });
+        }
     }
 
     componentWillUnmount() {
