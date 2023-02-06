@@ -2,13 +2,12 @@ import Table from '../Table.js';
 import TableChart from '../../charts/table_chart.js';
 
 class RestrictedExceededTable extends Table {
-
     // Initialize the state
     constructor(props) {
         super(props);
         this.state = {
             ...this.state,
-            dashboardName: "calls/table",
+            dashboardName: "alerts/table",
             calls: [],
             total: 0
         }
@@ -18,14 +17,14 @@ class RestrictedExceededTable extends Table {
     render() {
         return (
             <div className="row no-gutters" >
-                <TableChart
-                    data={this.state.calls}
-                    total={this.state.total}
-                    name={"exceeded"}
-                    id={"EXCEEDED EVENTS"}
-                    tags={this.props.tags}
-                />
-            </div >
+            <TableChart 
+                data={this.state.calls} 
+                total={this.state.total}
+                name={"alerts"} 
+                id={"ALERTS EVENTS"}
+                tags={this.props.tags}
+            />  
+        </div>
 
         );
     }

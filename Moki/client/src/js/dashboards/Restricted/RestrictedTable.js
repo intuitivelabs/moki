@@ -8,7 +8,7 @@ class RestrictedTable extends Table {
         super(props);
         this.state = {
             ...this.state,
-            dashboardName: "restricted/calls",
+            dashboardName: "restricted/overview",
             calls: [],
             total: 0
         }
@@ -24,7 +24,7 @@ class RestrictedTable extends Table {
                     data={this.state.calls}
                     total={this.state.total}
                     name={"homeLoginCalls"}
-                    id={"CALL EVENTS"}
+                    id={"OVERVIEW EVENTS"}
                     tags={this.props.tags}
                 />  </div>
         );
