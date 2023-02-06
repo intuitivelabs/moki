@@ -484,11 +484,13 @@ class App extends Component {
                     }
 
                     //default user: no need to log in for web
+                    if (sip.user !== "USER" && sip.user !== "DEFAULT") {
+                        this.getHostnames();
+                    }
+
+                    //default user: no need to log in for web
                     if (sip.user !== "DEFAULT") {
                         this.getMonitorSettings();
-                        if (sip.user !== "USER") {
-                            this.getHostnames();
-                        }
                     }
                     else {
                         //store layout
