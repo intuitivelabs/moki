@@ -213,7 +213,8 @@ class App extends Component {
         //for admin level aws remove WBlist
         if (this.state.aws && this.state.admin) {
             dashboardsSettings = dashboardsSettings.filter(dashboard => dashboard !== "wblist");
-            dashboardsSettings = dashboardsSettings.filter(dashboard => dashboard !== "config");
+            dashboardsSettings = dashboardsSettings.filter(dashboard => dashboard !== "settings");
+            dashboardsSettings = dashboardsSettings.filter(dashboard => dashboard !== "alarms");
         }
 
         this.setState({
