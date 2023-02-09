@@ -333,7 +333,7 @@ export default class StackedChart extends Component {
                     if (this.props.disableFilter !== true) {
                         let key = el.key;
                         if (field === "severity") {
-                            key = parseInt(el.data.key)
+                            key = parseInt(key)
                         }
                         createFilter(field + ":\"" + key + "\"");
 
@@ -349,7 +349,7 @@ export default class StackedChart extends Component {
                 .append("svg:title")
                 .text(function (d) { return d.key })
                 .on("click", el => {
-                    let key = el.data.key;
+                    let key = el.key;
                     if (field === "severity") {
                         key = parseInt(el.key)
                     }
