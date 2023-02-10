@@ -2,7 +2,8 @@ import { SET_FILTERS } from "../constants/action-types";
 import { ASSIGN_TYPE } from "../constants/action-types";
 import { SET_TIMERANGE } from "../constants/action-types";
 import { SET_WIDTH_CHART } from "../constants/action-types";
-import {SET_PERNAMENT_FILTERS} from "../constants/action-types";
+import { SET_PERNAMENT_FILTERS } from "../constants/action-types";
+import { SET_ALL_FILTERS } from "../constants/action-types";
 
 const initialState = {
   types: [],
@@ -20,7 +21,7 @@ function rootReducer(state = initialState, action) {
       types: action.payload
     });
   }
-  
+
   else if (action.type === SET_TIMERANGE) {
     return Object.assign({}, state, {
       timerange: action.payload
@@ -43,6 +44,10 @@ function rootReducer(state = initialState, action) {
     return Object.assign({}, state, {
       width: action.payload
     });
+  }
+
+  else if (action.type === SET_ALL_FILTERS) {
+    return Object.assign({}, state, action.payload);
   }
 
   return state;

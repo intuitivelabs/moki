@@ -51,3 +51,7 @@ export function setSettings(payload){
   return { type: "SET_SETTINGS", payload }
 };
 
+export function setAllFilters(payload){
+  return { type: "SET_ALL_FILTERS", payload }
+};
+
