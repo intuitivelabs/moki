@@ -28,7 +28,6 @@ import { downloadPcap } from '../helpers/download/downloadPcap';
 import { downloadSD } from '../helpers/download/downloadSD';
 import { tableColumns } from '../helpers/TableColumns';
 import { getPcap } from '../helpers/getPcap.js';
-import { setFilters } from "../actions/index";
 import { downloadPcapMerged } from '../helpers/download/downloadPcapMerged';
 import { parseTimestamp } from "../helpers/parseTimestamp";
 import { decryptTableHits, decryptAttr } from '@moki-client/es-response-parser';
@@ -175,53 +174,10 @@ export default class listChart extends Component {
     //create exceeded-by filter and redirect to overview
     createFilterAndRedirect(ob) {
         let obj = ob._source;
-        if (obj.alert && obj.alert._elasticFilterS) {
-            //elasticFilter is string in JSON format
-            let esFilters = JSON.parse(obj.alert._elasticFilterS);
-            //disable old filters
-            var oldFilters = store.getState().filters;
-            if (oldFilters.length > 0) {
-                for (var i = 0; i < oldFilters.length; i++) {
-                    oldFilters[i].state = 'disable';
-                }
-                store.dispatch(setFilters(oldFilters));
-            }
-            //create new filter for types
-            if (esFilters.gui.types && esFilters.gui.types) {
-                createFilter(esFilters.gui.types);
-            }
-
-            //filters
-            if (esFilters.gui.lucene && esFilters.gui.lucene.length > 0) {
-                for (let hit of esFilters.gui.lucene) {
-                    //pass encrypt value because alert can be plain or encrypt
-                    let profile = storePersistent.getState().profile;
-                    if (profile && profile[0] && profile[0].userprefs.mode === "encrypt") {
-                        createFilter(hit, null, true, true, obj.alert.key.encrypt);
-                    }
-                    else {
-                        createFilter(hit, null, true, false, obj.alert.key.encrypt);
-                    }
-
-                }
-            }
-
-            //timerange
-            let timerange_gte = store.getState().timerange[0];
-            let timerange_lte = store.getState().timerange[1];
-            if (esFilters.gui.timerange_gte && esFilters.gui.timerange_gte !== null) {
-                timerange_gte = esFilters.gui.timerange_gte;
-            }
-
-            if (esFilters.gui.timerange_lte && esFilters.gui.timerange_lte !== null) {
-                timerange_lte = esFilters.gui.timerange_lte;
-            }
-            window.timebar.changeTimerange(timerange_gte, timerange_lte);
-            this.setState({
-                redirect: true,
-                redirectLink: "/causeAnalysis?event_id=" + ob._id + "&alert_id=" + obj.alert.key.keyRef+ "&timestamp=" + obj["@timestamp"]
-            });
-        }
+        this.setState({
+            redirect: true,
+            redirectLink: "/causeAnalysis?event_id=" + ob._id + "&timestamp=" + obj["@timestamp"]
+        });
     }
 
     //add resizable grid to table, function from https://www.brainbell.com/javascript/making-resizable-table-js.html
