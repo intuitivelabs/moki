@@ -1,8 +1,9 @@
+import querySrv from './querySrv';
 
 const BASE_NAME = process.env.PUBLIC_URL;
 
 export default async function status() {
-    const response = await fetch(BASE_NAME + "/api/status", {
+    const response = await querySrv(BASE_NAME + "/api/status", {
         method: "GET",
         timeout: 10000,
         credentials: 'include',

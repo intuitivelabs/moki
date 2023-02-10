@@ -32,6 +32,7 @@ import { setFilters } from "../actions/index";
 import { downloadPcapMerged } from '../helpers/download/downloadPcapMerged';
 import { parseTimestamp } from "../helpers/parseTimestamp";
 import { decryptTableHits, decryptAttr } from '@moki-client/es-response-parser';
+import querySrv from '../helpers/querySrv';
 const NOT_EXPAND_OR_COLUMNS_SELECTION = ["LAST LOGIN EVENTS", "LAST MODE CHANGES", "API LOGS"];
 
 var FileSaver = require('file-saver');
@@ -350,7 +351,7 @@ export default class listChart extends Component {
         //store already exclude alarms list
         if (window.location.pathname === "/exceeded" || window.location.pathname === "/alerts") {
             try {
-                const response = await fetch(process.env.PUBLIC_URL + "/api/setting", {
+                const response = await querySrv(process.env.PUBLIC_URL + "/api/setting", {
                     method: "GET",
                     credentials: 'include',
                     headers: {
@@ -484,7 +485,7 @@ export default class listChart extends Component {
             //get rid of race condition by waiting before getting new data again
             if (result.result && result.result === "updated") {
                 setTimeout(function () {
-                    //alert("Tag has been saved."); 
+                    //alert("Tag has been saved.");
                     document.getElementById("popupTag").style.display = "none";
                     document.getElementById("tag").value = "";
                     document.getElementsByClassName("iconReload")[0].click();
@@ -766,7 +767,7 @@ export default class listChart extends Component {
 
         }
 
-        //download all with check        
+        //download all with check
         async function downloadAllCheck() {
             var selectedData = thiss.state.selected;
             if (selectedData.length === 0) {
@@ -836,7 +837,7 @@ export default class listChart extends Component {
 
         }
 
-        //this.isAdmin() || isDisplay("attrs."+cell) ?   
+        //this.isAdmin() || isDisplay("attrs."+cell) ?
         //what render if user click on row
         const expandRow = {
             onExpand: (row, isExpand, rowIndex, e) => {
@@ -961,7 +962,7 @@ export default class listChart extends Component {
 
                 let profile = storePersistent.getState().profile;
                 //if there is mode stored in local storage, use this
-                let storedProfile = localStorage.getItem('profile');            
+                let storedProfile = localStorage.getItem('profile');
                 if (storedProfile) {
                   profile = JSON.parse(storedProfile);
                 }

@@ -1,3 +1,5 @@
+import querySrv from './querySrv';
+
 /*
 create new exclude alarm function
 get html tag with value = comment, id = alarm id
@@ -8,7 +10,7 @@ export async function exclude(i){
     if (comment && comment !== "") {
         //fetch old exclude data
         try {
-            const response = await fetch("/api/setting", {
+            const response = await querySrv("/api/setting", {
                 method: "GET",
                 credentials: 'include',
                 headers: {
@@ -74,7 +76,7 @@ export async function exclude(i){
             }
         }
         if (value !== "") {
-            await fetch("api/save", {
+            await querySrv("api/save", {
                 method: "POST",
                 body: JSON.stringify({
                     "app": "m_alarms",

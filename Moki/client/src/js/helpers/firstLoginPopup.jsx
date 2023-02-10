@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import isHostnameOrIp from './isHostnameOrIp';
+import querySrv from './querySrv';
 
 const ccmAddrLabel = "Hostname or IP of CCM";
 
@@ -43,7 +44,7 @@ export default class FirstLoginPopup extends Component {
         const ccmAddr = document.getElementById("ccmAddr").value;
 
         try {
-            var response = await fetch("/api/firsttimelogin/save", {
+            var response = await querySrv("/api/firsttimelogin/save", {
                 method: "POST",
                 body:
                     JSON.stringify({
@@ -66,7 +67,7 @@ export default class FirstLoginPopup extends Component {
                 this.setState({ "error": res.error });
             }
             else {
-                var thiss = this;
+                // var thiss = this;
                 setTimeout(function () {
                     // thiss.props.setFirstTimeLogin(false);
                     window.location.reload();

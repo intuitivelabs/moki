@@ -13,6 +13,7 @@ import storePersistent from "../store/indexPersistent";
 import Popup from "reactjs-popup";
 import detailsIcon from "../../styles/icons/details.png";
 import { setSettings } from "../actions/index";
+import querySrv from '../helpers/querySrv';
 
 class Certificate extends Component {
     constructor(props) {
@@ -30,7 +31,7 @@ class Certificate extends Component {
     async getCertificate(cert) {
         //parse cert with OpenSSL
         try {
-            const response = await fetch("/api/parse/certificate", {
+            const response = await querySrv("/api/parse/certificate", {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -115,7 +116,7 @@ class Settings extends Component {
     async load(url) {
         var jsonData;
         try {
-            const response = await fetch(url, {
+            const response = await querySrv(url, {
                 method: "GET",
                 credentials: 'include',
                 headers: {
@@ -401,7 +402,7 @@ class Settings extends Component {
             var thiss = this;
 
             if (!ldapChange) {
-                await fetch("api/save", {
+                await querySrv("api/save", {
                     method: "POST",
                     body: JSON.stringify({
                         "app": "m_config",
@@ -445,7 +446,7 @@ class Settings extends Component {
             }
             else {
 
-                fetch("api/save", {
+                querySrv("api/save", {
                     method: "POST",
                     body: JSON.stringify({
                         "app": "m_config",

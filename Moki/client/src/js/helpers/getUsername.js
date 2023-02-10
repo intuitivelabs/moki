@@ -1,3 +1,5 @@
+import querySrv from './querySrv';
+
 //get username from server, store in redux and also return it
 
 import storePersistent from "../store/indexPersistent";
@@ -6,7 +8,7 @@ import { setUser } from "../actions/index";
 export async function getUsername() {
     var url = process.env.PUBLIC_URL + "/api/user/username";
     try {
-        const response = await fetch(url, {
+        const response = await querySrv(url, {
             method: "GET",
             credentials: 'include',
             headers: {

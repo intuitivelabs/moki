@@ -5,6 +5,7 @@ import SavingScreen from '../helpers/SavingScreen';
 import isIP from '../helpers/isIP';
 import deleteIcon from "../../styles/icons/delete_grey.png";
 import editIcon from "../../styles/icons/edit_grey.png";
+import querySrv from '../helpers/querySrv';
 
 
 class Settings extends Component {
@@ -43,7 +44,7 @@ class Settings extends Component {
     async load(url) {
         var jsonData;
         try {
-            const response = await fetch(url, {
+            const response = await querySrv(url, {
                 method: "GET",
                 credentials: 'include',
                 headers: {
@@ -280,7 +281,7 @@ class Settings extends Component {
         var result = this.state.data.concat(excludeDataOld);
         this.setState({ wait: true });
         var thiss = this;
-        await fetch("api/save", {
+        await querySrv("api/save", {
             method: "POST",
             body: JSON.stringify({
                 "app": "m_alarms",

@@ -9,6 +9,7 @@ import storePersistent from "../store/indexPersistent";
 import { setTimerange } from "../actions/index";
 import { assignType } from "../actions/index";
 import { setFilters } from "../actions/index";
+import querySrv from '../helpers/querySrv';
 
 class StoredFilters extends Component {
     constructor(props) {
@@ -26,14 +27,14 @@ class StoredFilters extends Component {
     }
 
     /*
-       Load data 
+       Load data
        */
     async load() {
         var checksum = storePersistent.getState().profile[0] ? storePersistent.getState().profile[0].userprefs.validation_code : "";
         var Url = "api/filters";
         var jsonData;
         try {
-            const response = await fetch(Url, {
+            const response = await querySrv(Url, {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -55,7 +56,7 @@ class StoredFilters extends Component {
                         attribute: eval(jsonData.hits.hits[i]._source.attribute)
                     });
                 }
- 
+
                 this.setState({
                     filters: newFormat
                 });
@@ -114,7 +115,7 @@ class StoredFilters extends Component {
         console.info("Delete filter " + filter)
         var Url = "api/filters/delete";
         try {
-            const response = await fetch(Url, {
+            const response = await querySrv(Url, {
                 method: "POST",
                 body: JSON.stringify({id: filter}),
                 credentials: 'include',

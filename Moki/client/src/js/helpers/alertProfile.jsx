@@ -4,6 +4,7 @@ import storePersistent from "../store/indexPersistent";
 import clipboardIcon from "../../styles/icons/clipboard.png";
 import removeIcon from "../../styles/icons/delete_lightgrey.png";
 import { cipherAttr } from '@moki-client/gui';
+import querySrv from './querySrv';
 const DATEFORMATS = ["lastModified", "created", "lastLogin", "lastExceeded", "ts", "lastRaised", "lastLaunchedTimer", "lastRaisedTS", "lastExceededTS", "timestamp", "lastTimerTS", "lastExpired", "lastReceivedTimer"];
 
 class AlertProfile extends Component {
@@ -24,7 +25,7 @@ class AlertProfile extends Component {
 
     async get(url) {
         try {
-            const response = await fetch(url, {
+            const response = await querySrv(url, {
                 method: "GET",
                 credentials: 'include',
                 headers: {
@@ -238,7 +239,7 @@ export async function checkBLip(ob, type = "ipblack", shouldCipherAttr = true) {
         }
 
         let url = "api/bw/getip" + "?key=" + key + "&list=" + type;
-        const response = await fetch(url, {
+        const response = await querySrv(url, {
             method: "GET",
             credentials: 'include',
             headers: {
