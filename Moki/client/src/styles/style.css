@@ -336,12 +336,9 @@ a {
 label {
     justify-content: flex-start !important;
     margin-bottom: 0px !important;
-    font: 14px Arial;
-    vertical-align: -webkit-baseline-middle;
-    vertical-align: -moz-middle-with-baseline;
+    font-weight: 400;
+    padding: 5px;
     color: black;
-    padding-left: 2px;
-    padding-top: 15px;
 }
 
 .activeDashboard {
@@ -818,8 +815,6 @@ h6 {
 
 select {
     height: 30px !important;
-    padding: 0 !important;
-    margin: 0 !important;
 }
 
 
