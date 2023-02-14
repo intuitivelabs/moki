@@ -71,7 +71,7 @@ export default class FirstLoginPopup extends Component {
                 setTimeout(function () {
                     // thiss.props.setFirstTimeLogin(false);
                     window.location.reload();
-                }, 5000);
+                }, 10000);
             }
         }
         catch (error) {
