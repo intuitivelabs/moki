@@ -1,6 +1,7 @@
 import React, {
     Component
 } from 'react';
+import querySrv from '../helpers/querySrv';
 import SavingScreen from '../helpers/SavingScreen';
 
 
@@ -24,12 +25,12 @@ class Settings extends Component {
     }
 
     /*
-       Load data 
+       Load data
        */
     async load(url) {
         var jsonData;
         try {
-            const response = await fetch(url, {
+            const response = await querySrv(url, {
                 method: "GET",
                 credentials: 'include',
                 headers: {
@@ -70,7 +71,7 @@ class Settings extends Component {
     }
 
 
-    //save data   
+    //save data
     async save() {
         if (this.state.wait !== true) {
             var jsonData = this.state.data;
@@ -98,7 +99,7 @@ class Settings extends Component {
 
             this.setState({ wait: true });
             var thiss = this;
-            await fetch("api/save", {
+            await querySrv("api/save", {
                 method: "POST",
                 body: JSON.stringify({
                     "app": "m_sns",

@@ -1,9 +1,11 @@
+import querySrv from '../querySrv';
+
 export async function downloadSD(pathname) {
     if(! Array.isArray(pathname)){
         pathname = [pathname];
     }
     try {
-        const response = await fetch("/api/diagram/download", {
+        const response = await querySrv("/api/diagram/download", {
             method: "POST",
             credentials: 'include',
             headers: {

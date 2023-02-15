@@ -9,6 +9,7 @@ import { setWidthChart } from "../actions/index";
 import collapseIcon from "../../styles/icons/collapse.png";
 import { renderNavBar, logout } from '@moki-client/gui';
 import storePersistent from "../store/indexPersistent";
+import querySrv from '../helpers/querySrv';
 
 class navBar extends Component {
     constructor(props) {
@@ -146,7 +147,7 @@ class navBar extends Component {
                 //get username
                 var username = "";
                 try {
-                    var response = await fetch("/api/user/username", {
+                    var response = await querySrv("/api/user/username", {
                         method: "GET",
                         credentials: 'include',
                         headers: {
@@ -172,7 +173,7 @@ class navBar extends Component {
 
 
                 try {
-                    response = await fetch("/api/user/create", {
+                    response = await querySrv("/api/user/create", {
                         method: "POST",
                         credentials: 'include',
                         body:

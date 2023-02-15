@@ -13,6 +13,7 @@ import {
 import {
   downloadSD
 } from '../helpers/download/downloadSD';
+import querySrv from '../helpers/querySrv';
 
 class SequenceDiagram extends Component {
   constructor(props) {
@@ -47,7 +48,7 @@ class SequenceDiagram extends Component {
     }
 
     try {
-      await fetch("/api/diagram", {
+      await querySrv("/api/diagram", {
         method: "POST",
         credentials: 'include',
         body:

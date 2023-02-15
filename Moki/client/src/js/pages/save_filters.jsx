@@ -4,6 +4,7 @@ import React, {
 import store from "../store/index";
 import storePersistent from "../store/indexPersistent";
 import { getFilters } from '@moki-client/gui';
+import querySrv from '../helpers/querySrv';
 
 class SaveFilters extends Component {
     constructor(props) {
@@ -57,7 +58,7 @@ class SaveFilters extends Component {
             var domainID = storePersistent.getState().user.domainID !== "N/A" ? storePersistent.getState().user.domainID : "";
             var Url = "api/filters/save";
             try {
-                const response = await fetch(Url, {
+                const response = await querySrv(Url, {
                     method: "POST",
                     body: JSON.stringify({
                         id: this.uid(),

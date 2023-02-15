@@ -1,8 +1,10 @@
+import querySrv from '../querySrv';
+
 export async function downloadPcap(pathname) {
     var response;
     console.info("Downloading pcap " + pathname);
     try {
-        response = await fetch("/api/download/pcap", {
+        response = await querySrv("/api/download/pcap", {
             method: "POST",
             timeout: 10000,
             credentials: 'include',
@@ -22,7 +24,7 @@ export async function downloadPcap(pathname) {
         // response
         return "ERROR: File not found. You can extend storage in settings page.";
     }
-    
+
     if(response.status !== 200){
         return "ERROR: Problem with getting file.";
     }

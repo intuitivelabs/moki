@@ -26,6 +26,7 @@ import { setTimerange } from "./js/actions/index";
 import { setFilters } from "./js/actions/index";
 import { createFilter } from '@moki-client/gui';
 import { getUsername } from "./js/helpers/getUsername";
+import querySrv from './js/helpers/querySrv';
 const BASE_NAME = process.env.PUBLIC_URL;
 
 //General class - check user level, profile from ES, monitor_layout before loading monitor
@@ -137,7 +138,7 @@ class App extends Component {
         var url = BASE_NAME + "/api/monitor/version";
         var monitorVersion = "";
         try {
-            const response = await fetch(url, {
+            const response = await querySrv(url, {
                 method: "GET",
                 credentials: 'include',
                 headers: {
@@ -172,7 +173,7 @@ class App extends Component {
             storePersistent.dispatch(setSettings(jsonSettings));
 
             //check if first time login
-            const response = await fetch(BASE_NAME + "/api/user/check", {
+            const response = await querySrv(BASE_NAME + "/api/firsttimelogin/check", {
                 method: "GET",
                 timeout: 10000,
                 credentials: 'include',
@@ -283,7 +284,7 @@ class App extends Component {
 
         var url = BASE_NAME + path;
         try {
-            const response = await fetch(url, {
+            const response = await querySrv(url, {
                 method: "GET",
                 credentials: 'include',
                 headers: {
@@ -312,7 +313,7 @@ class App extends Component {
     async getUserSetting(attribute) {
         var url = BASE_NAME + "/api/setting/user";
         try {
-            const response = await fetch(url, {
+            const response = await querySrv(url, {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -337,7 +338,7 @@ class App extends Component {
     async getHostnames() {
         const request = async () => {
             try {
-                const response = await fetch(BASE_NAME + "/api/hostnames", {
+                const response = await querySrv(BASE_NAME + "/api/hostnames", {
                     method: "GET",
                     timeout: 10000,
                     credentials: 'include',
@@ -415,7 +416,7 @@ class App extends Component {
         request();
     }
 
-    //change charts width if windows width changes 
+    //change charts width if windows width changes
     windowResize() {
         if (window.innerWidth !== store.getState().width) store.dispatch(setWidthChart(window.innerWidth));
     }
@@ -428,7 +429,7 @@ class App extends Component {
         var response = "";
         try {
             var sip;
-            response = await fetch(BASE_NAME + "/api/user/sip", {
+            response = await querySrv(BASE_NAME + "/api/user/sip", {
                 credentials: "include",
                 method: "GET",
                 headers: {

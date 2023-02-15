@@ -26,6 +26,7 @@ import { parseTimestamp } from "../helpers/parseTimestamp";
 import SimpleSequenceDiagram from "../charts/simpleSequenceDiagram";
 import { checkBLip } from "../helpers/alertProfile";
 import { getSearchableAttributes, getExceededName, isEncryptedAttr } from '@moki-client/gui';
+import querySrv from './querySrv';
 
 const attrsTypes = {
     "@timestamp": "time",
@@ -104,7 +105,7 @@ class BLcheck extends Component {
 }
 
 /*
-create new filter based on html tag with field with attribute as name 
+create new filter based on html tag with field with attribute as name
 */
 export const doFilter = (event) => {
     createFilter(event.currentTarget.getAttribute('field') + ":\"" + event.currentTarget.getAttribute('value') + "\"");
@@ -117,7 +118,7 @@ export const doFilterRaw = (event) => {
 }
 
 /*
-same as above but unfilter 
+same as above but unfilter
 */
 export const doUnfilter = (event) => {
     createFilter("NOT " + event.currentTarget.getAttribute('field') + ":\"" + event.currentTarget.getAttribute('value') + "\"");
@@ -165,8 +166,8 @@ export const syntaxHighlight = (json) => {
                       }
                   }
                   sortObject(json, "")
-      
-      
+
+
                  for (let hit of innerPaths) {
                       Object.keys(eval("json." + hit))
                           .sort()
@@ -327,7 +328,7 @@ async function supressAlert(ob) {
     let url = "api/alertapi/supress?keyRef=" + ob.alert.key.keyRef + "&toggle=false&alertid=" + id;
 
     try {
-        const response = await fetch(url, {
+        const response = await querySrv(url, {
             method: "GET",
             credentials: 'include',
             headers: {
@@ -711,7 +712,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                     }
                 }
 
-                //encrypt state 
+                //encrypt state
                 let profile = storePersistent.getState().profile;
                 if (profile && profile[0] && profile[0].userprefs.mode === "encrypt") {
                     col.onSort = (field, order) => {
@@ -751,7 +752,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                         return <span style={{ "color": isEncrypted ? "darkred" : "#212529" }}>{cell}</span>
                     }
                 }
-                //encrypt state 
+                //encrypt state
                 let profile = storePersistent.getState().profile;
                 if (profile && profile[0] && profile[0].userprefs.mode === "encrypt") {
                     col.onSort = (field, order) => {
