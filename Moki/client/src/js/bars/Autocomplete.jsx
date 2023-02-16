@@ -179,8 +179,12 @@ class Autocomplete extends Component {
 
         if (showSuggestions && userInput) {
             if (filteredSuggestions.length) {
+                let style =null;
+                if(this.props.type === "main"){
+                    style= {"marginTop": "36px"};
+                }
                 suggestionsListComponent = (
-                    <ul className="suggestions" > {
+                    <ul className="suggestions" style={style}> {
                         filteredSuggestions.map((suggestion, index) => {
                             let className;
                             // Flag the active suggestion with a class

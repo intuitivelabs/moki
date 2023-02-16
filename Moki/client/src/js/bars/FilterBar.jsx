@@ -330,7 +330,7 @@ class filterBar extends Component {
                         <Navbar variant="light">
                             <div className="row" style={{ "width": "100%", "display": "inline-flex" }}>
                                 <Autocomplete
-                                    suggestions={getSearchableAttributes()} enter={this.state.filterbar} tags={this.props.tags} />
+                                    suggestions={getSearchableAttributes()} enter={this.state.filterbar} tags={this.props.tags} type="main" />
                                 <div className="row" style={{ "marginLeft": "5px", "marginTop": "6px", "display": "table-cell", "width": "1px", "verticalAlign": "bottom" }}>
                                     <div className="row" style={{ "width": "max-content" }}>
                                         {url === "/conference" && <input className="text-left form-control form-check-input filter-right" type="text" id="filterRoom" placeholder="CONF ID" onKeyUp={this.specFilter} />}
