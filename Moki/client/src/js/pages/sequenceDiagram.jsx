@@ -452,7 +452,7 @@ class SequenceDiagram extends Component {
                 .style("z-index", 20)
                 .style("opacity", 1);
 
-              d3.select("#tooltip" + i).html("<div class='tooltipDiagramHeader'>" + m.msg + "<span style='cursor: default; float: right; margin-right:5px' onclick=getElementById('tooltip" + i + "').style.display='none'>X</span></div><div class='tooltipDiagramBody'>" + syntaxHighlight(m) + "</div>")
+              d3.select("#tooltip" + i).html("<div class='tooltipDiagramHeader'><span style='cursor: default; margin-right: 10px; margin-left: 3px; font-size: 12px; color: black;' onclick=getElementById('tooltip" + i + "').style.display='none'>X</span>" + m.msg + "</div><div class='tooltipDiagramBody'>" + syntaxHighlight(m) + "</div>")
                 .style("left", (d3.event.pageX - 120) + "px")
                 .style("top", (d3.event.pageY + 20) + "px");
             })
