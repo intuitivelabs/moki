@@ -517,19 +517,21 @@ class SequenceDiagram extends Component {
               e = e || window.event;
               e.preventDefault();
 
-              var elRect = elmnt.getBoundingClientRect();
-              var maxX = document.documentElement.scrollWidth;
-              var maxY = document.documentElement.scrollHeight;
-
               // calculate the new element position:
               var elTop = e.clientY - mouseOffsetY;
               var elLeft = e.clientX - mouseOffsetX;
+
+              /* //if oyu want to move window only to visible area, allow this code
+              var elRect = elmnt.getBoundingClientRect();
+              var maxX = document.documentElement.scrollWidth;
+              var maxY = document.documentElement.scrollHeight;
 
               if (elTop < 0) elTop = 0;
               if (elLeft < 0) elLeft = 0;
 
               if ((elTop + elRect.height) > maxY) elTop  = maxY - elRect.height;
               if ((elLeft + elRect.width) > maxX) elLeft = maxX - elRect.width;
+              */
 
               // set the element's new position:
               elmnt.style.top  = elTop + "px";
