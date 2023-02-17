@@ -116,7 +116,7 @@ class DiagramController {
     if (!error) {
       //mergecap -w result.pcap file1.pcap file2.pcap…. fileX.pcap
       file = file.join(' ');
-      const process = ["mergecap -w /data/sbcsync/traffic_log/result.pcap ", file].join(' ');
+      const process = ["mergecap -w /tmp/traffic_log_merge_result.pcap ", file].join(' ');
       exec(process, function (error) {
         if (error) {
           console.error("Problem with receiving file. " + error);
@@ -125,7 +125,7 @@ class DiagramController {
           });
           respond.end();
         } else {
-          const fileResult = "/data/sbcsync/traffic_log/result.pcap";
+          const fileResult = "/tmp/traffic_log_merge_result.pcap";
           respond.writeHead(200, {
             "Content-Type": "application/octet-stream",
             "Content-Disposition": "attachment; filename=" + fileResult
