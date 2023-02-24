@@ -33,6 +33,11 @@ class Controller {
         timestamp_gte = Math.round(req.body.timerange_gte);
       }
 
+      if (req.body.timerange === "*") {
+        timestamp_gte = "*";
+        timestamp_lte = "*";
+      }
+
       if (cfg.debug) console.info("--------------------------ES DATA SEARCH---------------------");
       //check if encrypt filter should be used
       let isEncryptChecksumFilter = await getEncryptChecksumFilter(req);
@@ -305,6 +310,11 @@ class Controller {
 
       if (req.body.timerange_gte) {
         timestamp_gte = Math.round(req.body.timerange_gte);
+      }
+
+      if (req.body.timerange === "*") {
+        timestamp_gte = "*";
+        timestamp_lte = "*";
       }
 
       const timebucket = getTimestampBucket(timestamp_gte, timestamp_lte);

@@ -178,6 +178,17 @@ export default class StackedChart extends Component {
             */
             var keys = storePersistent.getState().layout.types[this.props.keys];
             //var id = 0;
+
+            if(!keys){
+                keys = [];
+                for (let hit of data) {
+                    for (let key of Object.keys(hit)) {
+                        if(key !== "name" && key !== "sum"){
+                            keys.push(key);
+                        }
+                    }
+                }
+            }
             var stack = d3.stack()
                 //.keys(["Register new", "Registration expired", "Register del"])
                 .keys(keys)
