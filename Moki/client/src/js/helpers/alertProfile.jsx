@@ -228,7 +228,7 @@ class AlertProfile extends Component {
 }
 
 //check if IP is blacklisted
-export async function checkBLip(ob, type = "ipblack", shouldCipherAttr = true) {
+export async function checkBLip(ob, type = "ipblack", shouldCipherAttr = true, shouldReturnObject = false) {
     try {
         let hmac = ob.encrypt;
         if (hmac && hmac !== "plain") hmac = hmac.substring(0, hmac.indexOf(":"));
@@ -258,7 +258,12 @@ export async function checkBLip(ob, type = "ipblack", shouldCipherAttr = true) {
                 return false;
             }
             else {
-                return true;
+                if (shouldReturnObject && jsonData.Item.constructor === Object  && Object.keys(jsonData.Item).length !== 0) {
+                    return jsonData.Item;
+                }
+                else {
+                    return true;
+                }
             }
         }
     } catch (error) {

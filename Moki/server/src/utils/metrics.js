@@ -184,15 +184,17 @@ function getQueries(filter, types, timestamp_gte, timestamp_lte, userFilter, cha
     });
   }
 
-  queries.push({
-    "range": {
-      "@timestamp": {
-        "gte": timestamp_gte,
-        "lte": timestamp_lte,
-        "format": "epoch_millis"
+  if (timestamp_gte !== "*" && timestamp_lte !== "*") {
+    queries.push({
+      "range": {
+        "@timestamp": {
+          "gte": timestamp_gte,
+          "lte": timestamp_lte,
+          "format": "epoch_millis"
+        }
       }
-    }
-  });
+    });
+  }
 
   if (userFilter && userFilter !== "*") {
     queries.push({
