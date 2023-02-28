@@ -555,7 +555,7 @@ class App extends Component {
         var styleAws = { "paddingLeft": "7px", "paddingBottom": "5px" };
 
         if (storePersistent.getState().user) {
-            var style = storePersistent.getState().user.aws === false ? { "paddingBottom": "27px", "paddingLeft": "7px" } : styleAws;
+            var style = storePersistent.getState().user.aws === false ? { "paddingBottom": "35px", "paddingLeft": "7px" } : styleAws;
         }
         //show just diagram
         if (this.state.dashboards.length > 0) {

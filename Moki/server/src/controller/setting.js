@@ -723,7 +723,7 @@ class SettingController {
     if (certCheck !== false) {
 
       //write it to monitor file
-      this.constructor.saveSettings(jsonData)
+      SettingController.saveSettings(jsonData)
         .then((msg) => {
           respond.status(200).send({ "msg": msg });
 
