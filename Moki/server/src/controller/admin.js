@@ -362,7 +362,12 @@ create new user with password in htpasswd
 
   //get username from authorization header that nginx pass
   static getUsername(req, res) {
-    return res.json({ username: req.headers.authorization });
+    try {
+      let parsedHeader = parseBase64(req.headers['x-amzn-oidc-data']);
+      return res.json({ username: parsedHeader.username });      
+    } catch (e) {
+      return res.json({ username: "Undefined"});
+    }
   }
 
 

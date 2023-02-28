@@ -77,7 +77,6 @@ class Settings extends Component {
             data: [],
             wait: false,
             tags: this.props.tags,
-            isLdap: false,
             shouldDisplayCAcert: false,
         }
     }
@@ -97,12 +96,6 @@ class Settings extends Component {
     }
 
     checkboxClick(attribute) {
-        if (attribute === "ldap_enable") {
-            this.setState({
-                isLdap: !this.state.isLdap
-            })
-        }
-
         if (attribute === "event_tls_verify_peer") {
             this.setState({
                 shouldDisplayCAcert: !this.state.shouldDisplayCAcert
@@ -133,14 +126,6 @@ class Settings extends Component {
 
             //check if ldap is enabled to show ldap option settings
             for (let hit of result) {
-                if (hit.attribute === "ldap_enable") {
-                    if (hit.value === true) {
-                        this.setState({
-                            isLdap: true
-                        });
-                    }
-                }
-
                 //special case: check for event_tls_verify_peer bool
                 if (hit.attribute === "event_tls_verify_peer") {
                     this.setState({
@@ -236,13 +221,6 @@ class Settings extends Component {
                 return "Error: field '" + label + "' must be integer.";
             }
 
-            if (restriction.type === "ldapIP") {
-                if (value === "") return true;
-                else if (isLDAPIP(value)) {
-                    return true;
-                }
-                return "Error: field '" + label + "' must have format 'ldap:// + ipv4 or ipv4:port or ipv6 or ip6:port or dns";
-            }
 
             if (restriction.type === "hostnameOrIp") {
                 if (value === "") return true;
@@ -293,48 +271,8 @@ class Settings extends Component {
             var jsonData = this.state.data;
             var result = [];
 
-            //check if LDAP enabled OR gui auth enabled
-            var ldap_enable = false;
-            var auth_dis = false;
-            var ldapChange = false;
-            for (var i = 0; i < jsonData.length; i++) {
-                var data = document.getElementById(jsonData[i].attribute);
-                if (jsonData[i].attribute === "ldap_enable") {
-                    ldap_enable = data.checked;
-                    if (jsonData[i].value !== data.checked) {
-                        ldapChange = true;
-                    }
-                }
-
-                if (jsonData[i].attribute === "disable_auth") {
-                    auth_dis = data.checked;
-                    if (jsonData[i].value !== data.checked) {
-                        ldapChange = true;
-                    }
-                }
-
-                //check if previous was enabled, show alert
-                if (jsonData[i].attribute === "disable_alarms") {
-                    let workers =  document.getElementById("logstash_workers");
-                    if (data.checked === false && jsonData[i].value === true && workers.value !== 1) {
-                        alert("Set logstash workers to 1.");
-                        workers.scrollIntoView();
-                        return;
-                    }
-                }
-            }
-
-            if (auth_dis === true && ldap_enable === false) {
-                this.setState({
-                    "disable_auth": "You must choose LDAP or GUI authentication"
-                })
-                window.scrollTo(0, 0);
-                return;
-            }
-
-
-            for (i = 0; i < jsonData.length; i++) {
-                data = document.getElementById(jsonData[i].attribute);
+            for (let i = 0; i < jsonData.length; i++) {
+                let data = document.getElementById(jsonData[i].attribute);
 
                 if (jsonData[i].type === "file" && !data) {
                     result.push({
@@ -379,9 +317,8 @@ class Settings extends Component {
                     }
 
                     let required = jsonData[i].required;
-                    if (jsonData[i].attribute.includes("ldap")) {
-                        required = ldap_enable ? jsonData[i].required && true : false;
-                    }
+
+
                     var validateResult = await this.validate(jsonData[i].attribute, jsonData[i].value, jsonData[i].label, JSON.stringify(jsonData[i].restriction), required)
                     if (validateResult !== true) {
                         data.scrollIntoView();
@@ -400,78 +337,47 @@ class Settings extends Component {
                 wait: true
             });
             var thiss = this;
-
-            if (!ldapChange) {
-                await querySrv("api/save", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        "app": "m_config",
-                        "attrs": result
-                    }),
-                    credentials: 'include',
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Access-Control-Allow-Credentials": "include"
-                    }
-                }).then(function (response) {
-                    thiss.setState({
-                        wait: false
-                    });
-                    if (!response.ok) {
-                        console.error(response.statusText);
-                    }
-                    else {
-                        //store new settings in storage
-                        result.forEach(res => {
-                            jsonData.forEach(data => {
-                                if (data.attributes === res.attribute) {
-                                    data.value = res.value;
-                                }
-                            })
-                        });
-                        let settings = JSON.parse(JSON.stringify(storePersistent.getState().settings));
-                        settings[0] = { app: "m_config", attrs: jsonData };
-                        storePersistent.dispatch(setSettings(settings));
-                    }
-                    return response.json();
-                }).then(function (responseData) {
-                    if (responseData.msg && responseData.msg !== "Data has been saved.") {
-                        alert(JSON.stringify(responseData.msg));
-                    }
-
-                }).catch(function (error) {
-                    console.error(error);
-                    alert("Problem with saving data. " + error);
+            await querySrv("api/save", {
+                method: "POST",
+                body: JSON.stringify({
+                    "app": "m_config",
+                    "attrs": result
+                }),
+                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Credentials": "include"
+                }
+            }).then(function (response) {
+                thiss.setState({
+                    wait: false
                 });
-            }
-            else {
-
-                querySrv("api/save", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        "app": "m_config",
-                        "attrs": result
-                    }),
-                    credentials: 'include',
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Access-Control-Allow-Credentials": "include"
-                    }
-
-                }).then(function () {
-                }).catch(function () {
-                    //no handlig error needed, nginx will reset connection and client shouldn't expect answer
-                });
-
-
-                setTimeout(function () {
-                    thiss.setState({
-                        wait: false
+                if (!response.ok) {
+                    console.error(response.statusText);
+                }
+                else {
+                    //store new settings in storage
+                    result.forEach(res => {
+                        jsonData.forEach(data => {
+                            if (data.attributes === res.attribute) {
+                                data.value = res.value;
+                            }
+                        })
                     });
+                    let settings = JSON.parse(JSON.stringify(storePersistent.getState().settings));
+                    settings[0] = { app: "m_config", attrs: jsonData };
+                    storePersistent.dispatch(setSettings(settings));
+                }
+                return response.json();
+            }).then(function (responseData) {
+                if (responseData.msg && responseData.msg !== "Data has been saved.") {
+                    alert(JSON.stringify(responseData.msg));
+                }
 
-                }, 1000);
-                return;
-            }
+            }).catch(function (error) {
+                console.error(error);
+                alert("Problem with saving data. " + error);
+            });
         }
 
     }
@@ -672,7 +578,7 @@ class Settings extends Component {
             else if (data[i].category === "Alarms") {
                 Alarms.push(data[i]);
             }
-            else if (data[i].category === "Authentication") {
+            else if (data[i].category === "SMTP") {
                 Auth.push(data[i]);
             }
         }
@@ -688,7 +594,7 @@ class Settings extends Component {
 
         return (<div className="container-fluid" > {this.state.wait && < SavingScreen />}
             <div className="chart"><p className="settingsH" style={{ "marginTop": "30px" }}> General </p> {Generaldata} </div>
-            <div className="chart"><p className="settingsH" > Authentication </p> {Authdata}</div>
+            <div className="chart"><p className="settingsH" > SMTP </p> {Authdata}</div>
             <div className="chart"><p className="settingsH" > Alarms </p> {Alarmsdata} </div>
             <div className="chart"><p className="settingsH" > Events </p> {Eventsdata} </div>
             <div className="chart"><p className="settingsH" > Elasticsearch and logstash </p> {LEdata} </div>
