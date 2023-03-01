@@ -31,7 +31,8 @@ class NetworkCharts extends Dashboard {
             greylist: [],
             whitelist: [],
             isLoading: true,
-            hostnames: []
+            hostnames: [],
+            dropAlert: []
 
         };
         this.callBacks = {
@@ -109,7 +110,7 @@ class NetworkCharts extends Dashboard {
     render() {
         return (
             <div>
-                { this.state.isLoading && <LoadingScreenCharts />}
+                {this.state.isLoading && <LoadingScreenCharts />}
                 <div className="row no-gutters">
                     <div className="col-6 pr-1">
                         <MultipleLineChart id="callsByHost" hostnames={this.state.hostnames} data={this.state.callsByHost} name={"MAX CALLS BY HOST"} ticks={3}
@@ -172,6 +173,10 @@ class NetworkCharts extends Dashboard {
                     </div>
                     <div className="col-6 px-1">
                         <MultipleLineChart id="whitelist" hostnames={this.state.hostnames} data={this.state.whitelist} name={"IPS ON FW WHITELIST BY HOST"} ticks={3}
+                        />
+                    </div>
+                    <div className="col-6 px-1">
+                        <MultipleLineChart id="dropAlert" hostnames={this.state.hostnames} data={this.state.dropAlert} name={"PACKET DROP ALERT COUNTERS"} ticks={3}
                         />
                     </div>
 

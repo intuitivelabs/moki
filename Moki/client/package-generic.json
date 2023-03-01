@@ -12,7 +12,7 @@
   ],
   "dependencies": {
     "@moki-client/es-response-parser": "git+https://git@github.com/intuitivelabs/es-response-parser.git#master",
-    "@moki-client/gui": "git+https://git@github.com/intuitivelabs/moki-gui.git#master",
+    "@moki-client/gui": "git+https://git@github.com/intuitivelabs/moki-gui.git#F5.2",
     "@moki-client/react-bootstrap-table-next": "git+https://git@github.com/intuitivelabs/react-bootstrap-table2-1.git#master",
     "@fidm/x509": "^1.2.1",
     "bootstrap": "^4.6.0",
