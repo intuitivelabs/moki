@@ -6,7 +6,7 @@ import React from 'react';
 import Dashboard from '../Dashboard.js';
 import LoadingScreenCharts from '../../helpers/LoadingScreenCharts';
 import MultipleLineChart from '../../charts/multipleLine_chart';
-import {parseMultipleLineData} from '@moki-client/es-response-parser';
+import { parseMultipleLineData } from '@moki-client/es-response-parser';
 
 
 class NetworkCharts extends Dashboard {
@@ -31,7 +31,8 @@ class NetworkCharts extends Dashboard {
             greylist: [],
             whitelist: [],
             isLoading: true,
-            hostnames: []
+            hostnames: [],
+            dropAlert: []
 
         };
         this.callBacks = {
@@ -172,6 +173,10 @@ class NetworkCharts extends Dashboard {
                     </div>
                     <div className="col-6 px-1">
                         <MultipleLineChart id="whitelist" hostnames={this.state.hostnames} data={this.state.whitelist} name={"IPS ON FW WHITELIST BY HOST"} ticks={3}
+                        />
+                    </div>
+                    <div className="col-6 px-1">
+                        <MultipleLineChart id="dropAlert" hostnames={this.state.hostnames} data={this.state.dropAlert} name={"PACKET DROP ALERT COUNTERS"} ticks={3}
                         />
                     </div>
 
