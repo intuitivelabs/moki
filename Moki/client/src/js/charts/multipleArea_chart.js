@@ -65,7 +65,7 @@ export default class MultipleAreaChart extends Component {
             top: 20,
             right: 45,
             bottom: 40,
-            left: 70
+            left: 100
         };
 
         var height = 200 - margin.top - margin.bottom;
