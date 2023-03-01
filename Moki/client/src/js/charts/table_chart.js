@@ -1007,7 +1007,7 @@ export default class listChart extends Component {
 
         const options = {
             pageButtonRenderer,
-            sizePerPage: this.state.count,
+            sizePerPage: parseInt(this.state.count),
             sizePerPageOptionRenderer
         };
 
