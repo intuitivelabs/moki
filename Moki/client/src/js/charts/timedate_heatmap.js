@@ -56,6 +56,9 @@ export default class timedateHeatmap extends Component {
         if(name === "TYPE DATE HEATMAP"){
             marginLeft = 100;
         }
+        else if(name === "NODES - ACTIVITY" || name === "NODES - KEEP ALIVE"){
+            marginLeft = 70;
+        }
 
         var margin = {
             top: 10,
@@ -63,6 +66,7 @@ export default class timedateHeatmap extends Component {
             bottom: 40,
             left: marginLeft
         };
+
 
         var wholeWidth = width;
         width = width - margin.right - margin.left;
