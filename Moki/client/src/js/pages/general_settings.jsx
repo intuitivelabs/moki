@@ -185,10 +185,13 @@ class Settings extends Component {
             restriction = JSON.parse(restriction);
 
             if (restriction.max) {
+                value = parseInt(value);
                 if (value > restriction.max) return "Error: field '" + label + "' must be lower than " + restriction.max;
             }
 
             if (restriction.min) {
+                value = parseInt(value);
+
                 if (value < restriction.min) return "Error: field '" + label + "' must be higher than " + restriction.min;
             }
 
