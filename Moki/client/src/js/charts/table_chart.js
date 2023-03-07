@@ -622,62 +622,71 @@ export default class listChart extends Component {
         </p>
     }
 
-    renderExpand(row) {
-
+    renderExpand(row, all = false) {
         var keys = Object.keys(row);
         var displayedAttrs = getDisplayedAttributes();
         var result = [];
         var categorySort = [];
         for (var i = 0; i < keys.length; i++) {
-            if (keys[i] === "attrs") {
-                let attrs = Object.keys(row[keys[i]]);
-                for (let j = 0; j < attrs.length; j++) {
-                    if (displayedAttrs.includes("attrs." + attrs[j])) {
-                        let category = getCategory("attrs." + attrs[j]);
-                        if (!categorySort[category]) categorySort[category] = [];
-                        categorySort[category].push(this.renderExpandRow(attrs[j], row[keys[i]][attrs[j]], false, "attrs", row));
-                    }
 
-                    //custom variable in vars.* - render all and everything is searchable
-                    if (attrs[j] === "vars") {
-                        var variable = Object.keys(row[keys[i]][attrs[j]]);
-                        for (let k = 0; k < variable.length; k++) {
-                            let categoryInner = "VARS";
-                            if (!categorySort[categoryInner]) categorySort[categoryInner] = [];
-                            categorySort[categoryInner].push(this.renderExpandRow(variable[k], row[keys[i]][attrs[j]][variable[k]], true, "attrs.vars", row));
-                        }
-                    }
-                }
-
-            }
-            else if (keys[i] === "geoip") {
-                let attrs = Object.keys(row[keys[i]]);
-                for (let j = 0; j < attrs.length; j++) {
-                    if (displayedAttrs.includes("geoip." + attrs[j])) {
-                        let category = getCategory("geoip." + attrs[j]);
-                        if (!categorySort[category]) categorySort[category] = [];
-                        categorySort[category].push(this.renderExpandRow(attrs[j], row[keys[i]][attrs[j]], false, "geoip", row));
-                    }
-                }
-
+            if (all) {
+                result.push(<p value={row[keys[i]]} key={keys[i]}>
+                    <span className="spanTab">{keys[i]}: </span>
+                    <span className="tab"  >{row[keys[i]]}</span>
+                </p>)
             }
             else {
-                if (displayedAttrs.includes(keys[i])) {
-                    let category = getCategory(keys[i]);
-                    if (!categorySort[category]) categorySort[category] = [];
-                    categorySort[category].push(this.renderExpandRow(keys[i], row[keys[i]], false, "", row));
+                if (keys[i] === "attrs") {
+                    let attrs = Object.keys(row[keys[i]]);
+                    for (let j = 0; j < attrs.length; j++) {
+                        if (displayedAttrs.includes("attrs." + attrs[j])) {
+                            let category = getCategory("attrs." + attrs[j]);
+                            if (!categorySort[category]) categorySort[category] = [];
+                            categorySort[category].push(this.renderExpandRow(attrs[j], row[keys[i]][attrs[j]], false, "attrs", row));
+                        }
+
+                        //custom variable in vars.* - render all and everything is searchable
+                        if (attrs[j] === "vars") {
+                            var variable = Object.keys(row[keys[i]][attrs[j]]);
+                            for (let k = 0; k < variable.length; k++) {
+                                let categoryInner = "VARS";
+                                if (!categorySort[categoryInner]) categorySort[categoryInner] = [];
+                                categorySort[categoryInner].push(this.renderExpandRow(variable[k], row[keys[i]][attrs[j]][variable[k]], true, "attrs.vars", row));
+                            }
+                        }
+                    }
+
+                }
+                else if (keys[i] === "geoip") {
+                    let attrs = Object.keys(row[keys[i]]);
+                    for (let j = 0; j < attrs.length; j++) {
+                        if (displayedAttrs.includes("geoip." + attrs[j])) {
+                            let category = getCategory("geoip." + attrs[j]);
+                            if (!categorySort[category]) categorySort[category] = [];
+                            categorySort[category].push(this.renderExpandRow(attrs[j], row[keys[i]][attrs[j]], false, "geoip", row));
+                        }
+                    }
+
+                }
+                else {
+                    if (displayedAttrs.includes(keys[i])) {
+                        let category = getCategory(keys[i]);
+                        if (!categorySort[category]) categorySort[category] = [];
+                        categorySort[category].push(this.renderExpandRow(keys[i], row[keys[i]], false, "", row));
+                    }
+                }
+
+
+                var categories = Object.keys(categorySort);
+                //create div for each category
+                for (i = 0; i < categories.length; i++) {
+                    result.push(
+                        <div key={categories[i]}><h3>{categories[i].toUpperCase()}</h3>
+                            {categorySort[categories[i]]}
+                        </div>
+                    )
                 }
             }
-        }
-
-        var categories = Object.keys(categorySort);
-        //create div for each category
-        for (i = 0; i < categories.length; i++) {
-            result.push(
-                <div key={categories[i]}><h3>{categories[i].toUpperCase()}</h3>
-                    {categorySort[categories[i]]}
-                </div>
-            )
         }
         return result;
 
@@ -740,8 +749,8 @@ export default class listChart extends Component {
                 var zip = new JSZip();
                 for (var i = 0; i < selectedData.length; i++) {
                     var record = thiss.getRecord(selectedData[i]);
-                    var filename = record._source.attrs.filename ? record._source.attrs.filename : Math.random().toString(36).substring(7);
-                    if (record._source.attrs.filename) {
+                    var filename = record._source && record._source.attrs && record._source.attrs.filename ? record._source.attrs.filename : Math.random().toString(36).substring(7);
+                    if (record._source && record._source.attrs && record._source.attrs.filename) {
                         await downloadPcap(record._source.attrs.filename).then(function (data) {
                             filename = filename ? filename.substring(0, filename.length - 5) : "";
                             filename = filename ? filename.substring(filename.lastIndexOf("/") + 1) : Math.random().toString(36).substring(7);
@@ -753,7 +762,7 @@ export default class listChart extends Component {
                     }
 
                     //download sd
-                    if (record._source.attrs.filename) {
+                    if (record._source && record._source.attrs && record._source.attrs.filename) {
                         var sd = await downloadSD(record._source.attrs.filename);
                         if (sd && (!sd.includes("Error") || !sd.includes("error"))) {
                             zip.file(filename + ".html", sd);
@@ -800,7 +809,7 @@ export default class listChart extends Component {
             },
             renderer: row => (
                 <div className="tab">
-                    {this.renderExpand(row._source)}
+                    {this.renderExpand(row._source ? row._source : row, row._source ? false : true)}
                 </div>
             ),
             expandByColumnOnly: true,
@@ -920,7 +929,7 @@ export default class listChart extends Component {
                 //if there is mode stored in local storage, use this
                 let storedProfile = localStorage.getItem('profile');
                 if (storedProfile) {
-                  profile = JSON.parse(storedProfile);
+                    profile = JSON.parse(storedProfile);
                 }
 
                 if (profile && profile[0] && profile[0].userprefs.mode === "encrypt") {

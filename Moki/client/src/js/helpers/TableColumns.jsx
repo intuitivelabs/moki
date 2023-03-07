@@ -32,6 +32,7 @@ const attrsTypes = {
     "@timestamp": "time",
     "timestamp": "time",
     "ts-start": "time",
+    "created": "time",
     "rx": "round",
     "tx": "round",
     "shortterm": "round",
@@ -96,7 +97,7 @@ class BLcheck extends Component {
 
     render() {
         if (this.state.isBL) {
-            return <span style={{ "marginLeft": "5px" }} title="blacklisted"><img style={{"height": "20px"}}className="icon" title="blacklisted" alt="BLicon" src={BLIcon} /></span>
+            return <span style={{ "marginLeft": "5px" }} title="blacklisted"><img style={{ "height": "20px" }} className="icon" title="blacklisted" alt="BLicon" src={BLIcon} /></span>
         }
         else {
             return "";
@@ -578,7 +579,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                         )}
                     </Popup>
                     }
-                     {(storePersistent.getState().user.aws === true && storePersistent.getState().user.jwt !== 0 && window.location.pathname.includes("/alerts")) && <Popup trigger={<img className="icon" data={obj} alt="suppressIcon" src={suppressIcon} title="suppress alert" />} modal>
+                    {(storePersistent.getState().user.aws === true && storePersistent.getState().user.jwt !== 0 && window.location.pathname.includes("/alerts")) && <Popup trigger={<img className="icon" data={obj} alt="suppressIcon" src={suppressIcon} title="suppress alert" />} modal>
                         {close => (
                             <div className="Advanced">
                                 <button className="close" onClick={close}>
@@ -587,7 +588,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                                 <div className="contentAdvanced" style={{ "padding": "35px" }}>
                                     <p>Are you sure, you want to suppress {ob.alert.desc} for key <b>{ob.alert.key.name}</b></p>
                                     <p>and value <b>{ob.alert.key.value}</b>?</p>
-                                    <button  className="btn btn-primary shadow" style={{"marginLeft": "40%", "marginTop": "6px"}} onClick={() => supressAlert(ob)} data={obj}> Yes </button>
+                                    <button className="btn btn-primary shadow" style={{ "marginLeft": "40%", "marginTop": "6px" }} onClick={() => supressAlert(ob)} data={obj}> Yes </button>
                                 </div>
                             </div>
                         )}
@@ -646,8 +647,13 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                 }
             }
             //time format
-            else if (attrsTypes[column_name.source] && attrsTypes[column_name.source] === "time") {
-                let dataField = '_source.' + column_name.source;
+            else if ((attrsTypes[column_name.source] && attrsTypes[column_name.source] === "time") || column_name.source.includes("TS")) {
+                let dataPath = "_source.";
+                if (window.location.pathname === "/profiles") {
+                    dataPath = "";
+                }
+
+                let dataField = 'dataPath' + column_name.source;
                 if (rawTables.includes(dashboard)) {
                     dataField = column_name.source;
                 }
@@ -664,14 +670,18 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                             return parseTimestamp(new Date(parseInt(ob * 1000)));
                         }
                         else {
-                            ob = obj._source[column_name.source];
+                            if (obj[dataPath]) {
+                                ob = obj[dataPath][column_name.source];
+                            }
                         }
 
-                        if (parseTimestamp(ob) !== "Invalid date") {
-                            return parseTimestamp(ob)
-                        }
-                        else {
-                            return parseTimestamp(new Date(parseInt(ob)));
+                        if (ob) {
+                            if (parseTimestamp(ob) !== "Invalid date") {
+                                return parseTimestamp(ob)
+                            }
+                            else {
+                                return parseTimestamp(new Date(parseInt(ob)));
+                            }
                         }
                     }
                 }
@@ -730,7 +740,12 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                 }
             }
             else {
-                let dataField = '_source.' + column_name.source;
+                let dataPath = '_source.';
+                if (window.location.pathname === "/profiles") {
+                    dataPath = "";
+                }
+
+                let dataField = dataPath + column_name.source;
                 if (rawTables.includes(dashboard)) {
                     dataField = column_name.source;
                 }
@@ -743,7 +758,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                     hidden: hidden,
                     headerStyle: { width: getColumnWidth(column_name.source, width) },
                     formatter: (cell, obj) => {
-                        var ob = obj._source;
+                        var ob = obj[dataPath];
                         var field = column_name.source;
                         let isEncrypted = false;
                         if (ob && ob.encrypt) {
@@ -850,6 +865,7 @@ export function tableColumns(dashboard, tags, layout) {
             let hidden = columnsTableDefaultListConcat[i].hasOwnProperty("hidden") ? columnsTableDefaultListConcat[i].hidden : true;
             result.push(getColumn({ source: source, name: name, "icons": ["download", "diagram", "details", "share"] }, tags, tag = null, width = "150px", hidden, dashboard));
         }
+
         return result;
     }
 }

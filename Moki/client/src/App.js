@@ -573,7 +573,7 @@ class App extends Component {
                 console.info("Router: admin mode");
                 var dashboardAlter = [...this.state.dashboards];
                 if (this.state.aws) {
-                    dashboardAlter.push("tenant");
+                    dashboardAlter.push("profiles");
                     dashboardAlter.push("connectivityIP");
                 }
 
