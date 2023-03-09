@@ -1,19 +1,13 @@
-import React, {
-  Component
-} from 'react';
+import React, { Component } from 'react';
 import * as d3 from "d3";
-import {
-  downloadPcap
-} from '../helpers/download/downloadPcap';
+import { downloadPcap } from '../helpers/download/downloadPcap';
 import downloadIcon from "../../styles/icons/download.png";
 import downloadPcapIcon from "../../styles/icons/downloadPcap.png";
-import {
-  downloadPcapMerged
-} from '../helpers/download/downloadPcapMerged';
-import {
-  downloadSD
-} from '../helpers/download/downloadSD';
+import { downloadPcapMerged } from '../helpers/download/downloadPcapMerged';
+import { downloadSD } from '../helpers/download/downloadSD';
 import querySrv from '../helpers/querySrv';
+import { parseTimestamp } from "../helpers/parseTimestamp";
+
 
 class SequenceDiagram extends Component {
   constructor(props) {
@@ -240,16 +234,34 @@ class SequenceDiagram extends Component {
 
         */
         var dataNew = [];
-        var calls = data.querySelectorAll('call');
         var date = "";
+        let previousTimestamp = 0;
+        let actualTimestamp = 0;
+        var calls = data.querySelectorAll('call');
         for (var i = 0; i < calls.length; i++) {
-          var details = [];
-          var textLine = calls[i].querySelectorAll('text-line');
-          date = calls[i].querySelectorAll('text-line')[0].innerHTML.substr(6);
-          for (var j = 2; j < textLine.length; j++) {
-            details.push(textLine[j].innerHTML);
-            if (textLine[j].innerHTML.includes("Date")) {
-              date = textLine[j].innerHTML.substr(5);
+          var details = calls[i].innerHTML;
+          for (var j = 2; j < calls[i].attributes.length; j++) {
+            if (calls[i].attributes[j].name === "timestamp") {
+              date = calls[i].attributes[j].nodeValue;
+              previousTimestamp = actualTimestamp;
+              actualTimestamp = calls[i].attributes[j].nodeValue;
+              if (i === 0) {
+                previousTimestamp = calls[i].attributes[j].nodeValue;
+              }
+            }
+          }
+
+          if (i === 0) {
+            date = parseTimestamp(parseFloat(date * 1000));
+          }
+          else {
+            let diff = Math.round((actualTimestamp - previousTimestamp)*1000);
+            if(diff > 1000){
+              date = "+ " +  Math.round(diff/1000)+ "s";
+            }
+            else {
+              date = "+ " +  diff+ "ms";
+
             }
           }
 
@@ -274,19 +286,35 @@ class SequenceDiagram extends Component {
         function syntaxHighlight(data) {
           var result = ["<div><b>" + data.msg + "</b></div>"];
           data = data.details;
-          for (var j = 0; j < data.length; j++) {
-            var nameIndex = data[j].indexOf(":");
-            if (nameIndex !== -1) {
-              result = result + "<div><span className='key'><b>" + data[j].substring(0, nameIndex) + ": </b></span><span className='value'>" + data[j].substring(nameIndex + 1) + "<span></div>";
-            }
-            else if (data[j].includes("c=") || data[j].includes("m=")) {
-              result = result + "<div><span className='value' style='color:green'>" + data[j] + "<span></div>";
-            }
-            else {
-              result = result + "<div><span className='value'>" + data[j] + "<span></div>";
+          let split = data.split("\n");
+          let secondPart = false;
+          for (var j = 0; j < split.length; j++) {
+            if (j !== 0) {
+              if (split[j].length === 0) {
+                secondPart = true;
+                result = result + "<br/>";
+              }
+
+              if (!secondPart) {
+                var nameIndex = split[j].indexOf(":");
+
+                if (nameIndex !== -1) {
+                  result = result + "<div><span className='key'><b>" + split[j].substring(0, nameIndex) + ": </b></span><span className='value'>" + split[j].substring(nameIndex + 1) + "<span></div>";
+                }
+                else {
+                  result = result + "<div><span className='value'>" + split[j] + "<span></div>";
+                }
+              }
+              if (secondPart) {
+                if (split[j].includes("c=") || split[j].includes("m=")) {
+                  result = result + "<div><span className='value' style='color:green'>" + split[j] + "<span></div>";
+                }
+                else {
+                  result = result + "<div><span className='value'>" + split[j] + "<span></div>";
+                }
+              }
             }
           }
-
           return result;
         }
 
@@ -361,7 +389,7 @@ class SequenceDiagram extends Component {
 
           }
           else {
-             y = MESSAGE_ARROW_Y_OFFSET + (i) * MESSAGE_SPACE;
+            y = MESSAGE_ARROW_Y_OFFSET + (i) * MESSAGE_SPACE;
             svg.append("line")
               .style("stroke", function (d) { return m.color; })
               .attr("x1", XPAD + classes.indexOf(m.src) * VERT_SPACE)
@@ -535,7 +563,7 @@ class SequenceDiagram extends Component {
               */
 
               // set the element's new position:
-              elmnt.style.top  = elTop + "px";
+              elmnt.style.top = elTop + "px";
               elmnt.style.left = elLeft + "px";
             }
           }
