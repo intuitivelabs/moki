@@ -191,7 +191,7 @@ class DiagramController {
         }
       }
       if (!error) {
-        process = ["cfanal -time-sort-destinations -ignore-ser-dns-wd -ignore-dns-ptr -sip-timestamp -sip-message-details -silent -print-cf - ", concatFile].join(' ');
+        process = ["cfanal -time-sort-destinations -ignore-ser-dns-wd -ignore-dns-ptr -sip-pure-messages -sip-message-details -silent -print-cf - ", concatFile].join(' ');
 
         exec(process, paramsExec, function (error, stdout) {
           if (error) {
@@ -220,7 +220,7 @@ class DiagramController {
 
         } else {
 
-          process = ["cfanal -time-sort-destinations -ignore-ser-dns-wd -ignore-dns-ptr -sip-timestamp -sip-message-details -silent -print-cf - -r ", file].join(' ');
+          process = ["cfanal -time-sort-destinations -ignore-ser-dns-wd -ignore-dns-ptr -sip-pure-messages -sip-message-details -silent -print-cf - -r ", file].join(' ');
 
           exec(process,  paramsExec, function (error, stdout) {
             if (error) {
@@ -288,7 +288,7 @@ class DiagramController {
           }
         });
       }
-      process = ["cfanal -time-sort-destinations -ignore-ser-dns-wd -ignore-dns-ptr -sip-timestamp -sip-message-details -silent -print-cf - ", concatFile].join(' ');
+      process = ["cfanal -time-sort-destinations -ignore-ser-dns-wd -ignore-dns-ptr -sip-pure-messages -sip-message-details -silent -print-cf - ", concatFile].join(' ');
 
       exec(process,  paramsExec, function (error, stdout) {
         //replace breaks
@@ -327,7 +327,7 @@ class DiagramController {
             respond.end();
             return;
           }
-          process = ["cfanal -time-sort-destinations -ignore-ser-dns-wd -ignore-dns-ptr -sip-timestamp -sip-message-details -silent -print-cf - -r ", file].join(' ');
+          process = ["cfanal -time-sort-destinations -ignore-ser-dns-wd -ignore-dns-ptr -sip-pure-messages -sip-message-details -silent -print-cf - -r ", file].join(' ');
 
           exec(process,  paramsExec, function (error, stdout) {
             if (error) {
