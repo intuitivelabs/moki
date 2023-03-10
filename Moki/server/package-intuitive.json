@@ -38,6 +38,7 @@
     "morgan": "^1.10.0",
     "process": "^0.11.10",
     "sockjs-client": "^1.5.1",
+    "puppeteer": "^19.7.3",
     "swagger-jsdoc": "^4.0.0",
     "swagger-ui-express": "^4.1.4"
   },
