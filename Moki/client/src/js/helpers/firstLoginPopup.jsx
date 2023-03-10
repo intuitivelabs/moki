@@ -95,7 +95,7 @@ export default class FirstLoginPopup extends Component {
         return (
             <div className="popupOverlay" style={{ "visibility": "visible" }}>
                 <div id="popupsmall" style={{ "maxWidth": "550px" }}>
-                    <h3 style={{ "marginBottom": "15px" }}>It seems this is fresh installation of monitor. Please enter hostname of CCM used for user authentication:</h3>
+                    <h3 style={{ "marginBottom": "15px" }}>Address of CCM is not set. Please enter hostname of CCM used for user authentication:</h3>
                     <div className="row align-items-center">
                         <label className="col-md-6 col-form-label" htmlFor="ccmAddr" style={{ "color": "grey" }}>{ccmAddrLabel}</label>
                         <input type="text" id="ccmAddr" required className="form-control col" onKeyDown={(e) => this.keyDown(e)} />
