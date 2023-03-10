@@ -364,7 +364,7 @@ create new user with password in htpasswd
   static getUsername(req, res) {
     try {
       let parsedHeader = parseBase64(req.headers['x-amzn-oidc-data']);
-      return res.json({ username: parsedHeader.username });      
+      return res.json({ username: parsedHeader.username });
     } catch (e) {
       return res.json({ username: "Undefined"});
     }
@@ -402,24 +402,35 @@ create new user with password in htpasswd
 
     const jsonData = JSON.parse(fs.readFileSync(cfg.fileMonitor));
 
-    console.debug('JSON config to be updated: %O', jsonData);
+    console.debug('JSON config to be updated: %o', jsonData);
 
     let appExists = false;
     for (let i = 0; i < jsonData["general"]["global-config"].length; i++) {
       if (jsonData["general"]["global-config"][i]["app"] === "m_config") {
 
-        let attrExists = false;
+        let attrAddrExists = false;
+        let attrProxyExists = false;
         for (let j = 0; j < jsonData["general"]["global-config"][i]["attrs"].length; j++) {
           if (jsonData["general"]["global-config"][i]["attrs"][j]["attribute"] === "ccmAddr") {
             jsonData["general"]["global-config"][i]["attrs"][j]["value"] = req.body.ccmAddr;
-            attrExists = true;
-            break;
+            attrAddrExists = true;
+          }
+          if (jsonData["general"]["global-config"][i]["attrs"][j]["attribute"] === "ccmProxied") {
+            jsonData["general"]["global-config"][i]["attrs"][j]["value"] = req.body.ccmProxied ? true : false;
+            attrProxyExists = true;
           }
         }
-        if (!attrExists){
+
+        if (!attrAddrExists){
           jsonData["general"]["global-config"][i]["attrs"].push({
             attribute : "ccmAddr",
             value     : req.body.ccmAddr
+          });
+        }
+        if (!attrProxyExists){
+          jsonData["general"]["global-config"][i]["attrs"].push({
+            attribute : "ccmProxied",
+            value     : req.body.ccmProxied ? true : false
           });
         }
 
@@ -434,11 +445,14 @@ create new user with password in htpasswd
         attrs : [{
             attribute : "ccmAddr",
             value     : req.body.ccmAddr
+          },{
+            attribute : "ccmProxied",
+            value     : req.body.ccmProxied ? true : false
           }]
       });
     }
 
-    console.debug('updated JSON: %O', jsonData);
+    console.debug('updated JSON: %o', jsonData);
 
     SettingController.saveSettings(jsonData)
       .then((msg) => {
