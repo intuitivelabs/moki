@@ -3,6 +3,7 @@ import isHostnameOrIp from './isHostnameOrIp';
 import querySrv from './querySrv';
 
 const ccmAddrLabel = "Hostname or IP of CCM";
+const ccmProxiedLabel = "Proxy CCM behind monitor";
 
 export default class FirstLoginPopup extends Component {
 
@@ -42,13 +43,15 @@ export default class FirstLoginPopup extends Component {
         document.getElementById("create").style.display = "block";
 
         const ccmAddr = document.getElementById("ccmAddr").value;
+        const ccmProxied = document.getElementById("ccmProxied").checked;
 
         try {
             var response = await querySrv("/api/firsttimelogin/save", {
                 method: "POST",
                 body:
                     JSON.stringify({
-                        ccmAddr: ccmAddr
+                        ccmAddr    : ccmAddr,
+                        ccmProxied : ccmProxied
                     }),
                 headers: {
                     "Content-Type": "application/json",
@@ -92,14 +95,26 @@ export default class FirstLoginPopup extends Component {
         return (
             <div className="popupOverlay" style={{ "visibility": "visible" }}>
                 <div id="popupsmall" style={{ "maxWidth": "550px" }}>
-                    <h3 style={{ "marginBottom": "15px" }}>It seems this is fresh installation of monitor. Please enter hostname of CCM used for user authentication:</h3>
-                    <div className="form-group row">
-                        <label className="col-md-5 col-form-label text-nowrap" style={{ "color": "grey" }}>{ccmAddrLabel}</label>
+                    <h3 style={{ "marginBottom": "15px" }}>Address of CCM is not set. Please enter hostname of CCM used for user authentication:</h3>
+                    <div className="row align-items-center">
+                        <label className="col-md-6 col-form-label" htmlFor="ccmAddr" style={{ "color": "grey" }}>{ccmAddrLabel}</label>
                         <input type="text" id="ccmAddr" required className="form-control col" onKeyDown={(e) => this.keyDown(e)} />
-
                     </div>
+                    <div className="row align-items-center">
+                        <label className="col-md-6 col-form-label" htmlFor="ccmProxied" style={{ "color": "grey" }}>{ccmProxiedLabel}</label>
+                        <div className="form-check col">
+                            <input type="checkbox" id="ccmProxied" className="mb-0" />
+                        </div>
+                    </div>
+                    <p className='text-center font-italic' style={{ "fontSize": "11px", "color": "grey" }}>
+                        If the checkbox is checked, the CCM is proxied behind monitor for authentication purposes.
+                        This allow e.g. to use monitor GUI via SSH tunnel as everything is behind single IP address,
+                        but single-sign-on to CCM GUI does not work.
+                        If the checkbox is unchecked, single-sign-on should work if configured properly. E.g. you should
+                        use FQDN instead of IP address for accessing monitor and CCM.
+                    </p>
                     {this.state.error ? <p className="error" style={{"color": "red"}}>{this.state.error}</p> : ""}
-                    <div style={{ "textAlign": "center" }}>
+                    <div style={{ "textAlign": "center" }} className="mt-4">
                         <button onClick={this.save} style={{ "marginRight": "5px" }} className="btn btn-primary"><i className="fa fa-circle-o-notch fa-spin" id="create" style={{ "display": "none" }}></i> <span id="createR">Save</span> </button>
                     </div>
                 </div>
