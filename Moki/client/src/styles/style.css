@@ -977,7 +977,7 @@ tr:hover td {
 }
 
 .rightButton {
-    margin-left: 80% !important;
+    float: right;
     margin-top: 10px;
     min-width: 100px;
 }
