@@ -68,7 +68,7 @@ class ConnectivityCAController extends Controller {
       //CA RATIO HISTORY
       { index: "logstash*", template: datehistogram_two_agg_query, params: ["attrs.dst_ca_id", "failure", "timebucket", "timestamp_gte", "timestamp_lte", "avg"], filter: "*" },
       //CA AVAILABILITY
-      { index: "logstash*", template: datehistogram_two_agg_query, params: ["attrs.dest_ca_name", "StatesCA", "timebucket", "timestamp_gte", "timestamp_lte", "max"], filter: "*" },
+      { index: "logstash*", template: datehistogram_two_agg_query, params: ["attrs.dest_ca_name", "StatesCA", "timebucket", "timestamp_gte", "timestamp_lte", "max"], filter: "*", types: "*" },
       //DURATION OF CALLS CA
       { index: "logstash*", template: heatmap_query_three, params: ["attrs.src_ca_id", "attrs.dst_ca_id", "attrs.duration"], filter: "*" },
       //DESTINATIONS CAs STATISTICS
