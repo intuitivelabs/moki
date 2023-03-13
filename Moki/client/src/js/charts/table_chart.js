@@ -632,7 +632,7 @@ export default class listChart extends Component {
             if (all) {
                 result.push(<p value={row[keys[i]]} key={keys[i]}>
                     <span className="spanTab">{keys[i]}: </span>
-                    <span className="tab"  >{row[keys[i]]}</span>
+                    <span className="tab"  >{ typeof row[keys[i]] === 'object'? JSON.stringify(row[keys[i]]) : row[keys[i]]}</span>
                 </p>)
             }
             else {

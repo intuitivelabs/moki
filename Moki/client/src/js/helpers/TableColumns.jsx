@@ -8,9 +8,8 @@ import shareIcon from "../../styles/icons/share_dark.png";
 import overviewIcon from "../../styles/icons/alertProfile.png";
 import suppressIcon from "../../styles/icons/suppress.png";
 import unfilterIcon from "../../styles/icons/unfilter.png";
-import alertProfileIcon from "../../styles/icons/alert_profile.png";
 import BLIcon from "../../styles/icons/blacklist.png";
-import AlertProfile from "../helpers/alertProfile";
+import AdvancedProfile from "../helpers/advancedProfile";
 import downloadPcapIcon from "../../styles/icons/downloadPcap.png";
 import downloadIcon from "../../styles/icons/download.png";
 import viewIcon from "../../styles/icons/view.png";
@@ -541,6 +540,9 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
             editable: false,
             formatter: (cell, obj) => {
                 var ob = obj._source;
+                if (!obj._source) {
+                    ob = obj;
+                }
 
                 //remove _attr
                 const iterate = (obj) => {
@@ -558,14 +560,14 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                 ob = iterate(JSON.parse(JSON.stringify(ob)));
 
                 return <span>
-                    {(ob.attrs.filenameDownload && column_name.icons.includes("download")) &&
+                    {(ob.attrs && ob.attrs.filenameDownload && column_name.icons.includes("download")) &&
                         <button className="noFormatButton" onClick={getPcap} file={ob.attrs.filenameDownload}>  <img className="icon" alt="downloadIcon" src={downloadPcapIcon} title="download PCAP" /></button>
                     }
 
-                    {(ob.attrs.filenameDownload && column_name.icons.includes("downloadAll")) &&
+                    {(ob.attrs && ob.attrs.filenameDownload && column_name.icons.includes("downloadAll")) &&
                         <button className="noFormatButton" onClick={() => downloadAll(ob)} file={ob.attrs.filenameDownload} data={obj}>  <img className="icon" alt="downloadIcon" src={downloadIcon} title="download all" /></button>
                     }
-                    {(ob.attrs.filenameDownload && column_name.icons.includes("diagram") && storePersistent.getState().user.aws === false) && <a href={"/sequenceDiagram/" + ob.attrs.filenameDownload} target="_blank" rel="noopener noreferrer"><img className="icon" alt="viewIcon" src={viewIcon} title="view PCAP" /></a>}
+                    {(ob.attrs && ob.attrs.filenameDownload && column_name.icons.includes("diagram") && storePersistent.getState().user.aws === false) && <a href={"/sequenceDiagram/" + ob.attrs.filenameDownload} target="_blank" rel="noopener noreferrer"><img className="icon" alt="viewIcon" src={viewIcon} title="view PCAP" /></a>}
                     {(ob.dbg && ob.dbg.msg_trace && column_name.icons.includes("diagram")) && <Popup trigger={<img className="icon" alt="viewIcon" src={viewIcon} title="diagram" />} modal>
                         {close => (
                             <div className="Advanced">
@@ -620,12 +622,16 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                         )}
                     </Popup>
                     }
-                    {(obj._id && column_name.icons.includes("share")) &&
+                    {(obj._id && column_name.icons.includes("share")) && !window.location.pathname.includes("/profiles") &&
                         <button className="noFormatButton" onClick={() => shareEvent(obj._id)}>  <img className="icon" alt="shareIcon" src={shareIcon} title="copy event link to share" /><span id={"tooltipshareFilter" + obj._id} style={{ "display": "none", "marginTop": "8px", "position": "absolute", "backgroundColor": "white" }}>Copied to clipboard</span></button>
                     }
+                    { window.location.pathname.includes("/profiles") && <AdvancedProfile obj={obj}/> }
+
+
                 </span>
             }
         }
+
         //default case with searchable icons and not searchable
         default:
             //fnc case - round
@@ -648,7 +654,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
             }
             //time format
             else if ((attrsTypes[column_name.source] && attrsTypes[column_name.source] === "time") || column_name.source.includes("TS")) {
-                let dataPath = "_source.";
+                let dataPath = "_source";
                 if (window.location.pathname === "/profiles") {
                     dataPath = "";
                 }
