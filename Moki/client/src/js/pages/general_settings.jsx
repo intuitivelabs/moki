@@ -284,6 +284,15 @@ class Settings extends Component {
                 }
 
                 if (data) {
+                    //for event_tls_verify_peer you need to load also cert file  && data.checked
+                    if (data.id === "event_tls_verify_peer" && data.checked) {
+                        let cert = document.getElementById("event_tls_cacert");
+                        if (cert.value === "") {
+                            alert("You must load also 'CA cert to check for TLS events input' when 'Enable CA cert check for TLS events input' is on");
+                            return;
+                        }
+                    };
+
                     if (data.type === "checkbox") {
                         jsonData[i].value = data.checked;
                     }
