@@ -232,13 +232,6 @@ class Settings extends Component {
                 return "Error: field '" + label + "' must contain hostname or IP address";
             }
 
-            if (restriction.type && restriction.type.enum) {
-                if (restriction.type.enum.includes(value)) {
-                    return true;
-                }
-                return "Error: field '" + label + "' must have value one of " + restriction.type.enum.join('-');
-            }
-
             return true;
         }
 
@@ -459,7 +452,7 @@ class Settings extends Component {
                                 </span>
                                 {<select className="text-left form-control form-check-input" defaultValue={data[i].value} id={data[i].attribute} restriction={JSON.stringify(data[i].restriction)} label={data[i].label} isrequired={data[i].required  ?  "true" : "false"} onChange={(e) => { this.check(e.target.getAttribute("id"), e.target.value, e.target.getAttribute("label"), e.target.getAttribute("restriction"), e.target.getAttribute("isrequired")) }} >
                                     {data[i].restriction.type.enum.map((e, i) => {
-                                        return (<option value={e} key={e}>{e}</option>)
+                                        return (<option value={e.key} key={e.key}>{e.value}</option>)
                                     })}
                                 </select>
                                 }
