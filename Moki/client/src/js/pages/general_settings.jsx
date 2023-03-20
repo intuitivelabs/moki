@@ -567,6 +567,7 @@ class Settings extends Component {
         var Events = [];
         var Auth = [];
         var Alarms = [];
+        var SMTP = [];
 
         //separate type
         for (var i = 0; i < data.length; i++) {
@@ -582,8 +583,11 @@ class Settings extends Component {
             else if (data[i].category === "Alarms") {
                 Alarms.push(data[i]);
             }
-            else if (data[i].category === "SMTP") {
+            else if (data[i].category === "Authentication") {
                 Auth.push(data[i]);
+            }
+            else if (data[i].category === "SMTP") {
+                SMTP.push(data[i]);
             }
         }
 
@@ -592,13 +596,15 @@ class Settings extends Component {
         var LEdata = this.generate(LE);
         var Eventsdata = this.generate(Events);
         var Authdata = this.generate(Auth);
+        var SMTPdata = this.generate(SMTP);
         var Alarmsdata = this.generate(Alarms);
         //        var Tagdata = this.generateTags();
 
 
         return (<div className="container-fluid" > {this.state.wait && < SavingScreen />}
             <div className="chart"><p className="settingsH" style={{ "marginTop": "30px" }}> General </p> {Generaldata} </div>
-            <div className="chart"><p className="settingsH" > SMTP </p> {Authdata}</div>
+            <div className="chart"><p className="settingsH" > Authentication </p> {Authdata}</div>
+            <div className="chart"><p className="settingsH" > SMTP </p> {SMTPdata}</div>
             <div className="chart"><p className="settingsH" > Alarms </p> {Alarmsdata} </div>
             <div className="chart"><p className="settingsH" > Events </p> {Eventsdata} </div>
             <div className="chart"><p className="settingsH" > Elasticsearch and logstash </p> {LEdata} </div>
