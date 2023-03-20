@@ -9,7 +9,6 @@ import { setWidthChart } from "../actions/index";
 import collapseIcon from "../../styles/icons/collapse.png";
 import { renderNavBar, logout } from '@moki-client/gui';
 import storePersistent from "../store/indexPersistent";
-import querySrv from '../helpers/querySrv';
 
 class navBar extends Component {
     constructor(props) {
@@ -18,7 +17,7 @@ class navBar extends Component {
             collapsed: false,
             dashboards: this.props.dashboards,
             dashboardsSettings: this.props.dashboardsSettings,
-            dashboardsUser: this.props.dashboardsUser
+            dashboardsUser: this.isLDAPuser(this.props.dashboardsUser)
 
         };
         this.togglebar = this.togglebar.bind(this);
@@ -34,16 +33,23 @@ class navBar extends Component {
             this.setState({ dashboardsSettings: nextProps.dashboardsSettings });
         }
         if (nextProps.dashboardsUser !== this.props.dashboardsUser) {
-            this.setState({ dashboardsUser: nextProps.dashboardsUser });
+            this.setState({ dashboardsUser: this.isLDAPuser(nextProps.dashboardsUser) });
         }
 
+    }
+    //remove change password for LDAP users
+    isLDAPuser(dashboardList) {
+        if (storePersistent.getState().user.userbackend !== "DB" && dashboardList.includes("changePassword")) {
+            dashboardList.splice(dashboardList.indexOf("changePassword"));
+        }
+        return dashboardList;
     }
 
     updateState() {
         this.setState({
             dashboards: this.props.dashboards,
             dashboardsSettings: this.props.dashboardsSettings,
-            dashboardsUser: this.props.dashboardsUser
+            dashboardsUser: this.isLDAPuser(this.props.dashboardsUser)
 
         })
     }
@@ -117,112 +123,6 @@ class navBar extends Component {
     }
 
 
-    changepassword() {
-        function keyPressCheckPassword(e) {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                checkPassword();
-            }
-        }
-
-        async function checkPassword() {
-            document.getElementById("createR").style.display = "none";
-            document.getElementById("create").style.display = "block";
-
-            var password = document.getElementById("password").value;
-            var password2 = document.getElementById("password2").value;
-            //password length > 8
-            if (password.length < 8) {
-                window.mainPopup.error("Password must have at least 8 characters.");
-            }
-            else if (password !== password2) {
-                window.mainPopup.error("Passwords are not same.");
-            }
-            else if (password.indexOf("'") >= 0 || password.indexOf('"') >= 0) {
-                window.mainPopup.error("Passwords can't contains any quotes.");
-            }
-            else {
-
-
-                //get username
-                var username = "";
-                try {
-                    var response = await querySrv("/api/user/username", {
-                        method: "GET",
-                        credentials: 'include',
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Access-Control-Allow-Credentials": "include"
-                        }
-                    })
-
-                    if (response.status !== 200) {
-                        window.mainPopup.error("Problem to create user.");
-                    }
-                    var res = await response.json();
-                    if (res.error) {
-                        window.mainPopup.error(res.error);
-                    }
-                    else {
-                        //ok
-                        username = res.username;
-                    }
-                } catch (error) {
-                    window.mainPopup.error(error);
-                }
-
-
-                try {
-                    response = await querySrv("/api/user/create", {
-                        method: "POST",
-                        credentials: 'include',
-                        body:
-                            JSON.stringify({
-                                name: username,
-                                password: password
-                            }),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Access-Control-Allow-Credentials": "include"
-                        }
-                    })
-
-                    if (response.status !== 200) {
-                        window.mainPopup.error("Problem to create user.");
-                    }
-                    res = await response.json();
-                    if (res.error) {
-                        window.mainPopup.error(res.error);
-                    }
-                    else {
-                        //ok
-                        window.location.reload();
-                    }
-                }
-                catch (error) {
-                    console.error(error);
-                }
-            }
-
-            document.getElementById("createR").style.display = "block";
-            document.getElementById("create").style.display = "none";
-        }
-
-
-        var changePasswordForm = <span>
-            <h3 style={{ "marginBottom": "15px" }}>Set a new password with at least 8 characters:</h3>
-            <input type="password" id="password" className="form-control" placeholder="password"></input>
-            <input type="password" id="password2" onKeyPress={(e) => keyPressCheckPassword(e)} className="form-control" placeholder="same password again" style={{ "marginTop": "5px" }}></input>
-            <div style={{ "textAlign": "end" }}>
-                <button style={{ "marginRight": "5px", "marginTop": "10px" }} className="btn btn-secondary" onClick={window.mainPopup.storno}>Storno </button>
-                <button style={{ "marginRight": "5px", "marginTop": "10px" }} className="btn btn-primary" onClick={() => checkPassword()}><i className="fa fa-circle-o-notch fa-spin" id="create" style={{ "display": "none" }}></i> <span id="createR">Change</span> </button>
-            </div>
-
-        </span>
-        window.mainPopup.error("");
-        window.mainPopup.setPopup("visible", changePasswordForm);
-    }
-
     render() {
         var dashboardsSettings = [...this.state.dashboardsSettings];
         var dashboards = [...this.state.dashboards];
@@ -255,6 +155,7 @@ class navBar extends Component {
         var userDash = [...this.state.dashboardsUser];
         if (userDash.indexOf("logout") !== -1) userDash.splice(userDash.indexOf("logout"), 1);
         if (userDash.indexOf("changePassword") !== -1) userDash.splice(userDash.indexOf("changePassword"), 1);
+
         var navbarUser = renderNavBar(userDash);
 
         return (
@@ -280,12 +181,12 @@ class navBar extends Component {
                         </div>
                     </Link>
                     }
-                    {this.state.dashboardsUser.includes("changePassword") && <button className="noFormatButton bg-dark list-group-collaps list-group-item-action d-flex align-items-center" onClick={this.changepassword}>
+                    {this.state.dashboardsUser.includes("changePassword") && <a className="noFormatButton bg-dark list-group-collaps list-group-item-action d-flex align-items-center" href="/change_pw">
                         <div className="d-flex w-100 justify-content-start align-items-center">
                             <img className="marginRight" src={password} alt="transport" />
-                            <span className="menu-collapsed menuText" style={{ "color": "white" }}>Change password</span>
+                            <span className="menu-collapsed menuText" style={{ "color": "white" }} >Change password</span>
                         </div>
-                    </button>
+                    </a>
                     }
                     <button onClick={this.togglebar} data-toggle="sidebar-colapse" className="noFormatButton bg-dark list-group-collaps list-group-item-action d-flex align-items-center" >
                         <div className="d-flex w-100 justify-content-start align-items-center">
