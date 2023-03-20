@@ -26,6 +26,7 @@ function parseBase64(token) {
  * for user mode return filter for attrs.from, attrs.to, attrs.r-uri  and also domain filter
  */
 async function getJWTsipUserFilter(req) {
+  console.log("----------------------getJWTsipUserFilter");
   // localhost query -- open up
   /* if (req.connection.remoteAddress === '127.0.0.1') {
        console.log("ACCESS getJWTsipUserFilter: permitted for localhost source");
