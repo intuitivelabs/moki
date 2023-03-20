@@ -11,8 +11,8 @@ import storePersistent from "../store/indexPersistent";
 FORMAT   {errno: X, text: Y, level: Z}
 LEVELS
 1) error
-    - {errno: 1, text: "Logstash is not running", level: "error"}
-    - {errno: 2, text: "Elasticsearch is not running", level: "error"}
+    - {errno: 1, text: "Logstash is not running or can't index event", level: "error"}
+    - {errno: 2, text: "Elasticsearch is not running or can't create index", level: "error"}
     - {errno: 3, text: "Disk full > 90%", level: "error"}
     - {errno: 6, text: "Can't connect to monitor server", level: "error" }
 2) warning
@@ -23,8 +23,8 @@ LEVELS
 */
 const NOTIFICATIONS = [
     {},
-    { errno: 1, text: "Logstash is not running", level: "error" },
-    { errno: 2, text: "Elasticsearch is not running", level: "error" },
+    { errno: 1, text: "Logstash is not running or can't index event", level: "error" },
+    { errno: 2, text: "Elasticsearch is not running or can't create index", level: "error" },
     { errno: 3, text: "Disk full > 90%", level: "error" },
     { errno: 4, text: "Disk full > 80%", level: "warning" },
     { errno: 5, text: "Downloading data", level: "info" },

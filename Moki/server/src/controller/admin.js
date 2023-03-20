@@ -5,6 +5,7 @@ const { exec } = require("child_process");
 const fs = require('fs');
 const { cfg } = require('../modules/config');
 const SettingController = require('./setting');
+const shouldAcceptLocalhost = require('@moki-server/server/helpers/allowLocalhost');
 
 let oldJti = "";
 const hfName = 'x-amzn-oidc-data';
@@ -101,12 +102,18 @@ class AdminController {
       });
     }
     // localhost query -- open up
-    // if (req.connection.remoteAddress === '127.0.0.1') {
-    //    console.log("ACCESS getJWTsipUserFilter: permitted for localhost source");
-    // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
-    // this is implicit Promise like if there was "return Promise.resolve("*")
-    //     return res.json({ user: 'localhost', aws: false });
-    // }
+    console.log("----------------localhost-------------");
+    console.log(shouldAcceptLocalhost.shouldAcceptLocalhost());
+    console.log(req.connection);
+    if (req.originalUrl.startsWith("/api/report")) {
+      //if(shouldAcceptLocalhost.shouldAcceptLocalhost()){
+      //if (req.connection.remoteAddress === '127.0.0.1') {
+      //   console.log("ACCESS getJWTsipUserFilter: permitted for localhost source");
+      // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
+      // this is implicit Promise like if there was "return Promise.resolve("*")
+      return res.json({ user: 'localhost', aws: true });
+      // }
+    }
 
     // check config if JWT required
     let isAccept;

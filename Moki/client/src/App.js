@@ -427,8 +427,9 @@ class App extends Component {
 * */
     async getSipUser() {
         var response = "";
+        var sip;
         try {
-            var sip;
+
             response = await querySrv(BASE_NAME + "/api/user/sip", {
                 credentials: "include",
                 method: "GET",
@@ -464,7 +465,12 @@ class App extends Component {
                     console.info("MOKI: sip user: " + sip.user);
 
                     //get username
-                    sip.username = await getUsername();
+                    if (sip.user !== "localhost") {
+                        sip.username = await getUsername();
+                    }
+                    else {
+                        sip.username = "report";
+                    }
 
                     //set user info :  email:email, domainID:domainID, jwt: jwtbit
                     storePersistent.dispatch(setUser(sip));
@@ -491,6 +497,15 @@ class App extends Component {
                     }
 
                     //default user: no need to log in for web
+                    //localhost: no need to log, just get layout
+                    if (sip.user === "localhost") {
+                        var jsonData = await getLayoutSettings();
+                        storePersistent.dispatch(setLayout(jsonData));
+                        this.setState({
+                            dashboards: ["report"],
+                            isLoading: false
+                        });
+                    }
                     if (sip.user !== "DEFAULT") {
                         this.getMonitorSettings();
                     }
@@ -511,7 +526,7 @@ class App extends Component {
 
             } else {
                 console.error(error);
-                window.notification.showError({ errno: 2, text: "Check elasticsearch connection and restart the page.", level: "error" });
+                window.notification.showError({ errno: 2, text: "Check elasticsearch connection and restart the page. " + error, level: "error" });
             }
         }
     }
