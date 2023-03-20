@@ -120,11 +120,14 @@ class AdminController {
       return res.json({ redirect: "errorInConfigProcessing" });
     }
 
+    // WE DON¨T HAVE THIS OPTION ANYMORE
     // JWT not required -- open up
-    if (!isAccept) {
-      console.log(`ACCESS getJWTsipUserFilter: * permitted because no JWT required`);
-      return res.json({ user: `ADMIN`, aws: false });
-    }
+    //if (!isAccept) {
+    //  console.log(`ACCESS getJWTsipUserFilter: * permitted because no JWT required`);
+    //  return res.json({ user: `ADMIN`, aws: false });
+    // }
+
+
 
     // JWT required -- parse it and validate it
     let parsedHeader;
@@ -153,6 +156,7 @@ class AdminController {
     const email = parsedHeader['email'];
     const jti = parsedHeaderAccessToken['jti'];
     const sourceIP = IPs[0];
+    const userbackend = parsedHeader['custom:userbackend'];
 
     if (jwtbit === undefined) {
       //default user for web dashboard
@@ -174,6 +178,12 @@ class AdminController {
     }
 
     jwtbit = parseInt(jwtbit);
+
+    //F option
+    if (userbackend) {
+      return res.json({ user: `ADMIN`, aws: false, email: email, domainID: domainID, jwt: jwtbit, "sub": subId, userbackend: userbackend });
+    }
+
     // Root SuperAdmin Level
     if (jwtbit === 0) {
       console.log(`ACCESS: JWT admin level 0, NO FILTERS for user ${subId}`);
@@ -287,13 +297,15 @@ class AdminController {
     const jwtbit = parsedHeader['custom:adminlevel'];
     const domainID = parsedHeader['custom:domainid'];
     const subId = parsedHeader['sub'];
+    const userbackend = parsedHeader['custom:userbackend'];
 
     if (domainID) {
       return {
         sip: sip,
         jwtbit: jwtbit,
         domain: domainID,
-        sub: subId
+        sub: subId,
+        userbackend: userbackend
       };
     }
     else {
