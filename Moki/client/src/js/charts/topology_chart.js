@@ -445,7 +445,7 @@ export default class topology extends Component {
                     }
                 })
                 .append("svg:title")
-                .text(function (d) { return d.key })
+                .text(function (d) { return d})
                 .on("click", el => {
                     createFilter(field1 + ":\"" + el + "\" OR " + field2 + ":\"" + el + "\"");
                     //bug fix: if you click but not move out
