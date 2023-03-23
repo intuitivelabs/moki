@@ -14,6 +14,7 @@ import MultiListChart from '../../charts/multiple_list_chart.js';
 import ListChartMonitoring from '../../charts/list_chart_monitoring.js';
 import MonitoringListChart from '../../charts/monitoring_list_chart.js';
 import BootstrapTable from '@moki-client/react-bootstrap-table-next';
+import { parseTimestamp } from "../../helpers/parseTimestamp";
 import paginationFactory, { PaginationProvider } from 'react-bootstrap-table2-paginator';
 import {elasticsearchConnection} from '@moki-client/gui';
 
@@ -205,7 +206,15 @@ class MonitoringCharts extends Component {
         };
 
         var columns = [];
-        columns.push({
+        columns.push(
+            {
+                dataField: 'timestamp',
+                text: 'Time',
+                formatter: (cell, obj) => {
+                    console.log(obj);
+                        return parseTimestamp(new Date(parseInt(obj.timestamp * 1000)));
+                    }
+            },{
             dataField: 'text',
             text: 'Text'
         },
@@ -228,7 +237,7 @@ class MonitoringCharts extends Component {
                             <span >
                                 <BootstrapTable
                                     keyField="sub"
-                                    data={window.notification.getAllNotifications()}
+                                    data={window.notification.getAllNotifications(true)}
                                     bordered={false}
                                     bootstrap4
                                     hover
