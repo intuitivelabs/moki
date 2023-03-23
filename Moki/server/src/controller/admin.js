@@ -138,6 +138,12 @@ class AdminController {
       return res.json({ redirect: "JWTparsingError" });
     }
 
+    //F first login option
+    const isFirstLogin = parsedHeader['custom:isFrafos'];
+    if (isFirstLogin) {
+      return res.json({ user: `ADMIN`, aws: false });
+    }
+
     let parsedHeaderAccessToken;
     let IPs;
     try {
