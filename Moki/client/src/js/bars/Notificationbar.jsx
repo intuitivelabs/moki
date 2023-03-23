@@ -106,7 +106,7 @@ class Notificationbar extends Component {
             }
         }
         if (!isFound) {
-            error.timestamp = new Date.now();
+            error.timestamp = Date.now();
 
             this.setState({
                 notifications: this.state.notifications.concat(error),
