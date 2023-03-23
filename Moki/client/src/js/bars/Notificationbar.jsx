@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import status from '../helpers/status';
+import { status } from '../helpers/status'
+import { diskSpace } from '../helpers/status';
 import { Redirect } from 'react-router';
 import infoIcon from "../../styles/icons/info.png";
 import warningIcon from "../../styles/icons/warning.png";
@@ -35,7 +36,9 @@ class Notificationbar extends Component {
         super(props);
         this.state = {
             notifications: [],
+            allNotifications: [],
             redirect: false,
+            diskSpace: null,
             statusCheck: null
         }
         this.remove = this.remove.bind(this);
@@ -48,14 +51,13 @@ class Notificationbar extends Component {
 
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         var self = this;
         var user = storePersistent.getState().user;
         console.log(user);
         if (user && user.user !== "DEFAULT") {
+            //ES, logstash status check every 30s
             let statusCheck = setInterval(async function () {
-
-                //ES, logstash status check every 30s
                 let result = await status();
                 if (result.status !== "ok") {
                     self.showError(result.status);
@@ -65,12 +67,29 @@ class Notificationbar extends Component {
                     self.remove(2);
                 }
             }, 30000);
-            this.setState({ statusCheck: statusCheck });
+
+            //disk check, very 30s
+            let diskSpaceCheck = setInterval(async function () {
+                let result = await diskSpace();
+                if (result.status !== "ok") {
+                    self.showError(result.status);
+                }
+                else {
+                    self.remove(3);
+                    self.remove(4);
+                }
+            }, 30000);
+
+            this.setState({
+                statusCheck: statusCheck,
+                diskSpace: diskSpaceCheck
+            });
         }
     }
 
     componentWillUnmount() {
         clearTimeout(this.state.statusCheck);
+        clearTimeout(this.state.diskSpace);
     }
 
     /**
@@ -87,8 +106,11 @@ class Notificationbar extends Component {
             }
         }
         if (!isFound) {
+            error.timestamp = new Date.now();
+
             this.setState({
-                notifications: this.state.notifications.concat(error)
+                notifications: this.state.notifications.concat(error),
+                allNotifications: this.state.notifications.concat(error)
             });
         }
     }
@@ -103,8 +125,18 @@ class Notificationbar extends Component {
         return NOTIFICATIONS[errno];
     }
 
-    getAllNotifications() {
-        return this.state.notifications;
+    /**
+  * get notification 
+  * @param {string}  with history or not   
+  * @return {object} 
+  * */
+    getAllNotifications(history = false) {
+        if (history) {
+            return this.state.allNotifications;
+        }
+        else {
+            return this.state.notifications;
+        }
     }
 
     /**
