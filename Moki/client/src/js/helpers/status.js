@@ -18,11 +18,11 @@ export async function status() {
     let result = "ok";
 
     if (json.error) {
-        result = { errno: 2, text: "Elasticsearch is not running", level: "error" };
+        result = { errno: 2, text: "Elasticsearch is not running or responding.", level: "error" };
     }
     //no event in last 30 seconds
     else if (json.hits && json.hits.hits && json.hits.hits.length === 0) {
-        result = { errno: 1, text: "Logstash is not running", level: "error" };
+        result = { errno: 1, text: "Events pipeline heartbeat problem. Logstash may not be running or can't store data in elasticsearch.", level: "error" };
     }
     return {
         status: result
