@@ -1,7 +1,6 @@
 import React, {
     Component
 } from 'react';
-import { Link } from 'react-router-dom';
 import logoutIcon from "../../styles/icons/log_out.png";
 import password from "../../styles/icons/password.png";
 import store from "../store/index";
@@ -174,12 +173,12 @@ class navBar extends Component {
                     </li>
 
                     {navbarUser}
-                    {this.state.dashboardsUser.includes("logout") && <Link to={this.props.aws === true ? "/logout" : "/"} className="bg-dark list-group-myitem list-group-item-action" onClick={logout}>
+                    {this.state.dashboardsUser.includes("logout") && <a href="/logout" className="bg-dark list-group-myitem list-group-item-action" onClick={logout}>
                         <div className="d-flex w-100 justify-content-start align-items-center">
                             <img className="marginRight" src={logoutIcon} alt="transport" />
                             <span className="menu-collapsed menuText">Log out</span>
                         </div>
-                    </Link>
+                    </a>
                     }
                     {this.state.dashboardsUser.includes("changePassword") && <a className="noFormatButton bg-dark list-group-collaps list-group-item-action d-flex align-items-center" href="/change_pw">
                         <div className="d-flex w-100 justify-content-start align-items-center">
