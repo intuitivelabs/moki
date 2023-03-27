@@ -211,8 +211,7 @@ class MonitoringCharts extends Component {
                 dataField: 'timestamp',
                 text: 'Time',
                 formatter: (cell, obj) => {
-                    console.log(obj);
-                        return parseTimestamp(new Date(parseInt(obj.timestamp * 1000)));
+                        return parseTimestamp(new Date(parseInt(obj.timestamp )));
                     }
             },{
             dataField: 'text',
