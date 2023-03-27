@@ -42,7 +42,7 @@ export default class FirstLoginPopup extends Component {
     validate(){
 
         const ccmAddr = document.getElementById("ccmAddr").value;
-        const ccmProxied = document.getElementById("ccmProxied").value;
+        const ccmProxied = document.getElementById("ccmProxied").checked;
 
         if (ccmAddr.trim() === "") {
             this.setState({ "error": `${ccmAddrLabel} must be filled.` });
@@ -54,7 +54,7 @@ export default class FirstLoginPopup extends Component {
             return false;
         }
 
-        if (!ccmProxied.checked){
+        if (!ccmProxied){
             if (!isHostname(window.location.hostname)) {
                 this.setState({ "error": `When CCM is not proxied behind monitor, the monitor shall be accessed by hostname, not by IP address.` });
                 return false;
