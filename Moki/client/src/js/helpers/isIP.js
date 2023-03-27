@@ -24,12 +24,13 @@ export function isIPv4only(value) {
 //is IPv4 with subnet 8, 16, 24
 export function isIPv4WithSubnetonly(value) {
     if (value !== "") {
-        value =  JSON.parse(JSON.stringify(value));
+        value = JSON.parse(JSON.stringify(value));
         //remove subnet part
         if (value.indexOf("/") !== -1) {
-            let subnet = value.substring( value.indexOf("/")); 
+            let subnet = value.substring(value.indexOf("/"));
             value = value.substring(0, value.indexOf("/"));
-            if(!subnet.includes("/8", "/16", "/24")){
+            let prefixes = ["/8", "/16", "/24"];
+            if (!prefixes.includes(subnet)) {
                 return false;
             }
         }
