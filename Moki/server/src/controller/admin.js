@@ -3,6 +3,8 @@ const { parseBase64 } = require('../modules/jwt');
 const { isRequireJWT } = require('../modules/config');
 const { exec } = require("child_process");
 const fs = require('fs');
+const https = require("https");
+const axios = require("axios");
 const { cfg } = require('../modules/config');
 const SettingController = require('./setting');
 
@@ -416,39 +418,24 @@ create new user with password in htpasswd
 
   }
 
-  static async firstTimeLoginSave(req, res) {
-
-    const jsonData = JSON.parse(fs.readFileSync(cfg.fileMonitor));
-
-    console.debug('JSON config to be updated: %o', jsonData);
-
+  static setJsonDataMConfig(jsonData, attrName, value){
     let appExists = false;
+
     for (let i = 0; i < jsonData["general"]["global-config"].length; i++) {
       if (jsonData["general"]["global-config"][i]["app"] === "m_config") {
 
-        let attrAddrExists = false;
-        let attrProxyExists = false;
+        let attrExists = false;
         for (let j = 0; j < jsonData["general"]["global-config"][i]["attrs"].length; j++) {
-          if (jsonData["general"]["global-config"][i]["attrs"][j]["attribute"] === "ccmAddr") {
-            jsonData["general"]["global-config"][i]["attrs"][j]["value"] = req.body.ccmAddr;
-            attrAddrExists = true;
-          }
-          if (jsonData["general"]["global-config"][i]["attrs"][j]["attribute"] === "ccmProxied") {
-            jsonData["general"]["global-config"][i]["attrs"][j]["value"] = req.body.ccmProxied ? true : false;
-            attrProxyExists = true;
+          if (jsonData["general"]["global-config"][i]["attrs"][j]["attribute"] === attrName) {
+            jsonData["general"]["global-config"][i]["attrs"][j]["value"] = value;
+            attrExists = true;
           }
         }
 
-        if (!attrAddrExists){
+        if (!attrExists){
           jsonData["general"]["global-config"][i]["attrs"].push({
-            attribute : "ccmAddr",
-            value     : req.body.ccmAddr
-          });
-        }
-        if (!attrProxyExists){
-          jsonData["general"]["global-config"][i]["attrs"].push({
-            attribute : "ccmProxied",
-            value     : req.body.ccmProxied ? true : false
+            attribute : attrName,
+            value     : value
           });
         }
 
@@ -461,14 +448,47 @@ create new user with password in htpasswd
       jsonData["general"]["global-config"].push({
         app   : "m_config",
         attrs : [{
-            attribute : "ccmAddr",
-            value     : req.body.ccmAddr
-          },{
-            attribute : "ccmProxied",
-            value     : req.body.ccmProxied ? true : false
+            attribute : attrName,
+            value     : value
           }]
       });
     }
+  }
+
+  static async firstTimeLoginSave(req, res) {
+    let ccmPubKey = null;
+
+    try{
+      if (!req.body.ccmAddr){
+        throw new Error('CCM address is not set');
+      }
+
+      const response = await axios({
+          url        : `https://${req.body.ccmAddr}/oauth/jwk.php`,
+          httpsAgent : new https.Agent({
+              rejectUnauthorized : false
+          })
+      });
+
+      if (!response.data.keys){
+          throw new Error('CCM did not provided its public key');
+      }
+
+      ccmPubKey = JSON.stringify(response.data);
+    }
+    catch(err){
+      // res.send({ "error": "fooobar" });
+      res.send({ "error": err.toString() });
+      return;
+    }
+
+    const jsonData = JSON.parse(fs.readFileSync(cfg.fileMonitor));
+
+    console.debug('JSON config to be updated: %o', jsonData);
+
+    AdminController.setJsonDataMConfig(jsonData, "ccmAddr", req.body.ccmAddr);
+    AdminController.setJsonDataMConfig(jsonData, "ccmProxied", req.body.ccmProxied ? true : false);
+    AdminController.setJsonDataMConfig(jsonData, "ccmPublicKey", ccmPubKey);
 
     console.debug('updated JSON: %o', jsonData);
 
