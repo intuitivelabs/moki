@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import isHostnameOrIp from './isHostnameOrIp';
+import { isHostnameOrIp, isHostname } from './isHostnameOrIp';
 import querySrv from './querySrv';
 
 const ccmAddrLabel = "Hostname or IP of CCM";
@@ -16,10 +16,33 @@ export default class FirstLoginPopup extends Component {
         this.keyDown = this.keyDown.bind(this);
     }
 
+    // Check whether two hostnames belong to the same domain, like:
+    // 'ccm.example.com' and 'monitor.example.com'
+    isFromSameDomain(val1, val2){
+        // Return part of the string behind 2nd last dot. E.g. from 'mon.example.com' it return the 'example.com'
+        function getDomain(val){
+            // get position of last dot
+            let lastDot = val.lastIndexOf('.');
+            if (lastDot < 0) return '';
+
+            // get position of 2nd last dot
+            lastDot = val.lastIndexOf('.', lastDot-1);
+            if (lastDot < 0) return '';
+
+            return val.slice(lastDot + 1);
+        }
+
+        const dom1 = getDomain(val1);
+        const dom2 = getDomain(val2);
+
+        if (!dom1 || !dom2 || dom1 !== dom2) return false;
+        return true;
+    }
 
     validate(){
 
         const ccmAddr = document.getElementById("ccmAddr").value;
+        const ccmProxied = document.getElementById("ccmProxied").checked;
 
         if (ccmAddr.trim() === "") {
             this.setState({ "error": `${ccmAddrLabel} must be filled.` });
@@ -29,6 +52,23 @@ export default class FirstLoginPopup extends Component {
         if (!isHostnameOrIp(ccmAddr)) {
             this.setState({ "error": `${ccmAddrLabel} must contain hostname or IP address.` });
             return false;
+        }
+
+        if (!ccmProxied){
+            if (!isHostname(window.location.hostname)) {
+                this.setState({ "error": `When CCM is not proxied behind monitor, the monitor shall be accessed by hostname, not by IP address.` });
+                return false;
+            }
+
+            if (!isHostname(ccmAddr)) {
+                this.setState({ "error": `When CCM is not proxied behind monitor ${ccmAddrLabel} must contain hostname.` });
+                return false;
+            }
+
+            if (!this.isFromSameDomain(ccmAddr, window.location.hostname)){
+                this.setState({ "error": `When CCM is not proxied behind monitor, the hostname in ${ccmAddrLabel} field must belong to the same domain as the monitor.` });
+                return false;
+            }
         }
 
         return true;
@@ -68,6 +108,8 @@ export default class FirstLoginPopup extends Component {
             var res = await response.json();
             if (res.error) {
                 this.setState({ "error": res.error });
+                document.getElementById("createR").style.display = "block";
+                document.getElementById("create").style.display = "none";
             }
             else {
                 // var thiss = this;
