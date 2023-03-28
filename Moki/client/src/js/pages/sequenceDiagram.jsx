@@ -239,9 +239,12 @@ class SequenceDiagram extends Component {
         let actualTimestamp = 0;
         var calls = data.querySelectorAll('call');
         for (var i = 0; i < calls.length; i++) {
-          var details = calls[i].innerHTML;
+          let details = "";
+          if(calls[i] && calls[i].innerHTML){
+            details = calls[i].innerHTML;
+          }
           for (var j = 2; j < calls[i].attributes.length; j++) {
-            if (calls[i].attributes[j].name === "timestamp") {
+            if (calls && calls[i] && calls[i].attributes[j] && calls[i].attributes[j].name === "timestamp" && calls[i].attributes[j] && calls[i].attributes[j].nodeValue) {
               date = calls[i].attributes[j].nodeValue;
               previousTimestamp = actualTimestamp;
               actualTimestamp = calls[i].attributes[j].nodeValue;
