@@ -4,7 +4,7 @@ import React, {
 import SavingScreen from '../helpers/SavingScreen';
 import isNumber from '../helpers/isNumber';
 import isIP from '../helpers/isIP';
-import { isHostnameOrIp } from '../helpers/isHostnameOrIp';
+import isHostnameOrIp  from '../helpers/isHostnameOrIp';
 import isEmail from '../helpers/isEmail';
 import deleteIcon from "../../styles/icons/delete_grey.png";
 import { elasticsearchConnection } from '@moki-client/gui';
@@ -568,6 +568,7 @@ class Settings extends Component {
         var Auth = [];
         var Alarms = [];
         var SMTP = [];
+        var TLS = [];
 
         //separate type
         for (var i = 0; i < data.length; i++) {
@@ -589,6 +590,9 @@ class Settings extends Component {
             else if (data[i].category === "SMTP") {
                 SMTP.push(data[i]);
             }
+            else if (data[i].category === "TLS") {
+                TLS.push(data[i]);
+            }
         }
 
         var Generaldata = this.generate(General);
@@ -598,12 +602,14 @@ class Settings extends Component {
         var Authdata = this.generate(Auth);
         var SMTPdata = this.generate(SMTP);
         var Alarmsdata = this.generate(Alarms);
+        var TLSsdata = this.generate(TLS);
         //        var Tagdata = this.generateTags();
 
 
         return (<div className="container-fluid" > {this.state.wait && < SavingScreen />}
             <div className="chart"><p className="settingsH" style={{ "marginTop": "30px" }}> General </p> {Generaldata} </div>
             <div className="chart"><p className="settingsH" > Authentication </p> {Authdata}</div>
+            <div className="chart"><p className="settingsH" > TLS </p> {TLSsdata}</div>
             <div className="chart"><p className="settingsH" > SMTP </p> {SMTPdata}</div>
             <div className="chart"><p className="settingsH" > Alarms </p> {Alarmsdata} </div>
             <div className="chart"><p className="settingsH" > Events </p> {Eventsdata} </div>
