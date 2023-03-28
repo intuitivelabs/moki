@@ -60,12 +60,12 @@ export default class heatmap extends Component {
 
         //compute max label length to get bottom margin
         var marginBottom = 50;
-        var marginLeft = 100;
+        var marginLeft = 150;
         if (data && data.length > 0) {
             var maxTextWidthX = d3.max(data.map(n => n.attr1.length));
             var maxTextWidthY = d3.max(data.map(n => n.attr2.length));
             marginBottom = (maxTextWidthX > 23 ? 150 : maxTextWidthX * 5.5) + 20 ;
-            marginLeft   = (maxTextWidthY > 23 ? 150 : maxTextWidthY > 15 ? maxTextWidthY * 6 : maxTextWidthY * 8) + 15 ;
+           // marginLeft   = (maxTextWidthY > 23 ? 150 : maxTextWidthY > 15 ? maxTextWidthY * 6 : maxTextWidthY * 8) + 15 ;
         }
 
         var margin = {
