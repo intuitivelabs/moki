@@ -46,11 +46,11 @@ export default class timedateHeatmap extends Component {
             elements.parentNode.removeChild(elements);
         }
 
-        var marginLeft = 100;
-        if (data.length > 0) {
+        var marginLeft = 150;
+       /* if (data.length > 0) {
             var maxTextWidth = d3.max(data.map(n => n.attr2.length));
-            marginLeft = maxTextWidth > 23 ? 150 : maxTextWidth > 15 ? maxTextWidth * 6 :  maxTextWidth * 9;
-        }
+             marginLeft = maxTextWidth > 23 ? 150 : maxTextWidth > 15 ? maxTextWidth * 6 :  maxTextWidth * 9;
+        }*/
 
         //fix for TYPE DATE HEATMAP, constant margin
         if(name === "TYPE DATE HEATMAP"){
