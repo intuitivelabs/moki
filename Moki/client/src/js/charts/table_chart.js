@@ -747,22 +747,26 @@ export default class listChart extends Component {
 
                 }
                 var zip = new JSZip();
+
                 for (var i = 0; i < selectedData.length; i++) {
                     var record = thiss.getRecord(selectedData[i]);
-                    var filename = record._source && record._source.attrs && record._source.attrs.filename ? record._source.attrs.filename : Math.random().toString(36).substring(7);
+                    let isPcap = false;
+                   var filename = selectedData[i];
+
+                    // var filename = record._source && record._source.attrs && record._source.attrs.filename ? record._source.attrs.filename : selectedData[i];
                     if (record._source && record._source.attrs && record._source.attrs.filename) {
                         await downloadPcap(record._source.attrs.filename).then(function (data) {
-                            filename = filename ? filename.substring(0, filename.length - 5) : "";
-                            filename = filename ? filename.substring(filename.lastIndexOf("/") + 1) : Math.random().toString(36).substring(7);
                             if (typeof data !== 'string') {
+                                filename = filename ? filename.substring(filename.lastIndexOf("/") + 1) : selectedData[i];
                                 var blob = new Blob([data], { type: "pcap" });
-                                zip.file(filename, blob);
+                                isPcap = true;
+                                zip.file(filename+ ".pcap", blob);
                             }
                         })
                     }
 
                     //download sd
-                    if (record._source && record._source.attrs && record._source.attrs.filename) {
+                    if (record._source && record._source.attrs && record._source.attrs.filename && isPcap) {
                         var sd = await downloadSD(record._source.attrs.filename);
                         if (sd && (!sd.includes("Error") || !sd.includes("error"))) {
                             zip.file(filename + ".html", sd);
