@@ -133,6 +133,7 @@ class Export extends Component {
             }
 
         } catch (error) {
+            window.notification.update({ errno: 5, text: "Problem to get data from elasticsearch. "+error, level: "error" });
             this.setState({
                 error: error,
                 data: null,
