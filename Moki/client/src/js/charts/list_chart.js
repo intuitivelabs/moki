@@ -101,7 +101,7 @@ class TableChart extends Component {
     field = field === "attrs.to.keyword" ? "attrs.to" : field;
     field = field === "attrs.r-uri.keyword" ? "attrs.r-uri" : field;
 
-    if (storePersistent.getState().profile[0] && storePersistent.getState().profile[0].userprefs.mode && storePersistent.getState().profile[0].userprefs.mode === "anonymous" && storePersistent.getState().profile[0].userprefs.anonymizableAttrs[field] && !storePersistent.getState().profile[0].userprefs.anonymizableAttrs[field].includes("NOT-")) {
+    if (storePersistent.getState().profile[0] && storePersistent.getState().profile[0].userprefs.mode && storePersistent.getState().profile[0].userprefs.mode === "anonymous" && storePersistent.getState().profile[1].userprefs.anonymizableAttrs[field] && !storePersistent.getState().profile[1].userprefs.anonymizableAttrs[field].includes("NOT-")) {
       isEncrypted = true;
     }
 
