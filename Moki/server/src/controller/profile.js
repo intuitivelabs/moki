@@ -39,31 +39,10 @@ class ProfileController {
         });
       }
 
-      //change format of userprefs before insert into ES
-      //"userprefs": {"ddd": "bbb", "aaa": "ccc"}  to ctx._source.event.userprefs.ddd = bbb; ctx._source.event.userprefs.aaa = ccc
-      let script = "";
-      for (let i = 0; i < keys.length; i++) {
-        //check if object type, parse it 
-        if (typeof req.body.userprefs[keys[i]] === 'object') {
-          let innerKeys = Object.keys(req.body.userprefs[keys[i]]);
-          for (let j = 0; j < innerKeys.length; j++) {
-            script = script + " ctx._source.event.userprefs." + keys[i] + "['" + innerKeys[j] + "']='" + req.body.userprefs[keys[i]][innerKeys[j]] + "';";
-          }
-        }
-        else {
-          script = script + " ctx._source.event.userprefs." + keys[i] + "='" + req.body.userprefs[keys[i]] + "';";
-        }
-      }
-
-      if (cfg.debug) console.info("Update script " + JSON.stringify(script));
-      // keys.splice(keys.indexOf("anonymizableAttrs"), 1);
       //check if event with same sub/domain exists, if so update it
       const update = await updateES(indexName, [
         { "query_string": { "query": "event." + secretField + ":" + secret } }
-      ], script, {
-        "field": field,
-        "key": keys
-      }, res);
+      ], "ctx._source.event.userprefs = params.userprefs",  {"userprefs": req.body.userprefs}, res);
 
       //event was updated
       if (update.updated !== 0) {
@@ -252,7 +231,7 @@ class ProfileController {
 
           //if nothing, return default where domain and sub == "default"
           if (domain === "N/A" || domainProfile.hits.hits.length === 0) {
-
+            /*
             //FIX: domain profile doesn't exists because site owner was created before
             var domainProfileSiteOwner = await searchES(indexName, [{ query_string: { "query": "event.sub:" + domain } }], res);
 
@@ -261,24 +240,27 @@ class ProfileController {
                 "domain": domain,
                 "userprefs": domainProfileSiteOwner.hits.hits[0]._source.event.userprefs
               }
+
+              if (cfg.debug) console.info("Got domain profile stored in ES " + JSON.stringify(domainProfile));
             }
             else {
               domainProfile = defaultDomainProfile;
-
+              if (cfg.debug) console.info("Domain profile not stored in ES, using default one");
             }
-            if (cfg.debug) console.info("Domain profile not stored in ES, using default one");
+*/
 
+            domainProfile = defaultDomainProfile;
           } //check if all parameters in default profile are also in user profile
           else {
-            domainProfile = domainProfile.hits.hits[0]._source.event;
+          domainProfile = domainProfile.hits.hits[0]._source.event;
             var keys = Object.keys(defaultDomainProfile.userprefs);
             for (var i = 0; i < keys.length; i++) {
               if (!domainProfile.userprefs[keys[i]]) {
                 domainProfile.userprefs[keys[i]] = defaultDomainProfile.userprefs[keys[i]];
               }
             }
+            
           }
-          if (cfg.debug) console.info("Got domain profile stored in ES " + JSON.stringify(domainProfile));
 
           //set hmac in cookie
           let hmac = userProfile.userprefs.validation_code;
