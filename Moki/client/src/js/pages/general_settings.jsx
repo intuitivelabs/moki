@@ -4,7 +4,7 @@ import React, {
 import SavingScreen from '../helpers/SavingScreen';
 import isNumber from '../helpers/isNumber';
 import isIP from '../helpers/isIP';
-import isHostnameOrIp  from '../helpers/isHostnameOrIp';
+import { isHostnameOrIp }  from '../helpers/isHostnameOrIp';
 import isEmail from '../helpers/isEmail';
 import deleteIcon from "../../styles/icons/delete_grey.png";
 import { elasticsearchConnection } from '@moki-client/gui';
