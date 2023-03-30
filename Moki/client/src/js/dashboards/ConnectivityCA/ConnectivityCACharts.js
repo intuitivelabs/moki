@@ -11,7 +11,7 @@ import ValueChart from '../../charts/value_chart.js';
 import MultivalueChart from '../../charts/multivalue_chart.js';
 import LoadingScreenCharts from '../../helpers/LoadingScreenCharts';
 import store from "../../store/index";
-import { parseHeatmapData, parseDateHeatmap, parseDateHeatmapAgg, parseHeatmapDataAgg1, parseHeatmapDataAgg3, parseQueryStringData, parseAggData, parseTopologyData, parseMultipleData, parseHeatmapDataAgg } from '@moki-client/es-response-parser';
+import { parseHeatmapData, parseDateHeatmap, parseDateHeatmapAgg, parseStatesCA, parseHeatmapDataAgg3, parseQueryStringData, parseAggData, parseTopologyData, parseMultipleData, parseHeatmapDataAgg } from '@moki-client/es-response-parser';
 
 class ConnectivityCACharts extends Dashboard {
 
@@ -66,7 +66,7 @@ class ConnectivityCACharts extends Dashboard {
                 [{ result: 'ratioHistory', func: parseDateHeatmapAgg, attrs: ["attrs.dst_ca_id"] }],
 
                 //CA AVAILABILITY
-                [{ result: 'caAvailability', func: parseHeatmapDataAgg1 }],
+                [{ result: 'caAvailability', func: parseStatesCA }],
 
                 //DURATION CA
                 [{ result: 'durationCA', func: parseHeatmapDataAgg3, attrs: ["attrs.src_ca_id", "attrs.dst_ca_id"] }],

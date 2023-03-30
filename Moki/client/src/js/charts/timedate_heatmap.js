@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import * as d3 from "d3";
 import store from "../store/index";
 import { setTimerange } from "../actions/index";
-import { createFilter} from '@moki-client/gui';
+import { createFilter } from '@moki-client/gui';
 import emptyIcon from "../../styles/icons/empty_small.png";
-import { getTimeBucket, getTimeBucketInt} from "../helpers/getTimeBucket";
-import {ColorsRedGreen} from "@moki-client/gui";
-import { ColorsGreen} from "@moki-client/gui";
-import {parseTimestamp, parseTimestampD3js, parseTimeData, parseTimestampUTC } from "../helpers/parseTimestamp";
-import {setTickNrForTimeXAxis} from "../helpers/chart";
+import { getTimeBucket, getTimeBucketInt } from "../helpers/getTimeBucket";
+import { ColorsRedGreen } from "@moki-client/gui";
+import { ColorsGreen } from "@moki-client/gui";
+import { parseTimestamp, parseTimestampD3js, parseTimeData, parseTimestampUTC } from "../helpers/parseTimestamp";
+import { setTickNrForTimeXAxis } from "../helpers/chart";
 
 export default class timedateHeatmap extends Component {
     constructor(props) {
@@ -18,21 +18,22 @@ export default class timedateHeatmap extends Component {
         }
     }
 
-    static getDerivedStateFromProps(nextProps, prevState){
-        if(nextProps.data!==prevState.data){
-          return { data: nextProps.data};
-       }
-       else return null;
-     }
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.data !== prevState.data) {
+            return { data: nextProps.data };
+        }
+        else return null;
+    }
 
-     componentDidUpdate(prevProps, prevState) {
-       if(prevProps.data!==this.props.data){
-        this.setState({ data: this.props.data });
-        this.draw(this.props.data, this.props.id, this.props.field, this.props.width, this.props.name, this.props.units);
-       }
-     }
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.data !== this.props.data) {
+            this.setState({ data: this.props.data });
+            this.draw(this.props.data, this.props.id, this.props.field, this.props.width, this.props.name, this.props.units);
+        }
+    }
 
     draw(data, id, field, width, name, units) {
+        console.log(data);
         units = units ? " (" + units + ")" : "";
         //FOR UPDATE: remove chart if it's already there
         var chart = document.getElementById(id + "SVG");
@@ -47,16 +48,16 @@ export default class timedateHeatmap extends Component {
         }
 
         var marginLeft = 150;
-       /* if (data.length > 0) {
-            var maxTextWidth = d3.max(data.map(n => n.attr2.length));
-             marginLeft = maxTextWidth > 23 ? 150 : maxTextWidth > 15 ? maxTextWidth * 6 :  maxTextWidth * 9;
-        }*/
+        /* if (data.length > 0) {
+             var maxTextWidth = d3.max(data.map(n => n.attr2.length));
+              marginLeft = maxTextWidth > 23 ? 150 : maxTextWidth > 15 ? maxTextWidth * 6 :  maxTextWidth * 9;
+         }*/
 
         //fix for TYPE DATE HEATMAP, constant margin
-        if(name === "TYPE DATE HEATMAP"){
+        if (name === "TYPE DATE HEATMAP") {
             marginLeft = 100;
         }
-        else if(name === "NODES - ACTIVITY" || name === "NODES - KEEP ALIVE"){
+        else if (name === "NODES - ACTIVITY" || name === "NODES - KEEP ALIVE") {
             marginLeft = 70;
         }
 
@@ -82,7 +83,7 @@ export default class timedateHeatmap extends Component {
             colorOneShade = ColorsRedGreen;
         }
         //max and min date
-        var maxTime = parseTimeData(store.getState().timerange[1])+getTimeBucketInt();
+        var maxTime = parseTimeData(store.getState().timerange[1]) + getTimeBucketInt();
         var minTime = parseTimeData(store.getState().timerange[0]) - (60 * 1000); //minus one minute fix for round up
 
         //scale for brush function
@@ -226,18 +227,9 @@ export default class timedateHeatmap extends Component {
                     if (name === "CA AVAILABILITY") {
                         //null
                         if (d.value === "" || d.value === null) return "";
-                            //Reachable
-                            if (d.value === 0) return "#4f9850";
-                            //Unreachable
-                            if (d.value === 1)  return "#fecac2";
-                            //Overloaded
-                            if (d.value === 2) return "#fd9584";
-                            //DnsError
-                            if (d.value === 3) return "#fc6047";
-                            //Error
-                            if (d.value === 4) return "#fb2a0a";
-                            //PartiallyAvailable
-                            if (d.value === 5) return "#FAF332";
+                        if (d.value === "partially") return  "#fecac2";
+                        if (d.value === "unreachable") return "#fc6047";
+                        if (d.value === "reachable") return "#4f9850";
                     }
                     else if (name === "AVG MoS") {
                         if (d.value <= 2.58) { return "#FE2E2E"; }
@@ -256,23 +248,18 @@ export default class timedateHeatmap extends Component {
                 .attr('transform', 'translate(' + cellSize / 2 + ',0)')
                 .on("mouseover", function (d) {
 
-                    var value = (d.value).toFixed(2);
+                    var value = d.value;
+
+                    if (typeof d.value === 'number') {
+                        value = (d.value).toFixed(2);
+                    }
                     if (name === "CA AVAILABILITY") {
-                        //Reachable
-                        if (d.value === 0) value = "Reachable";
-                        //Unreachable
-                        if (d.value === 1) value = "Unreachable";
-                        //Overloaded
-                        if (d.value === 2) value = "Overloaded";
-                        //DnsError
-                        if (d.value === 3) value = "DnsError";
-                        //Error
-                        if (d.value === 4) value = "Error";
-                        //PartiallyAvailable
-                        if (d.value === 5) value = "Partially Available";
+                        if (d.value === "partially") value = "Partially reachable";
+                        if (d.value === "unreachable") value = "Unreachable";
+                        if (d.value === "reachable") value = "Reachable";
                     }
 
-                    tooltip.select("div").html("<strong>" + d.attr2.charAt(0).toUpperCase() + d.attr2.slice(1) + ": </strong>" + value + units + "<br/><strong>Time: </strong>" + parseTimestampUTC(d.attr1)+ " + "+getTimeBucket());
+                    tooltip.select("div").html("<strong>" + d.attr2.charAt(0).toUpperCase() + d.attr2.slice(1) + ": </strong>" + value + units + "<br/><strong>Time: </strong>" + parseTimestampUTC(d.attr1) + " + " + getTimeBucket());
 
 
                     var tooltipDim = tooltip.node().getBoundingClientRect();
@@ -294,26 +281,26 @@ export default class timedateHeatmap extends Component {
                 createFilter(field + ": \"" + el.attr2 + "\"");
                 var tooltips = document.getElementById("tooltip" + id);
                 if (tooltips) {
-                        tooltips.style.opacity = 0;
+                    tooltips.style.opacity = 0;
                 }
             });
 
             //animation for 2 sec, transition delay is in milliseconds
-               /* Add 'curtain' rectangle to hide entire graph */
-               var curtain = svg.append('rect')
-               .attr('x', -1 * width)
-               .attr('y', -1 * height)
-               .attr('height', height)
-               .attr('width', width)
-               .attr('class', 'curtain')
-               .attr('transform', 'rotate(180)')
-               .style('fill', '#ffffff');
+            /* Add 'curtain' rectangle to hide entire graph */
+            var curtain = svg.append('rect')
+                .attr('x', -1 * width)
+                .attr('y', -1 * height)
+                .attr('height', height)
+                .attr('width', width)
+                .attr('class', 'curtain')
+                .attr('transform', 'rotate(180)')
+                .style('fill', '#ffffff');
 
-           // Now transition the curtain to double of its width
-           curtain.transition()
-               .duration(1200)
-               .ease(d3.easeLinear)
-               .attr('x', -2 * width - 50);
+            // Now transition the curtain to double of its width
+            curtain.transition()
+                .duration(1200)
+                .ease(d3.easeLinear)
+                .attr('x', -2 * width - 50);
 
 
             svg.append("g")
@@ -322,18 +309,18 @@ export default class timedateHeatmap extends Component {
                 .call(yAxis)
                 .selectAll('text')
                 .text(function (d) {
-                    if(d.length > 20)
-                        return d.substring(0,20)+'...';
+                    if (d.length > 20)
+                        return d.substring(0, 20) + '...';
                     else
                         return d;
                 })
                 .attr('font-weight', 'normal')
                 .style('cursor', 'pointer')
                 .on("click", el => {
-                        createFilter(this.props.field+": \"" + el + "\"");
+                    createFilter(this.props.field + ": \"" + el + "\"");
                 })
                 .append("svg:title")
-                .text(function(d) { return d});
+                .text(function (d) { return d });
 
             svg.append("g")
                 .attr("class", "x axis")
@@ -348,7 +335,7 @@ export default class timedateHeatmap extends Component {
         var bucket = getTimeBucket();
         return (<div id={
             this.props.id
-        }  className="chart"> <h3 className="alignLeft title"> {
+        } className="chart"> <h3 className="alignLeft title"> {
             this.props.name
         } <span className="smallText"> (interval: {bucket})</span></h3>
         </div>)
