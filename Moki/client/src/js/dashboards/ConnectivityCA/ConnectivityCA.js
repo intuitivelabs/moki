@@ -4,6 +4,7 @@ import React, {
 
 
 import ConnectivityCACharts from './ConnectivityCACharts';
+import ConnectivityCATable from './ConnectivityCATable';
 import FilterBar from '../../bars/FilterBar';
 
 class ConnectivityCA extends Component {
@@ -39,6 +40,7 @@ class ConnectivityCA extends Component {
       <div className="container-fluid" style={{"paddingRight": "0"}}>
         <FilterBar tags={this.props.tags} srcRealms={this.state.srcRealms} dstRealms={this.state.dstRealms} />
         <ConnectivityCACharts />
+        <ConnectivityCATable />
       </div>
 
     );
