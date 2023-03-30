@@ -71,6 +71,7 @@ module.exports = () => {
 
   router
     .post('/connectivityCA/charts', ConnectivityCAController.getCharts)
+    .post('/connectivityCA/table', ConnectivityCAController.getTable)
     .post('/connectivityCA/connection_failure_ratio_ca', ConnectivityCAController.getConnectionFailureRatioCA)
     .post('/connectivityCA/number_of_call-attemps_ca', ConnectivityCAController.getNumberOfCallAttemptsCA)
     .post('/connectivityCA/number_of_call-ends_ca', ConnectivityCAController.getNumberOfCallEndsCA)
