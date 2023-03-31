@@ -23,7 +23,7 @@ class Type extends Component {
         // if (nextProps.state !== this.props.state) {
         let color = ColorType[this.props.id];
         if (window.location.pathname === "/exceeded" || window.location.pathname === "/alerts") {
-            color = getExceededColor(this.props.name);
+            color = getExceededColor(this.props.id);
         }
         if (nextProps.state === "disable") {
             this.setState({ state: 'disable' });
