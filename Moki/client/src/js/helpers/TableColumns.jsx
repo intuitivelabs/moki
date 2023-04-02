@@ -9,7 +9,6 @@ import overviewIcon from "../../styles/icons/alertProfile.png";
 import suppressIcon from "../../styles/icons/suppress.png";
 import unfilterIcon from "../../styles/icons/unfilter.png";
 import BLIcon from "../../styles/icons/blacklist.png";
-import AdvancedProfile from "../helpers/advancedProfile";
 import downloadPcapIcon from "../../styles/icons/downloadPcap.png";
 import downloadIcon from "../../styles/icons/download.png";
 import viewIcon from "../../styles/icons/view.png";
@@ -625,8 +624,6 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                     {(obj._id && column_name.icons.includes("share")) && !window.location.pathname.includes("/profiles") &&
                         <button className="noFormatButton" onClick={() => shareEvent(obj._id)}>  <img className="icon" alt="shareIcon" src={shareIcon} title="copy event link to share" /><span id={"tooltipshareFilter" + obj._id} style={{ "display": "none", "marginTop": "8px", "position": "absolute", "backgroundColor": "white" }}>Copied to clipboard</span></button>
                     }
-                    { window.location.pathname.includes("/profiles") && <AdvancedProfile obj={obj}/> }
-
 
                 </span>
             }
