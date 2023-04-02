@@ -83,9 +83,9 @@ class AdvancedProfile extends Component {
     render() {
         return (
             <span>
-                {this.state.islistmall === false && <img className="icon" style={{ "maxHeight": "25px" }} alt="list them all" src={listthemAll} onClick={() => this.changeState("listmall", true)} title="list them all" />}
+                {(this.state.islistmall === false || !this.state.islistmall) && <img className="icon" style={{ "maxHeight": "25px" }} alt="list them all" src={listthemAll} onClick={() => this.changeState("listmall", true)} title="list them all" />}
                 {this.state.islistmall === true && <img className="icon" style={{ "maxHeight": "25px" }} alt="unlist them all" src={unlistthemAll} onClick={() => this.changeState("listmall", false)} title="unlist them all" />}
-                {this.state.issupress === false && <img className="icon" alt="suppressIcon" src={suppressIcon} onClick={() => this.changeState("supress", true)} title="suppress alert" />}
+                {(this.state.issupress === false || !this.state.issupress) && <img className="icon" alt="suppressIcon" src={suppressIcon} onClick={() => this.changeState("supress", true)} title="suppress alert" />}
                 {this.state.issupress === true && <img className="icon" alt="suppressIcon" src={unsuppressIcon} onClick={() => this.changeState("supress", false)} title="unsuppress alert" />}
             </span>
         )
