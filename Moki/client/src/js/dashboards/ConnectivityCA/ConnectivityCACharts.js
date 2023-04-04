@@ -137,7 +137,7 @@ class ConnectivityCACharts extends Dashboard {
                         "AVG failure (%)"
                     }
                     name3={
-                        "Minutes"
+                        "Duration"
                     }
                     name4={
                         "Ends"
@@ -165,7 +165,7 @@ class ConnectivityCACharts extends Dashboard {
                         "AVG failure (%)"
                     }
                     name3={
-                        "Minutes"
+                        "Duration"
                     }
                     name4={
                         "Ends"
