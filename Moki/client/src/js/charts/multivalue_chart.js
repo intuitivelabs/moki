@@ -139,7 +139,7 @@ export default class multivalueChart extends Component {
                     </div>
                 </td>
                     {data[i] && data[i].values && Object.keys(data[i].values).length > 0 && Object.keys(data[i].values).map((value, j) => {
-                        return data[i] ? <td className="filtertd text-nowrap" key={value}>{j === 1 && this.props.name3 === "Minutes" ? durationFormat(data[i].values[value]) : niceNumber(data[i].values[value])}</td> : 0
+                        return data[i] ? <td className="filtertd text-nowrap" key={value}>{j === 1 && this.props.name3 === "Duration" ? durationFormat(data[i].values[value]) : niceNumber(data[i].values[value])}</td> : 0
                     })}
                 </tr>
                 )
