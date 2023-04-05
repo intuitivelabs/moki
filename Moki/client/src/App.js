@@ -53,13 +53,18 @@ class App extends Component {
             dashboardsSettings: [],
             logo: "",
             user: {},
-            resizeId: ""
+            resizeId: "",
+            autologout: null,
+            automaticLogoutTime: "never"
         }
         this.setFirstTimeLogin = this.setFirstTimeLogin.bind(this);
         this.redirect = this.redirect.bind(this);
         this.getHostnames = this.getHostnames.bind(this);
         this.checkURLFilters = this.checkURLFilters.bind(this);
         this.rerenderUsername = this.rerenderUsername.bind(this);
+        this.updateExpiredTime = this.updateExpiredTime.bind(this);
+        this.startAutomaticLogout = this.startAutomaticLogout.bind(this);
+        this.setAutomaticLogout = this.setAutomaticLogout.bind(this);
         this.getSipUser();
         storePersistent.subscribe(() => this.rerenderUsername());
     }
@@ -72,6 +77,42 @@ class App extends Component {
             thiss.setState({ resizeId: setTimeout(thiss.windowResize, 500) });
         });
 
+    }
+
+    //set automatic logout on inactivity
+    setAutomaticLogout() {
+        window.addEventListener('mousemove', this.updateExpiredTime);
+        window.addEventListener('scroll', this.updateExpiredTime);
+        window.addEventListener('keydown', this.updateExpiredTime);
+    }
+
+    updateExpiredTime() {
+        localStorage.setItem("autoResetTime", Date.now() + this.state.automaticLogoutTime * 1000);
+
+    }
+
+    //restart auto reset
+    startAutomaticLogout() {
+        this.updateExpiredTime();
+        let autologout = setInterval(() => {
+            //update timeout in localstorage - more tab case
+            const autoReset = localStorage.getItem("autoResetTime");
+            if (parseInt(autoReset) < Date.now()) {
+                 window.location = '/logout';
+                this.cleanAutimaticTimeout();
+            }
+        }, 1000);
+
+        this.setState({
+            autologout: autologout
+        })
+    };
+
+    cleanAutimaticTimeout(){
+        clearInterval(this.state.autologout);
+        window.removeEventListener('mousemove', this.updateExpiredTime);
+        window.removeEventListener('scroll', this.updateExpiredTime);
+        window.removeEventListener('keydown', this.updateExpiredTime);
     }
 
     //when user has changed, rerender it in GUI
@@ -155,6 +196,17 @@ class App extends Component {
 
 
         var res = await getProfile(this.state.user);
+        var aws = this.state.user.aws;
+
+        //set automatic logout for aws
+        if (aws === true && storePersistent.getState().profile[0] && storePersistent.getState().profile[0].userprefs.autologout !== "never") {
+            this.setState({
+                automaticLogoutTime: storePersistent.getState().profile[0].userprefs.autologout
+            }, () =>  {
+                this.setAutomaticLogout();
+                this.startAutomaticLogout();
+            })
+        }
 
         if (res !== "ok") {
             //this.showError(JSON.stringify(res));
@@ -167,7 +219,6 @@ class App extends Component {
         console.info("Storing layout");
 
         //get settings if exists
-        var aws = this.state.user.aws;
         if (aws !== true) {
             var jsonSettings = await getSettings();
             storePersistent.dispatch(setSettings(jsonSettings));
@@ -535,6 +586,7 @@ class App extends Component {
 * */
     render() {
         var dashboards = this.state.dashboards;
+
 
         //loading screen span
         var loadingScreen = <span>
