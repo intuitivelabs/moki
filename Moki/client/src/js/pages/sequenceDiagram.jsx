@@ -286,6 +286,18 @@ class SequenceDiagram extends Component {
           chart.remove();
         }
 
+        //bug fix, don't decode any special characters
+        function HTMLSpecialChars(str) {
+          if (typeof str != 'string') {
+            console.error('HTMLSpecialChars: the argument is not string but %s (%o)', typeof str, str);
+            return '';
+          }
+
+          return str
+            .replace(/&/g, "&amp;")
+        }
+
+
         function syntaxHighlight(data) {
           var result = ["<div><b>" + data.msg + "</b></div>"];
           data = data.details;
@@ -302,10 +314,10 @@ class SequenceDiagram extends Component {
                 var nameIndex = split[j].indexOf(":");
 
                 if (nameIndex !== -1) {
-                  result = result + "<div><span className='key'><b>" + split[j].substring(0, nameIndex) + ": </b></span><span className='value'>" + split[j].substring(nameIndex + 1) + "<span></div>";
+                  result = result + "<div><span className='key'><b>" + split[j].substring(0, nameIndex) + ": </b></span><span className='value'>" + HTMLSpecialChars(split[j].substring(nameIndex + 1)) + "<span></div>";
                 }
                 else {
-                  result = result + "<div><span className='value'>" + split[j] + "<span></div>";
+                  result = result + "<div><span className='value'>" + HTMLSpecialChars(split[j]) + "<span></div>";
                 }
               }
               if (secondPart) {
