@@ -10,6 +10,10 @@ function parseBase64(token) {
     return 'redirect';
   }
   const base64Url = token.split('.')[1];
+  if(!base64Url){
+    return JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
+
+  }
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
   const dataJSON = JSON.parse(Buffer.from(base64, 'base64').toString());
   return dataJSON;
@@ -26,21 +30,20 @@ function parseBase64(token) {
  * for user mode return filter for attrs.from, attrs.to, attrs.r-uri  and also domain filter
  */
 async function getJWTsipUserFilter(req) {
-  console.log("----------------------getJWTsipUserFilter");
-  // localhost query -- open up
-  /* if (req.connection.remoteAddress === '127.0.0.1') {
-       console.log("ACCESS getJWTsipUserFilter: permitted for localhost source");
-       // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
-       // this is implicit Promise like if there was "return Promise.resolve("*")
-       return  "*";
-   }
-*/
 
-  //check if web access - allow it without user logins
+   //check if web access - allow it without user logins
   if (req.originalUrl.startsWith("/api/web")) {
     if (cfg.debug) console.info("web access, getting setting from m_settings: " + cfg.honeyId);
-    return { "domain": cfg.honeyId };
+    return "*";
   }
+
+   //check if report access - allow it without user logins
+   if (req.originalUrl.startsWith("/api/report")) {
+    if (cfg.debug) console.info("report access");
+    return "*";
+  }
+
+
   // check config if JWT required
   let isAccept;
   try {
@@ -153,6 +156,12 @@ function getEncryptChecksumFilter(req) {
   } catch (e) {
     console.log("ACCESS getJWTsipUserFilter: JWT parsing failed");
     //no header, nginx auth or whatever
+    return { encryptChecksum: "*" };
+  }
+
+  //report - no checksum filter
+  const email = parsedHeader['email'];
+  if (email === "reporting@intuitivelabs.com") {
     return { encryptChecksum: "*" };
   }
 
