@@ -1,9 +1,14 @@
 import storePersistent from "../store/indexPersistent";
 import moment from 'moment-timezone';
-import { timestampBucket} from '../bars/TimestampBucket.js';
+import { timestampBucket } from '../bars/TimestampBucket.js';
 import * as d3 from "d3";
 
-export const parseTimestamp = (timestamp, ms = false) => {  
+export const parseTimestamp = (timestamp, ms = false) => {
+        //special case: report - no timezone
+        if (storePersistent.getState().user.user === "report") {
+                return moment(timestamp).utc(0).format('YYYY-MM-DD HH:mm')
+        }
+
         var format = getTimeSetings(ms);
         //no format
         if (format === "") {
@@ -19,7 +24,7 @@ export const parseTimestamp = (timestamp, ms = false) => {
         }
 }
 
-export const parseTimestampUTC = (timestamp, ms) => {  
+export const parseTimestampUTC = (timestamp, ms) => {
         var format = getTimeSetings(ms);
 
         if (format === "") {
@@ -33,7 +38,7 @@ export const parseTimestampUTC = (timestamp, ms) => {
         }
 }
 
-export const parseTimestampD3js = (timestamp_gte, timestamp_lte) => { 
+export const parseTimestampD3js = (timestamp_gte, timestamp_lte) => {
         var format = getTimeSetings(false);
         //no profile
         if (format === "") {
@@ -41,7 +46,7 @@ export const parseTimestampD3js = (timestamp_gte, timestamp_lte) => {
         }
         //timestamp with timezone stored in profile
         else if (Array.isArray(format)) {
-                return  d3.utcFormat(timestampBucket(timestamp_gte, timestamp_lte));
+                return d3.utcFormat(timestampBucket(timestamp_gte, timestamp_lte));
         }
         //browser timezone
         else {
@@ -49,7 +54,7 @@ export const parseTimestampD3js = (timestamp_gte, timestamp_lte) => {
         }
 }
 
-export function parseTimeData(value){
+export function parseTimeData(value) {
         var format = getTimeSetings(false);
         //no profile
         if (format === "") {
@@ -57,8 +62,8 @@ export function parseTimeData(value){
         }
         //timestamp with timezone stored in profile
         else if (Array.isArray(format)) {
-                return value + (moment.unix(value).tz(format[1]).utcOffset()*60*1000);
-              
+                return value + (moment.unix(value).tz(format[1]).utcOffset() * 60 * 1000);
+
         }
         //browser timezone
         else {
@@ -103,7 +108,7 @@ function getTimeSetings(ms) {
                                 }
                         }
 
-                        if(timezone !== "browser"){
+                        if (timezone !== "browser") {
                                 return [format, timezone]
 
                         }

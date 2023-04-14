@@ -11,6 +11,7 @@ import { getLayoutSettings } from './js/helpers/getLayout';
 import { getSettings } from './js/helpers/getSettings';
 import FilterBar from './js/bars/FilterBar';
 import Restricted from './js/dashboards/Restricted/Restricted';
+import Report from '@moki-client/gui/src/dashboards/Report/Report';
 import Sequence from './js/pages/sequenceDiagram';
 import store from "./js/store/index";
 import storePersistent from "./js/store/indexPersistent";
@@ -516,11 +517,11 @@ class App extends Component {
                     console.info("MOKI: sip user: " + sip.user);
 
                     //get username
-                    if (sip.user !== "localhost") {
+                    if (sip.user !== "report") {
                         sip.username = await getUsername();
                     }
                     else {
-                        sip.username = "report";
+                        sip.username = "";
                     }
 
                     //set user info :  email:email, domainID:domainID, jwt: jwtbit
@@ -543,31 +544,34 @@ class App extends Component {
                     }
 
                     //default user: no need to log in for web
-                    if (sip.user !== "USER" && sip.user !== "DEFAULT") {
+                    if (sip.user !== "USER" && sip.user !== "DEFAULT" && sip.user !== "report") {
                         this.getHostnames();
                     }
 
                     //default user: no need to log in for web
                     //localhost: no need to log, just get layout
-                    if (sip.user === "localhost") {
+                    if (sip.user === "report") {
                         var jsonData = await getLayoutSettings();
+                        await this.checkURLFilters();
                         storePersistent.dispatch(setLayout(jsonData));
                         this.setState({
                             dashboards: ["report"],
                             isLoading: false
                         });
                     }
-                    if (sip.user !== "DEFAULT") {
-                        this.getMonitorSettings();
-                    }
                     else {
-                        //store layout
-                        var jsonData = await getLayoutSettings();
-                        storePersistent.dispatch(setLayout(jsonData));
-                        this.setState({
-                            dashboards: ["web"],
-                            isLoading: false
-                        });
+                        if (sip.user !== "DEFAULT") {
+                            this.getMonitorSettings();
+                        }
+                        else {
+                            //store layout
+                            var jsonData = await getLayoutSettings();
+                            storePersistent.dispatch(setLayout(jsonData));
+                            this.setState({
+                                dashboards: ["web"],
+                                isLoading: false
+                            });
+                        }
                     }
                 }
             }
@@ -601,6 +605,7 @@ class App extends Component {
 * */
     render() {
         var dashboards = this.state.dashboards;
+        let user = this.state.user;
 
 
         //loading screen span
@@ -681,6 +686,26 @@ class App extends Component {
                     </div>
                 </div>;
             }
+            //REPORT HANDLER - one dashboard only
+            else if (aws === true && user.user === "report") {
+                console.info("Router: report mode");
+                //end user context
+                sipUserSwitch = <div className="row"
+                    id="body-row">
+                    <div className="col" >
+                        <div className="d-flex justify-content-between header" >
+                            <TimerangeBar />
+                        </div>
+                        <div style={{"marginTop": "30px"}}>
+                            <Switch >
+                                <Route exact path='/index' render={() => <Report name="report" />} />
+                                <Route exact path='/' render={() => <Report name="report" />} />
+                                <Redirect to="/" />
+                            </Switch>
+                        </div>
+                    </div>
+                </div>;
+            }
             //END USER ROLE: show one limited dashboard
             else {
                 console.info("Router: end user mode");
@@ -699,7 +724,7 @@ class App extends Component {
                         <Notificationbar className="errorBarLoading" ></Notificationbar>
                         <div>
                             <Switch >
-                                <Route exact path='/index' render={() => < Restricted name="restricted" tags={this.state.tags} />} />
+                                <Route exact path='/index' render={() => < Restricted name="restricted" />} />
                                 <Route exact path='/' render={() => < Restricted name="restricted" />} />
                                 <Route path='/logout' />
                                 <Route path='/no-sip-identity/' />
