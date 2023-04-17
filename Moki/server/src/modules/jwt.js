@@ -182,14 +182,28 @@ function getEncryptChecksumFilter(req) {
  * 
  */
 async function checkIAT(req, res) {
+
+  //check if web access - allow it 
+  if (req.originalUrl.startsWith("/api/web")) {
+    if (cfg.debug) console.info("web access, no concurrent login check");
+    return "ok";
+  }
+
+  //check if report - allow it 
+  if (req.originalUrl.startsWith("/api/report")) {
+    if (cfg.debug) console.info("report access, no concurrent login check");
+    return "ok";
+  }
+
+
   let parsedHeaderAccessToken;
   let iat;
   try {
     parsedHeaderAccessToken = parseBase64(req.headers['x-amzn-oidc-accesstoken']);
     iat = parsedHeaderAccessToken['iat'];
   } catch (e) {
-    console.log("ACCESS getJWTsipUserFilter: JTI parsing failed");
-    return res.json({ redirect: "JTIparsingError" });
+    console.error("ACCESS getJWTsipUserFilter: JTI parsing failed");
+    return "error";
   }
 
   //get user profile
@@ -197,63 +211,76 @@ async function checkIAT(req, res) {
   try {
     parsedHeader = parseBase64(req.headers['x-amzn-oidc-data']);
   } catch (e) {
-    console.log("ACCESS getJWTsipUserFilter: JWT parsing failed");
-    return res.json({ redirect: "JWTparsingError" });
+    console.error("ACCESS getJWTsipUserFilter: JWT parsing failed");
+    return "error";
   }
 
-  const sub = parsedHeader['sub'];;
-  try {
-    var userProfile = await searchES(indexName, [{ query_string: { "query": "event.sub:" + sub } }], res);
-  }
-  catch (error) {
-    console.error(error);
-    return "ok";
-  }
-  //no user profile found - ok
-  if (userProfile.hits.hits.length === 0) {
-    return "ok";
-  }
-  else {
-    userProfile = userProfile.hits.hits[0]._source.event;
-    // no last login ts, save new one
-    if (!userProfile.lastLogin) {
-      let storeiat = await storeIATinProfile(iat, sub);
-      if (storeiat !== "ok") {
-        return;
-      }
+  const sub = parsedHeader['sub'];
+
+  async function getAndCompareAsync(sub, res) {
+    try {
+      var userProfile = await searchES(indexName, [{ query_string: { "query": "event.sub:" + sub } }], res);
     }
-    else {
-      //redirect case
-      console.log("comparing");
-      console.log(iat);
-      console.log(userProfile.lastLogin);
-      if (iat > userProfile.lastLogin) {
-        return "logout";
-      }
-      else if (iat < userProfile.lastLogin) {
-        let storeiat = await storeIATinProfile(iat, sub);
-        if (storeiat !== "ok") {
-          return;
-        }
-      }
+    catch (error) {
+      console.error(error);
       return "ok";
     }
+    //no user profile found - ok
+    if (userProfile.hits.hits.length === 0) {
+      return "ok";
+    }
+    else {
+      userProfile = userProfile.hits.hits[0]._source.event;
+
+      //concurrent check disabled by user
+      if (!userProfile.userprefs || !userProfile.userprefs.concurrentCheck) {
+        console.info("User concurrent check disabled");
+        return "ok";
+      }
+
+
+      // no last login ts, save new one
+      if (!userProfile.lastLogin) {
+        let storeiat = await storeIATinProfile(iat, sub);
+        if (storeiat !== "ok") {
+          return "error";
+        }
+      }
+      else {
+        //redirect case
+        if (iat < userProfile.lastLogin) {
+          return "logout";
+        }
+        //update case
+        else if (iat > userProfile.lastLogin) {
+          let storeiat = await storeIATinProfile(iat, sub);
+          if (storeiat !== "ok") {
+            return "error";
+          }
+        }
+        return "ok";
+      }
+    }
   }
+
+  return await getAndCompareAsync(sub);
 }
 
 async function storeIATinProfile(iat, sub) {
-  const update = await updateES(indexName, [
-    { "query_string": { "query": "event.sub:" + sub } }
-  ], "ctx._source.event.lastLogin = params.lastLogin", { "lastLogin": iat });
-
-  console.log(update);
-  //event was updated
-  if (update.updated !== 0) {
-    return "ok";
+  try {
+    await updateES(indexName, [
+      { "query_string": { "query": "event.sub:" + sub } }
+    ], "ctx._source.event.lastLogin = params.lastLogin", { "lastLogin": iat });
   }
-  else {
-    return update;
+  catch (error) {
+    if (error.meta.body.failures[0].cause.type === "version_conflict_engine_exception") {
+      //ok
+    }
+    else {
+      return error;
+    }
   }
+  return "ok";
 
 }
 

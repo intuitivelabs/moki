@@ -22,11 +22,10 @@ class Controller {
   static request(req, res, next, requests, dashboard = "overview") {
     async function search() {
       //check token
-      console.info("--------------------checking IAT-------------");
-      let checkiat = await checkIAT(req, res);
-      console.log(checkiat);
-     // if()
-     // res.json({ redirect: "JWTparsingError" });
+        let checkiat = await checkIAT(req, res);
+        if (checkiat === "logout") {
+          return res.json({ redirect: "logout" });
+        }
 
       const client = connectToES();
       var filters = getFiltersConcat(req.body.filters);
