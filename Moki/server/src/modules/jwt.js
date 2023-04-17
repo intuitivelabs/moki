@@ -1,8 +1,11 @@
 // jwt.js hold the json web token implementation
 const { isRequireJWT } = require('./config');
 const { cfg } = require('../modules/config');
+const { searchES, updateES, } = require('../utils/ES_queries');
+const AdminController = require('../controller/admin');
 
 const hfName = 'x-amzn-oidc-data';
+const indexName = "profiles";
 
 //get domain id
 function parseBase64(token) {
@@ -170,8 +173,93 @@ function getEncryptChecksumFilter(req) {
   else { return { encryptChecksum: req.body.encryptChecksum }; }
 }
 
+/**
+ * concurrent login check
+ * checks issuedattime (iat) in req.headers['x-amzn-oidc-accesstoken']
+ * compare with time stored in user profile
+ * if higher, updates it in profile
+ * if lower, redirect to logout
+ * 
+ */
+async function checkIAT(req, res) {
+  let parsedHeaderAccessToken;
+  let iat;
+  try {
+    parsedHeaderAccessToken = parseBase64(req.headers['x-amzn-oidc-accesstoken']);
+    iat = parsedHeaderAccessToken['iat'];
+  } catch (e) {
+    console.log("ACCESS getJWTsipUserFilter: JTI parsing failed");
+    return res.json({ redirect: "JTIparsingError" });
+  }
+
+  //get user profile
+  let parsedHeader;
+  try {
+    parsedHeader = parseBase64(req.headers['x-amzn-oidc-data']);
+  } catch (e) {
+    console.log("ACCESS getJWTsipUserFilter: JWT parsing failed");
+    return res.json({ redirect: "JWTparsingError" });
+  }
+
+  const sub = parsedHeader['sub'];;
+  try {
+    var userProfile = await searchES(indexName, [{ query_string: { "query": "event.sub:" + sub } }], res);
+  }
+  catch (error) {
+    console.error(error);
+    return "ok";
+  }
+  //no user profile found - ok
+  if (userProfile.hits.hits.length === 0) {
+    return "ok";
+  }
+  else {
+    userProfile = userProfile.hits.hits[0]._source.event;
+    // no last login ts, save new one
+    if (!userProfile.lastLogin) {
+      let storeiat = await storeIATinProfile(iat, sub);
+      if (storeiat !== "ok") {
+        return;
+      }
+    }
+    else {
+      //redirect case
+      console.log("comparing");
+      console.log(iat);
+      console.log(userProfile.lastLogin);
+      if (iat > userProfile.lastLogin) {
+        return "logout";
+      }
+      else if (iat < userProfile.lastLogin) {
+        let storeiat = await storeIATinProfile(iat, sub);
+        if (storeiat !== "ok") {
+          return;
+        }
+      }
+      return "ok";
+    }
+  }
+}
+
+async function storeIATinProfile(iat, sub) {
+  const update = await updateES(indexName, [
+    { "query_string": { "query": "event.sub:" + sub } }
+  ], "ctx._source.event.lastLogin = params.lastLogin", { "lastLogin": iat });
+
+  console.log(update);
+  //event was updated
+  if (update.updated !== 0) {
+    return "ok";
+  }
+  else {
+    return update;
+  }
+
+}
+
 module.exports = {
   getJWTsipUserFilter,
   parseBase64,
-  getEncryptChecksumFilter
+  getEncryptChecksumFilter,
+  checkIAT
 };
