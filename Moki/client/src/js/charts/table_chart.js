@@ -627,15 +627,27 @@ export default class listChart extends Component {
         var displayedAttrs = getDisplayedAttributes();
         var result = [];
         var categorySort = [];
-        for (var i = 0; i < keys.length; i++) {
 
-            if (all) {
+        if (all) {
+            for (var i = 0; i < keys.length; i++) {
                 result.push(<p value={row[keys[i]]} key={keys[i]}>
-                    <span className="spanTab">{keys[i]}: </span>
-                    <span className="tab"  >{ typeof row[keys[i]] === 'object'? JSON.stringify(row[keys[i]]) : row[keys[i]]}</span>
+                    <span className="spanTab">{keys[i]}{!["id", "_id", "key", "description"].includes(keys[i]) && window.location.pathname.includes("/profiles") && <AdvancedProfile obj={{ "id": keys[i], "key": row.key, "supression": row.supression, "listmall": row.listmall }} />}: </span>
+                    {typeof row[keys[i]] !== 'object' ?
+                        <span>
+                            {row[keys[i]]}
+                        </span>
+                        : <div className="tab"  >
+                            {Object.keys(row[keys[i]]).map(key => (
+                                <div className="tab" style={{ "paddingBottom": "3px" }}>
+                                    {typeof row[keys[i]][key] === 'object' ? key + ": " + JSON.stringify(row[keys[i]][key]) : key + ": " + row[keys[i]][key]}
+                                </div>
+                            ))}
+                        </div>}
                 </p>)
             }
-            else {
+        }
+        else {
+            for (var i = 0; i < keys.length; i++) {
                 if (keys[i] === "attrs") {
                     let attrs = Object.keys(row[keys[i]]);
                     for (let j = 0; j < attrs.length; j++) {
@@ -675,17 +687,17 @@ export default class listChart extends Component {
                         categorySort[category].push(this.renderExpandRow(keys[i], row[keys[i]], false, "", row));
                     }
                 }
+            }
 
 
-                var categories = Object.keys(categorySort);
-                //create div for each category
-                for (i = 0; i < categories.length; i++) {
-                    result.push(
-                        <div key={categories[i]}><h3>{categories[i].toUpperCase()}</h3>
-                            {categorySort[categories[i]]}
-                        </div>
-                    )
-                }
+            var categories = Object.keys(categorySort);
+            //create div for each category
+            for (i = 0; i < categories.length; i++) {
+                result.push(
+                    <div key={categories[i]}><h3>{categories[i].toUpperCase()}</h3>
+                        {categorySort[categories[i]]}
+                    </div>
+                )
             }
         }
         return result;
@@ -751,7 +763,7 @@ export default class listChart extends Component {
                 for (var i = 0; i < selectedData.length; i++) {
                     var record = thiss.getRecord(selectedData[i]);
                     let isPcap = false;
-                   var filename = selectedData[i];
+                    var filename = selectedData[i];
 
                     // var filename = record._source && record._source.attrs && record._source.attrs.filename ? record._source.attrs.filename : selectedData[i];
                     if (record._source && record._source.attrs && record._source.attrs.filename) {
@@ -760,7 +772,7 @@ export default class listChart extends Component {
                                 filename = filename ? filename.substring(filename.lastIndexOf("/") + 1) : selectedData[i];
                                 var blob = new Blob([data], { type: "pcap" });
                                 isPcap = true;
-                                zip.file(filename+ ".pcap", blob);
+                                zip.file(filename + ".pcap", blob);
                             }
                         })
                     }
@@ -1073,7 +1085,7 @@ export default class listChart extends Component {
                                     }
                                     {!NOT_EXPAND_OR_COLUMNS_SELECTION.includes(this.props.id) && <button className="noFormatButton" onClick={() => downloadAllCheck()} >  <img className="icon" alt="downloadIcon" src={downloadIcon} title="download selected" /><span id="downloadAllTooltip" style={{ "display": "none" }}>Downloading a lot of data, it can take a while. Max. 500 events will be download. Use export button for more</span></button>}
 
-                                    {!NOT_EXPAND_OR_COLUMNS_SELECTION.includes(this.props.id) && this.props.id !== "API LOGS"  && <button className="noFormatButton" onClick={() => this.shareFilters()} >  <img className="icon" alt="shareIcon" src={shareIcon} title="share selected" /><span id="tooltipshareFilters" style={{ "display": "none", "position": "absolute", "backgroundColor": "white" }}>Copied to clipboard</span></button>}
+                                    {!NOT_EXPAND_OR_COLUMNS_SELECTION.includes(this.props.id) && this.props.id !== "API LOGS" && <button className="noFormatButton" onClick={() => this.shareFilters()} >  <img className="icon" alt="shareIcon" src={shareIcon} title="share selected" /><span id="tooltipshareFilters" style={{ "display": "none", "position": "absolute", "backgroundColor": "white" }}>Copied to clipboard</span></button>}
 
                                     {<button className="noFormatButton" onClick={() => this.resetLayout()} >  <img className="icon" alt="resetLayoutIcon" src={resetIcon} title="reset table layout to default" style={{ "height": "15px" }} /></button>}
                                     <span className="smallText"> (total: {this.props.total > 500 ? "500/" + this.props.total.toLocaleString() : this.props.total.toLocaleString()})</span>
