@@ -617,6 +617,7 @@ export default class listChart extends Component {
             </p>
         }
 
+
         return <p value={value} key={value}>
             <span className="spanTab">{cell}: </span>
             <span className="tab" style={style} >{value}</span>
@@ -628,10 +629,11 @@ export default class listChart extends Component {
         var displayedAttrs = getDisplayedAttributes();
         var result = [];
         var categorySort = [];
-        for (var i = 0; i < keys.length; i++) {
-            if (all) {
+
+        if (all) {
+            for (var i = 0; i < keys.length; i++) {
                 result.push(<p value={row[keys[i]]} key={keys[i]}>
-                    <span className="spanTab">{keys[i]}{!["id", "_id", "key", "description"].includes(keys[i]) && window.location.pathname.includes("/profiles") && <AdvancedProfile obj={{"id": keys[i], "key": row.key, "supression": row.supression, "listmall": row.listmall}} />}: </span>
+                    <span className="spanTab">{keys[i]}{!["id", "_id", "key", "description"].includes(keys[i]) && window.location.pathname.includes("/profiles") && <AdvancedProfile obj={{ "id": keys[i], "key": row.key, "supression": row.supression, "listmall": row.listmall }} />}: </span>
                     {typeof row[keys[i]] !== 'object' ?
                         <span>
                             {row[keys[i]]}
@@ -645,7 +647,9 @@ export default class listChart extends Component {
                         </div>}
                 </p>)
             }
-            else {
+        }
+        else {
+            for (var i = 0; i < keys.length; i++) {
                 if (keys[i] === "attrs") {
                     let attrs = Object.keys(row[keys[i]]);
                     for (let j = 0; j < attrs.length; j++) {
@@ -685,17 +689,17 @@ export default class listChart extends Component {
                         categorySort[category].push(this.renderExpandRow(keys[i], row[keys[i]], false, "", row));
                     }
                 }
+            }
 
 
-                var categories = Object.keys(categorySort);
-                //create div for each category
-                for (i = 0; i < categories.length; i++) {
-                    result.push(
-                        <div key={categories[i]}><h3>{categories[i].toUpperCase()}</h3>
-                            {categorySort[categories[i]]}
-                        </div>
-                    )
-                }
+            var categories = Object.keys(categorySort);
+            //create div for each category
+            for (i = 0; i < categories.length; i++) {
+                result.push(
+                    <div key={categories[i]}><h3>{categories[i].toUpperCase()}</h3>
+                        {categorySort[categories[i]]}
+                    </div>
+                )
             }
         }
         return result;
