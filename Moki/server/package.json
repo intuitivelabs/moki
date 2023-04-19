@@ -28,6 +28,7 @@
     "@moki-server/server": "git+https://git@github.com/intuitivelabs/moki-server.git#master",
     "axios": "^1.3.4",
     "body-parser": "^1.18.3",
+    "moment": "^2.29.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "ejs": "^3.1.5",
