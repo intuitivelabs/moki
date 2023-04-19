@@ -1,5 +1,6 @@
 import querySrv from './querySrv';
 import storePersistent from "../store/indexPersistent";
+import { logout } from '@moki-client/gui';
 
 const BASE_NAME = process.env.PUBLIC_URL;
 
@@ -16,6 +17,11 @@ export async function status() {
 
     const json = await response.json();
     let result = "ok";
+
+    //concurrent check
+    if(json.redirect === "logout"){
+        logout("concurrentLogin");
+    }
 
     if (json.error) {
         result = { errno: 2, text: "Elasticsearch is not running or responding.", level: "error" };
