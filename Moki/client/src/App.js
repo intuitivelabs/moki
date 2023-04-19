@@ -607,7 +607,6 @@ class App extends Component {
         var dashboards = this.state.dashboards;
         let user = this.state.user;
 
-
         //loading screen span
         var loadingScreen = <span>
             <Notificationbar className="errorBarLoading"></Notificationbar>
