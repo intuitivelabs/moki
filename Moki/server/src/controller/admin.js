@@ -124,7 +124,7 @@ class AdminController {
     }*/
 
     // JWT required -- parse it and validate it
-   
+
     let parsedHeader;
     try {
       parsedHeader = parseBase64(req.headers[hfName]);
@@ -142,17 +142,19 @@ class AdminController {
     let parsedHeaderAccessToken;
     let IPs;
 
+    const username = parsedHeader['username'];
     const email = parsedHeader['email'];
-
-    // SPECIAL CASE: report
-    if (email === "reporting@intuitivelabs.com") {
-      return res.json({ user: 'report', aws: true });
-    }
 
     const sip = parsedHeader['custom:sip'];
     let jwtbit = parsedHeader['custom:adminlevel'];
     const domainID = parsedHeader['custom:domainid'];
     const subId = parsedHeader['sub'];
+
+    // SPECIAL CASE: report
+    if (username === "report") {
+      return res.json({ user: 'report', aws: true, domainID: domainID, jwt: jwtbit, "sub": subId });
+    }
+
 
     if (jwtbit === undefined) {
       //default user for web dashboard
@@ -166,7 +168,7 @@ class AdminController {
       //split x-forwarded-for by comma and take first IP
       IPs = req.headers['x-forwarded-for'].split(",");
     } catch (e) {
-      console.log("ACCESS getJWTsipUserFilter: JTI parsing failed");
+      console.error("ACCESS getJWTsipUserFilter: JTI parsing failed");
       return res.json({ redirect: "JTIparsingError" });
     }
 
@@ -184,7 +186,7 @@ class AdminController {
 
     // subscriber id and admin level must be always set
     if (subId === undefined) {
-      console.log("ACCESS getJWTsipUserFilter: no sub defined ");
+      console.error("ACCESS getJWTsipUserFilter: no sub defined ");
       return res.json({ redirect: "noSubID" });
     }
 
@@ -421,7 +423,7 @@ create new user with password in htpasswd
 
   }
 
-  static setJsonDataMConfig(jsonData, attrName, value){
+  static setJsonDataMConfig(jsonData, attrName, value) {
     let appExists = false;
 
     for (let i = 0; i < jsonData["general"]["global-config"].length; i++) {
@@ -460,25 +462,25 @@ create new user with password in htpasswd
   static async firstTimeLoginSave(req, res) {
     let ccmPubKey = null;
 
-    try{
-      if (!req.body.ccmAddr){
+    try {
+      if (!req.body.ccmAddr) {
         throw new Error('CCM address is not set');
       }
 
       const response = await axios({
-          url        : `https://${req.body.ccmAddr}/oauth/jwk.php`,
-          httpsAgent : new https.Agent({
-              rejectUnauthorized : false
-          })
+        url: `https://${req.body.ccmAddr}/oauth/jwk.php`,
+        httpsAgent: new https.Agent({
+          rejectUnauthorized: false
+        })
       });
 
-      if (!response.data.keys){
-          throw new Error('CCM did not provided its public key');
+      if (!response.data.keys) {
+        throw new Error('CCM did not provided its public key');
       }
 
       ccmPubKey = JSON.stringify(response.data);
     }
-    catch(err){
+    catch (err) {
       // res.send({ "error": "fooobar" });
       res.send({ "error": err.toString() });
       return;

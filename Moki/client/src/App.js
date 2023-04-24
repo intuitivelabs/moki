@@ -56,7 +56,8 @@ class App extends Component {
             user: {},
             resizeId: "",
             autologout: null,
-            automaticLogoutTime: "never"
+            automaticLogoutTime: "never",
+            typeReport: ""
         }
         this.setFirstTimeLogin = this.setFirstTimeLogin.bind(this);
         this.redirect = this.redirect.bind(this);
@@ -99,7 +100,7 @@ class App extends Component {
             //update timeout in localstorage - more tab case
             const autoReset = localStorage.getItem("autoResetTime");
             if (parseInt(autoReset) < Date.now()) {
-                 window.location = '/logout';
+                window.location = '/logout';
                 this.cleanAutimaticTimeout();
             }
         }, 1000);
@@ -109,7 +110,7 @@ class App extends Component {
         })
     };
 
-    cleanAutimaticTimeout(){
+    cleanAutimaticTimeout() {
         clearInterval(this.state.autologout);
         window.removeEventListener('mousemove', this.updateExpiredTime);
         window.removeEventListener('scroll', this.updateExpiredTime);
@@ -163,6 +164,10 @@ class App extends Component {
                 }
                 store.dispatch(setFilters(result));
             }
+
+            if (params.get("report")) {
+                this.setState({ typeReport: params.get("report") });
+            }
         }
 
     }
@@ -203,7 +208,7 @@ class App extends Component {
         if (aws === true && storePersistent.getState().profile[0] && storePersistent.getState().profile[0].userprefs.autologout !== "never") {
             this.setState({
                 automaticLogoutTime: storePersistent.getState().profile[0].userprefs.autologout
-            }, () =>  {
+            }, () => {
                 this.setAutomaticLogout();
                 this.startAutomaticLogout();
             })
@@ -550,7 +555,7 @@ class App extends Component {
 
                     //default user: no need to log in for web
                     //localhost: no need to log, just get layout
-                    if (sip.user === "report") {
+                 /*   if (sip.user === "report") {
                         var jsonData = await getLayoutSettings();
                         await this.checkURLFilters();
                         storePersistent.dispatch(setLayout(jsonData));
@@ -559,7 +564,7 @@ class App extends Component {
                             isLoading: false
                         });
                     }
-                    else {
+                    else {*/
                         if (sip.user !== "DEFAULT") {
                             this.getMonitorSettings();
                         }
@@ -572,7 +577,7 @@ class App extends Component {
                                 isLoading: false
                             });
                         }
-                    }
+                 //   }
                 }
             }
         } catch (error) {
@@ -645,6 +650,7 @@ class App extends Component {
                 var dashboardAlter = [...this.state.dashboards];
                 if (this.state.aws) {
                     dashboardAlter.push("profiles");
+                    dashboardAlter.push("report");
                     dashboardAlter.push("connectivityIP");
                 }
 
@@ -693,12 +699,12 @@ class App extends Component {
                     id="body-row">
                     <div className="col" >
                         <div className="d-flex justify-content-between header" >
-                            <TimerangeBar />
+                            <TimerangeBar type={this.state.typeReport} />
                         </div>
-                        <div style={{"marginTop": "30px"}}>
+                        <div style={{ "marginTop": "30px" }}>
                             <Switch >
-                                <Route exact path='/index' render={() => <Report name="report" />} />
-                                <Route exact path='/' render={() => <Report name="report" />} />
+                                <Route exact path='/index' render={() => <Report name="report" typeReport={this.state.typeReport} />} />
+                                <Route exact path='/' render={() => <Report name="report" typeReport={this.state.typeReport}/>} />
                                 <Redirect to="/" />
                             </Switch>
                         </div>

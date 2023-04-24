@@ -73,7 +73,8 @@ class timerangeBar extends Component {
             timeFormat: timeFormat,
             dateFormat: dateFormat,
             exportJSONOpen: false,
-            timezone: timezone
+            timezone: timezone,
+            type: ""
         }
 
         //no timerange set in URL parameters
@@ -518,7 +519,6 @@ class timerangeBar extends Component {
         // const aws =store.getState().user.aws;
         let sipUserSwitch = <div />;
         var name = window.location.pathname.substr(1);
-
         return (
             <div id="popup">
                 <div className="d-flex justify-content-between">
@@ -529,7 +529,7 @@ class timerangeBar extends Component {
                         </button>
                     </div>
                     }
-                    {sipUser === "report" && <div style={{"marginLeft": "30px"}}> {store.getState().timerange[2]}</div>}
+                    {sipUser === "report" && <div style={{ "marginLeft": "30px" }}> {this.props.type +" - "+store.getState().timerange[2]}</div>}  
                     {name !== "wblist" && sipUser !== "report" && <div className="dropdown float-right text-right">
                         <span onClick={this.share} className="tabletd marginRight" ><img className="iconShare" alt="shareIcon" src={shareIcon} title="share" /><span id="tooltipshare" style={{ "display": "none" }}>copied to clipboard</span></span>
                         <span className="tabletd marginRight" onClick={this.moveTimerangeForward}><img alt="timeBackIcon" src={timeBack} title="move back" /></span><span className="tabletd marginRight" onClick={this.moveTimerangeBack}> <img alt="timeForwardIcon" src={timeForward} title="move forward" /></span>

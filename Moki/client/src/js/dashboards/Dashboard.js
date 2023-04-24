@@ -37,8 +37,8 @@ class Dashboard extends Component {
   async getIncialData() {
     console.log("dashboard.js did mount")
     //load types and filters before getting data
-    if (window.types) await window.types.loadTypes();
     let name = this.state.dashboardName.substr(0, this.state.dashboardName.indexOf("/"));
+    if (window.types && name !== "report") await window.types.loadTypes();
     //await this.loadData();
     this.setState({ loadingInicialValues: false }, function () {
       this.loadData();
@@ -92,13 +92,13 @@ class Dashboard extends Component {
         }
         //parseEventsRateData - pass also hours and total count
         else if (functors[j].type === "parseEventsRateData") {
-          let hours = (store.getState().timerange[1] -  store.getState().timerange[0])/3600000;
+          let hours = (store.getState().timerange[1] - store.getState().timerange[0]) / 3600000;
           this.transientState[functors[j].result] = await functors[j].func(data.responses[i], data.responses[2], hours);
         }
         //multileLine domains need second result
-        else if(functors[j].type ===  "multipleLineDataDomains"){
-          let hours = (store.getState().timerange[1] -  store.getState().timerange[0])/3600000;
-          this.transientState[functors[j].result] = await functors[j].func(data.responses[i], data.responses[i+1], data.responses[2], hours);
+        else if (functors[j].type === "multipleLineDataDomains") {
+          let hours = (store.getState().timerange[1] - store.getState().timerange[0]) / 3600000;
+          this.transientState[functors[j].result] = await functors[j].func(data.responses[i], data.responses[i + 1], data.responses[2], hours);
         }
         else {
           this.transientState[functors[j].result] =
@@ -113,13 +113,17 @@ class Dashboard extends Component {
     //calls dashboard has special loader
     let name = window.location.pathname.substring(1);
     if (this.state.loadingInicialValues === false || name === "calls") {
+      let params = null;
       try {
         this.getLayout();
         this.setState({ isLoading: true });
-        var data = await elasticsearchConnection(this.state.dashboardName);
+        if (this.props.typeReport) {
+          params = { "reportType": this.props.typeReport };
+        }
+        var data = await elasticsearchConnection(this.state.dashboardName, params);
 
         if (typeof data === "string") {
-          window.notification.showError( { errno: 2, text: data, level: "error" });
+          window.notification.showError({ errno: 2, text: data, level: "error" });
           this.setState({ isLoading: false });
           return;
         } else if (data) {
@@ -129,7 +133,7 @@ class Dashboard extends Component {
           console.info(new Date() + " MOKI DASHBOARD: finished parsing data");
         }
       } catch (e) {
-        window.notification.showError( { errno: 2, text: "Problem to parse data.", level: "error" });
+        window.notification.showError({ errno: 2, text: "Problem to parse data.", level: "error" });
         console.error(e);
         this.setState({ isLoading: false });
       }

@@ -15,7 +15,7 @@ format:
 
 time
 key
-*/ 
+*/
 export default class StackedChartLine extends Component {
 
     componentDidUpdate(prevProps) {
@@ -190,10 +190,10 @@ export default class StackedChartLine extends Component {
                 });
 
             // gridlines in y axis function
-           /* function make_y_gridlines() {
-                return d3.axisLeft(yScale)
-                    .ticks(5)
-            }*/
+            /* function make_y_gridlines() {
+                 return d3.axisLeft(yScale)
+                     .ticks(5)
+             }*/
 
 
             layer.selectAll("rect")
@@ -297,22 +297,25 @@ export default class StackedChartLine extends Component {
 
             // Animation
             /* Add 'curtain' rectangle to hide entire graph */
-            var curtain = rootsvg.append('rect')
-                .attr('x', -1 * width - 70)
-                .attr('y', -1 * height)
-                .attr('height', height)
-                .attr('width', width + 100)
-                .attr('class', 'curtain')
-                .attr('transform', 'rotate(180)')
-                .style('fill', '#ffffff');
+            //disable animation
+            var user = storePersistent.getState().user;
+            if (user.user !== "report") {
+                var curtain = rootsvg.append('rect')
+                    .attr('x', -1 * width - 70)
+                    .attr('y', -1 * height)
+                    .attr('height', height)
+                    .attr('width', width + 100)
+                    .attr('class', 'curtain')
+                    .attr('transform', 'rotate(180)')
+                    .style('fill', '#ffffff');
 
-            // Now transition the curtain to double of its width
-            curtain.transition()
-                .duration(1200)
-                .ease(d3.easeLinear)
-                .attr('x', -2 * width - 300);
+                // Now transition the curtain to double of its width
+                curtain.transition()
+                    .duration(1200)
+                    .ease(d3.easeLinear)
+                    .attr('x', -2 * width - 300);
 
-
+            }
             //y axis label
             /*g.append("text")
                 .attr("transform", "rotate(-90)")
@@ -411,6 +414,6 @@ export default class StackedChartLine extends Component {
     }
 
     render() {
-        return (<div id={this.props.id} className="chart"> <h3 className="alignLeft title">{this.props.name}</h3></div>)
+        return (<div id={this.props.id} className="chart"> <h3 className="alignLeft title" style={{ "float": "inherit" }}>{this.props.name}</h3></div>)
     }
 }

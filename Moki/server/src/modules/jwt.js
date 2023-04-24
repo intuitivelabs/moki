@@ -1,8 +1,10 @@
 // jwt.js hold the json web token implementation
 const { isRequireJWT } = require('./config');
 const { cfg } = require('../modules/config');
+const { searchES, updateES, } = require('../utils/ES_queries');
 
 const hfName = 'x-amzn-oidc-data';
+const indexName = "profiles";
 
 //get domain id
 function parseBase64(token) {
@@ -10,7 +12,7 @@ function parseBase64(token) {
     return 'redirect';
   }
   const base64Url = token.split('.')[1];
-  if(!base64Url){
+  if (!base64Url) {
     return JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
 
   }
@@ -31,19 +33,19 @@ function parseBase64(token) {
  */
 async function getJWTsipUserFilter(req) {
 
-   //check if web access - allow it without user logins
+  //check if web access - allow it without user logins
   if (req.originalUrl.startsWith("/api/web")) {
     if (cfg.debug) console.info("web access, getting setting from m_settings: " + cfg.honeyId);
     return "*";
   }
 
-   //check if report access - allow it without user logins
-   if (req.originalUrl.startsWith("/api/report")) {
+  //check if report access - allow it without user logins
+  /* if (req.originalUrl.startsWith("/api/report")) {
     if (cfg.debug) console.info("report access");
     return "*";
   }
 
-
+*/
   // check config if JWT required
   let isAccept;
   try {
@@ -159,19 +161,14 @@ function getEncryptChecksumFilter(req) {
     return { encryptChecksum: "*" };
   }
 
-  //report - no checksum filter
-  const email = parsedHeader['email'];
-  if (email === "reporting@intuitivelabs.com") {
-    return { encryptChecksum: "*" };
-  }
-
   let jwtbit = parsedHeader['custom:adminlevel'];
   jwtbit = parseInt(jwtbit);
 
+
+  
   //admin, no encrypt checksum filter
   if (jwtbit === 0) { return { encryptChecksum: "*" }; }
   //no encrypt checksum passed from client
-
   else if (!req.body.encryptChecksum) { return { encryptChecksum: "*" }; }
   else if (req.body.encryptChecksum === "anonymous") { return { encryptChecksum: "anonymous" }; }
 
@@ -180,8 +177,120 @@ function getEncryptChecksumFilter(req) {
   else { return { encryptChecksum: req.body.encryptChecksum }; }
 }
 
+/**
+ * concurrent login check
+ * checks issuedattime (iat) in req.headers['x-amzn-oidc-accesstoken']
+ * compare with time stored in user profile
+ * if higher, updates it in profile
+ * if lower, redirect to logout
+ * 
+ */
+async function checkIAT(req, res) {
+
+  //check if web access - allow it 
+  if (req.originalUrl.startsWith("/api/web")) {
+    if (cfg.debug) console.info("web access, no concurrent login check");
+    return "ok";
+  }
+
+  //check if report - allow it 
+  if (req.originalUrl.startsWith("/api/report")) {
+    if (cfg.debug) console.info("report access, no concurrent login check");
+    return "ok";
+  }
+
+
+  let parsedHeaderAccessToken;
+  let iat;
+  try {
+    parsedHeaderAccessToken = parseBase64(req.headers['x-amzn-oidc-accesstoken']);
+    iat = parsedHeaderAccessToken['iat'];
+  } catch (e) {
+    console.error("ACCESS getJWTsipUserFilter: JTI parsing failed");
+    return "error";
+  }
+
+  //get user profile
+  let parsedHeader;
+  try {
+    parsedHeader = parseBase64(req.headers['x-amzn-oidc-data']);
+  } catch (e) {
+    console.error("ACCESS getJWTsipUserFilter: JWT parsing failed");
+    return "error";
+  }
+
+  const sub = parsedHeader['sub'];
+
+  async function getAndCompareAsync(sub, res) {
+    try {
+      var userProfile = await searchES(indexName, [{ query_string: { "query": "event.sub:" + sub } }], res);
+    }
+    catch (error) {
+      console.error(error);
+      return "ok";
+    }
+    //no user profile found - ok
+    if (userProfile.hits.hits.length === 0) {
+      return "ok";
+    }
+    else {
+      userProfile = userProfile.hits.hits[0]._source.event;
+
+      //concurrent check disabled by user
+      if (!userProfile.userprefs || !userProfile.userprefs.concurrentCheck) {
+        console.info("User concurrent check disabled");
+        return "ok";
+      }
+
+
+      // no last login ts, save new one
+      if (!userProfile.lastLogin) {
+        let storeiat = await storeIATinProfile(iat, sub);
+        if (storeiat !== "ok") {
+          return "error";
+        }
+      }
+      else {
+        //redirect case
+        if (iat < userProfile.lastLogin) {
+          return "logout";
+        }
+        //update case
+        else if (iat > userProfile.lastLogin) {
+          let storeiat = await storeIATinProfile(iat, sub);
+          if (storeiat !== "ok") {
+            return "error";
+          }
+        }
+        return "ok";
+      }
+    }
+  }
+
+  return await getAndCompareAsync(sub);
+}
+
+async function storeIATinProfile(iat, sub) {
+  try {
+    await updateES(indexName, [
+      { "query_string": { "query": "event.sub:" + sub } }
+    ], "ctx._source.event.lastLogin = params.lastLogin", { "lastLogin": iat });
+  }
+  catch (error) {
+    if (error.meta.body.failures[0].cause.type === "version_conflict_engine_exception") {
+      //ok
+    }
+    else {
+      return error;
+    }
+  }
+  return "ok";
+
+}
+
 module.exports = {
   getJWTsipUserFilter,
   parseBase64,
-  getEncryptChecksumFilter
+  getEncryptChecksumFilter,
+  checkIAT
 };
