@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { status } from '../helpers/status'
+import { status } from '../helpers/status';
 import { diskSpace } from '../helpers/status';
 import { Redirect } from 'react-router';
 import infoIcon from "../../styles/icons/info.png";
