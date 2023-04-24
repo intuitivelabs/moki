@@ -73,7 +73,8 @@ class timerangeBar extends Component {
             timeFormat: timeFormat,
             dateFormat: dateFormat,
             exportJSONOpen: false,
-            timezone: timezone
+            timezone: timezone,
+            type: ""
         }
 
         //no timerange set in URL parameters
@@ -514,23 +515,22 @@ class timerangeBar extends Component {
 
 
     render() {
-        //const sipUser = this.state.sipUser.user;
+        const sipUser = storePersistent.getState().user.user;
         // const aws =store.getState().user.aws;
         let sipUserSwitch = <div />;
         var name = window.location.pathname.substr(1);
-
         return (
             <div id="popup">
                 <div className="d-flex justify-content-between">
                     {sipUserSwitch}
-                    {!hiddenExport.includes(name) && <div className="dropdown float-right text-right">
+                    {!hiddenExport.includes(name) && sipUser !== "report" && <div className="dropdown float-right text-right">
                         <button className="btn" type="button" id="dropdownMenuExportButton" onClick={this.exportJSON} aria-haspopup="true" aria-expanded="false">
                             Export
                         </button>
                     </div>
                     }
-
-                    {name !== "wblist" && <div className="dropdown float-right text-right">
+                    {sipUser === "report" && <div style={{ "marginLeft": "30px" }}> {this.props.type +" - "+store.getState().timerange[2]}</div>}  
+                    {name !== "wblist" && sipUser !== "report" && <div className="dropdown float-right text-right">
                         <span onClick={this.share} className="tabletd marginRight" ><img className="iconShare" alt="shareIcon" src={shareIcon} title="share" /><span id="tooltipshare" style={{ "display": "none" }}>copied to clipboard</span></span>
                         <span className="tabletd marginRight" onClick={this.moveTimerangeForward}><img alt="timeBackIcon" src={timeBack} title="move back" /></span><span className="tabletd marginRight" onClick={this.moveTimerangeBack}> <img alt="timeForwardIcon" src={timeForward} title="move forward" /></span>
                         <span id="reload" onClick={this.reload} className="tabletd marginRight" ><img className="iconReload" alt="reloadIcon" src={reloadIcon} title="reload" /></span>
@@ -586,11 +586,11 @@ class timerangeBar extends Component {
                                 <button style={{ "marginLeft": "10%", "marginTop": "60px" }} onClick={this.close} className="setTimerange btn btn-secondary">Cancel</button>  <button style={{ "marginTop": "60px" }} onClick={(e) => this.setTimerange(e, true)} className="setTimerange btn btn-primary">Set</button>
                             </div>
                             <hr></hr>
-                            {this.state.autoRefresh && <div className="row" style={{ "marginLeft": "15px" }}>
+                            {this.state.autoRefresh && sipUser !== "report" && <div className="row" style={{ "marginLeft": "15px" }}>
                                 <br />
                                 <h3 style={{ "marginTop": "15px" }}>Refresh </h3>
                             </div>}
-                            {this.state.autoRefresh && <div className="row" style={{ "marginLeft": "30px" }}>
+                            {this.state.autoRefresh && sipUser !== "report" && <div className="row" style={{ "marginLeft": "30px" }}>
                                 <p style={{ "whiteSpace": "pre-wrap" }}>every </p> <input type="number" id="refresh" min="1" max="60" defaultValue={this.state.refreshValue} style={{ "width": "fit-content" }} /><select id="timeUnit" style={{ "width": "fit-content" }} defaultValue={this.state.refreshUnit} >
                                     <option value="seconds">seconds</option>
                                     <option value="minutes">minutes</option>
@@ -605,7 +605,7 @@ class timerangeBar extends Component {
 
 
                 </div>
-                {name !== "web" && <div className="export" id="JSONexport">
+                {name !== "web" && sipUser !== "report" && <div className="export" id="JSONexport">
                     <button className="close" onClick={this.exportJSONclose}>
                         &times;
                     </button>

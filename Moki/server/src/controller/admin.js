@@ -1,6 +1,6 @@
 const { connectToES } = require('../modules/elastic');
 const { parseBase64 } = require('../modules/jwt');
-const { isRequireJWT } = require('../modules/config');
+//const { isRequireJWT } = require('../modules/config');
 const { exec } = require("child_process");
 const fs = require('fs');
 const https = require("https");
@@ -102,15 +102,9 @@ class AdminController {
         }
       });
     }
-    // localhost query -- open up
-    // if (req.connection.remoteAddress === '127.0.0.1') {
-    //    console.log("ACCESS getJWTsipUserFilter: permitted for localhost source");
-    // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
-    // this is implicit Promise like if there was "return Promise.resolve("*")
-    //     return res.json({ user: 'localhost', aws: false });
-    // }
 
-    // check config if JWT required
+    // check config if JWT required, UPDATE: WE ALWAYS NEED JWT TOKEN NOW
+    /*
     let isAccept;
     try {
       isAccept = cfg.JWT_required ||  await isRequireJWT();
@@ -124,19 +118,18 @@ class AdminController {
 
     // WE DON¨T HAVE THIS OPTION ANYMORE
     // JWT not required -- open up
-    //if (!isAccept) {
-    //  console.log(`ACCESS getJWTsipUserFilter: * permitted because no JWT required`);
-    //  return res.json({ user: `ADMIN`, aws: false });
-    // }
-
-
+    if (!isAccept) {
+      console.log(`ACCESS getJWTsipUserFilter: * permitted because no JWT required`);
+      return res.json({ user: `ADMIN`, aws: false });
+    }*/
 
     // JWT required -- parse it and validate it
+
     let parsedHeader;
     try {
       parsedHeader = parseBase64(req.headers[hfName]);
     } catch (e) {
-      console.log("ACCESS getJWTsipUserFilter: JWT parsing failed");
+      console.log("admin ACCESS getJWTsipUserFilter: JWT parsing failed");
       return res.json({ redirect: "JWTparsingError" });
     }
 
@@ -148,29 +141,41 @@ class AdminController {
 
     let parsedHeaderAccessToken;
     let IPs;
-    try {
-      parsedHeaderAccessToken = parseBase64(req.headers['x-amzn-oidc-accesstoken']);
-      //split x-forwarded-for by comma and take first IP
-      IPs = req.headers['x-forwarded-for'].split(",");
-    } catch (e) {
-      console.log("ACCESS getJWTsipUserFilter: JTI parsing failed");
-      return res.json({ redirect: "JTIparsingError" });
-    }
-    console.log("parsed Header: ", JSON.stringify(parsedHeader));
+
+    const username = parsedHeader['username'];
+    const email = parsedHeader['email'];
+
     const sip = parsedHeader['custom:sip'];
     let jwtbit = parsedHeader['custom:adminlevel'];
     const domainID = parsedHeader['custom:domainid'];
     const subId = parsedHeader['sub'];
-    const email = parsedHeader['email'];
-    const jti = parsedHeaderAccessToken['jti'];
-    const sourceIP = IPs[0];
-    const userbackend = parsedHeader['custom:userbackend'];
+
+    // SPECIAL CASE: report
+    if (username === "report") {
+      return res.json({ user: 'report', aws: true, domainID: domainID, jwt: jwtbit, "sub": subId });
+    }
+
 
     if (jwtbit === undefined) {
       //default user for web dashboard
       console.info("ACCESS web user - jwtbit undefined");
       return res.json({ user: `DEFAULT`, aws: true });
     }
+
+    try {
+
+      parsedHeaderAccessToken = parseBase64(req.headers['x-amzn-oidc-accesstoken']);
+      //split x-forwarded-for by comma and take first IP
+      IPs = req.headers['x-forwarded-for'].split(",");
+    } catch (e) {
+      console.error("ACCESS getJWTsipUserFilter: JTI parsing failed");
+      return res.json({ redirect: "JTIparsingError" });
+    }
+
+    const jti = parsedHeaderAccessToken['jti'];
+    const sourceIP = IPs[0];
+    const userbackend = parsedHeader['custom:userbackend'];
+
 
     //store login to ES
     if (oldJti !== jti) {
@@ -181,7 +186,7 @@ class AdminController {
 
     // subscriber id and admin level must be always set
     if (subId === undefined) {
-      console.log("ACCESS getJWTsipUserFilter: no sub defined ");
+      console.error("ACCESS getJWTsipUserFilter: no sub defined ");
       return res.json({ redirect: "noSubID" });
     }
 
@@ -261,7 +266,7 @@ class AdminController {
     }
     let jwtbit = parsedHeader['custom:adminlevel'];
     const userID = parsedHeader['sub'];
-    const domain =  parsedHeader['custom:domainid'];
+    const domain = parsedHeader['custom:domainid'];
     const email = parsedHeader['email'];
     const sourceIP = IPs[0];
     const mode = req.body.mode;
@@ -386,7 +391,7 @@ create new user with password in htpasswd
       let parsedHeader = parseBase64(req.headers['x-amzn-oidc-data']);
       return res.json({ username: parsedHeader.username });
     } catch (e) {
-      return res.json({ username: "Undefined"});
+      return res.json({ username: "Undefined" });
     }
   }
 
@@ -409,16 +414,16 @@ create new user with password in htpasswd
       }
     }
 
-    if (ccmAddr){
+    if (ccmAddr) {
       res.json({ "msg": false });
     }
-    else{
+    else {
       res.json({ "msg": true });
     }
 
   }
 
-  static setJsonDataMConfig(jsonData, attrName, value){
+  static setJsonDataMConfig(jsonData, attrName, value) {
     let appExists = false;
 
     for (let i = 0; i < jsonData["general"]["global-config"].length; i++) {
@@ -431,11 +436,10 @@ create new user with password in htpasswd
             attrExists = true;
           }
         }
-
-        if (!attrExists){
+        if (!attrExists) {
           jsonData["general"]["global-config"][i]["attrs"].push({
-            attribute : attrName,
-            value     : value
+            attribute: "ccmAddr",
+            value: req.body.ccmAddr
           });
         }
 
@@ -444,13 +448,13 @@ create new user with password in htpasswd
       }
     }
 
-    if (!appExists){
+    if (!appExists) {
       jsonData["general"]["global-config"].push({
-        app   : "m_config",
-        attrs : [{
-            attribute : attrName,
-            value     : value
-          }]
+        app: "m_config",
+        attrs: [{
+          attribute: "ccmAddr",
+          value: req.body.ccmAddr
+        }]
       });
     }
   }
@@ -458,25 +462,25 @@ create new user with password in htpasswd
   static async firstTimeLoginSave(req, res) {
     let ccmPubKey = null;
 
-    try{
-      if (!req.body.ccmAddr){
+    try {
+      if (!req.body.ccmAddr) {
         throw new Error('CCM address is not set');
       }
 
       const response = await axios({
-          url        : `https://${req.body.ccmAddr}/oauth/jwk.php`,
-          httpsAgent : new https.Agent({
-              rejectUnauthorized : false
-          })
+        url: `https://${req.body.ccmAddr}/oauth/jwk.php`,
+        httpsAgent: new https.Agent({
+          rejectUnauthorized: false
+        })
       });
 
-      if (!response.data.keys){
-          throw new Error('CCM did not provided its public key');
+      if (!response.data.keys) {
+        throw new Error('CCM did not provided its public key');
       }
 
       ccmPubKey = JSON.stringify(response.data);
     }
-    catch(err){
+    catch (err) {
       // res.send({ "error": "fooobar" });
       res.send({ "error": err.toString() });
       return;

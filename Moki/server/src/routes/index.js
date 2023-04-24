@@ -10,7 +10,7 @@ const {
   HomeController, MonitoringController, MicroanalysisController,
   NetworkController, OverviewController, QoSController,
   RealmController, RegistrationController,
-  SettingController, SecurityController, SystemController,
+  SettingController, SecurityController, SystemController,ReportController,
   TransportController, ProfileController
 } = require('../controller');
 //const ReportController = require('../controller/report');
@@ -136,9 +136,9 @@ module.exports = () => {
     .post('/monitoring/events', MonitoringController.getEvents)
     .post('/monitoring/sbc', MonitoringController.getSbc);
 
-  /*router
+  router
     .post('/report', ReportController.getReport);
-*/
+
   if (nodeEnv !== 'test') {
     router.use('/docs', swaggerUi.serve);
     router.get('/docs', swaggerUi.setup(specs, { explorer: true }));
