@@ -10,10 +10,9 @@ const {
   HomeController, MonitoringController, MicroanalysisController,
   NetworkController, OverviewController, QoSController,
   RealmController, RegistrationController,
-  SettingController, SecurityController, SystemController, 
+  SettingController, SecurityController, SystemController,
   TransportController, ProfileController, Controller
 } = require('../controller');
-//const ReportController = require('../controller/report');
 const { nodeEnv } = require('../modules/config');
 
 module.exports = () => {
