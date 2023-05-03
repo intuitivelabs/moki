@@ -11,7 +11,8 @@ const {
   NetworkController, OverviewController, QoSController,
   RealmController, RegistrationController,
   SettingController, SecurityController, SystemController,ReportController,
-  TransportController, ProfileController
+  SettingController, SecurityController, SystemController,
+  TransportController, ProfileController, Controller
 } = require('../controller');
 //const ReportController = require('../controller/report');
 const { nodeEnv } = require('../modules/config');
@@ -64,6 +65,10 @@ module.exports = () => {
   router
     .post('/home/charts', HomeController.getCharts);
 
+    router
+    .post('/scroll', Controller.scroll)
+    .post('/cleanScroll', Controller.cleanScroll);
+    
 
   router
     .post('/conference/charts', ConferenceController.getCharts)

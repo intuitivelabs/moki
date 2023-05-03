@@ -22,10 +22,10 @@ class Controller {
   static request(req, res, next, requests, dashboard = "overview") {
     async function search() {
       //check token
-        let checkiat = await checkIAT(req, res);
-        if (checkiat === "logout") {
-          return res.json({ redirect: "logout" });
-        }
+      let checkiat = await checkIAT(req, res);
+      if (checkiat === "logout") {
+        return res.json({ redirect: "logout" });
+      }
 
       const client = connectToES();
       var filters = getFiltersConcat(req.body.filters);
@@ -262,6 +262,33 @@ class Controller {
     });
   }
 
+  //scroll function for export
+  static async scroll(req, res) {
+    try {
+      const client = connectToES();
+      const responseScroll = await scroll.scroll(client, req.body.scroll_id);
+      res.json(responseScroll);
+    }
+    catch (error) {
+
+    }
+
+  }
+
+  //clean scroll function for export
+  static async cleanScroll(req, res) {
+    try {
+      const client = connectToES();
+      client.clearScroll({ "scroll_id": req.body.scroll_id })
+      res.json("ok");
+    }
+    catch (error) {
+
+    }
+
+  }
+
+
   //special case, not msearch and with scroll parameter
   static requestTable(req, res, next, requests, dashboard = "overview") {
     async function search() {
@@ -365,7 +392,6 @@ class Controller {
         filters = "*";
       }
       let resp = "";
-      let isNeedScroll = false;
       console.info("SERVER search with filters: " + JSON.stringify(filters) + " types: " + types + " timerange: " + timestamp_gte + "-" + timestamp_lte + " timebucket: " + timebucket + " userFilter: " + userFilter + " domainFilter: " + domainFilter + " encrypt checksum filter: " + isEncryptChecksumFilter);
       //always timerange_query
       let shouldSortByTime = requests.index.includes("logstash") || requests.index.includes("collectd") || requests.index.includes("exceeded") ? true : false;
@@ -375,91 +401,14 @@ class Controller {
 
       var response = await client.search({
         index: requests.index,
-        scroll: '1m',
+        scroll: '5m',
         "ignore_unavailable": true,
         "preference": 1542895076143,
         body: requests.query
       });
 
-      const totalHits = response.hits.total.value;
-      let actualHits = response.hits.hits.length;
-      let separator = ",";
-      let size = 0;
-
-
-      if (actualHits < totalHits && req.body.params && req.body.params.type === "export") {
-        //write it to the file
-        try {
-          await fs.promises.appendFile("/tmp/export.json", "[");
-          for (let hit of response.hits.hits) {
-            console.log(size);
-            size = size +1;
-            res.write(size);
-
-           // if (size === actualHits) {
-           //   separator = "";
-           // }
-
-            await fs.promises.appendFile("/tmp/export.json", JSON.stringify(hit, null, 2) + separator);
-          }
-        }
-        catch (error) {
-          console.error("Can't write to  data to /tmp/export.json. " + error);
-        }
-      }
-
-      separator = ",";
-      while (actualHits < totalHits && req.body.params && req.body.params.type === "export") {
-        isNeedScroll = true;
-        console.log("scrolling-----------");
-
-        const responseScroll = await scroll.scroll(client, response._scroll_id);
-        actualHits = actualHits + responseScroll.hits.hits.length;
-        console.log(actualHits + "/" + totalHits);
-
-        //write it to the file
-        for (let hit of responseScroll.hits.hits) {
-           
-          size = size+1;
-          console.log(size);
-          res.write( size);
-
-          if (size === totalHits) {   
-            separator = "";
-          }
-          await fs.promises.appendFile("/tmp/export.json", JSON.stringify(hit, null, 2) + separator);
-        }
-
-      }
-
-      //send the file 
-      if (isNeedScroll) {
-        await fs.promises.appendFile("/tmp/export.json", "]");
-
-        console.log("send file");
-       /* resp = res.writeHead(200, {
-          "Content-Type": "application/octet-stream",
-          "Content-Disposition": "attachment; filename=/tmp/export.json"
-        });
-        resp = fs.createReadStream("/tmp/export.json").pipe(res);
-*/
-res.sendFile("/tmp/export.json");
-        //delete tmp file
-        try {
-     //   fs.unlinkSync("/tmp/export.json");
-        } catch (err) {
-          console.error(err)
-        }
-
-        client.clearScroll({
-          "scroll_id": response._scroll_id
-        })
-      }
-      //otherwise send the data directly 
-      else {
-        resp = res.json(response);
-      }
-
+      resp = res.json(response);
+      
       userFilter = "*";
       console.info(new Date() + " got elastic data");
 
