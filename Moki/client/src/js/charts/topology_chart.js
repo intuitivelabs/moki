@@ -53,7 +53,7 @@ export default class topology extends Component {
         var xScale = d3.scaleOrdinal(Colors);
         var legendRectSize = 15;
         var legendSpacing = 3;
-        var legendWidth = "200px";
+        var legendWidth = "250px";
         width = width - 300;//legend width
 
 
@@ -445,7 +445,18 @@ export default class topology extends Component {
                     }
                 })
                 .append("svg:title")
-                .text(function (d) { return d})
+                .text(function (d) {
+                    //find value to key
+                    let value = 0;
+                    for (let hit of data[0]) {
+                        if (hit.ip === d) {
+                            value = hit.value;
+                            break;
+                        }
+                    }
+
+                    return d + ": " + value;
+                })
                 .on("click", el => {
                     createFilter(field1 + ":\"" + el + "\" OR " + field2 + ":\"" + el + "\"");
                     //bug fix: if you click but not move out
