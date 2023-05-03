@@ -498,7 +498,7 @@ class timerangeBar extends Component {
             <div id="popup">
                 <div className="d-flex justify-content-between">
                     {sipUserSwitch}
-                    {!hiddenExport.includes(name) && sipUser !== "report"  && sipUser !== "report" &&  <Export />}
+                    {!hiddenExport.includes(name) && sipUser !== "report" &&  <Export />}
                     {sipUser === "report" && <div style={{ "marginLeft": "30px" }}> {this.props.type +" - "+store.getState().timerange[2]}</div>}  
                     {name !== "wblist" && sipUser !== "report" && <div className="dropdown float-right text-right">
                         <span onClick={this.share} className="tabletd marginRight" ><img className="iconShare" alt="shareIcon" src={shareIcon} title="share" /><span id="tooltipshare" style={{ "display": "none" }}>copied to clipboard</span></span>
