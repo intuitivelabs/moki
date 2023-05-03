@@ -66,24 +66,6 @@
         }
       },
       {
-        "attribute": "event_tls_verify_peer",
-        "label": "Enable CA cert check for TLS events input",
-        "type": "boolean",
-        "value": false,
-        "category": "TLS"
-      },
-      {
-        "attribute": "event_tls_cacert",
-        "label": "CA cert to check for TLS events input",
-        "type": "file",
-        "value": "",
-        "category": "TLS",
-        "restriction": {
-          "type": "bundle",
-          "extensions": [".pem", ".crt", ".key"]
-        }
-      },
-      {
         "attribute": "alarms_redis",
         "label": "Enable sending alarms to redis",
         "type": "boolean",
@@ -133,7 +115,7 @@
         }
       },
       {
-        "attribute": "tlc_cert_verify_level",
+        "attribute": "tls_cert_verify_level",
         "label": "Peer certificate verification level",
         "details": "if TLS used (see doc for details)",
         "value": 0,
@@ -156,6 +138,17 @@
               }
             ]
           }
+        }
+      },
+      {
+        "attribute": "event_tls_cacert",
+        "label": "CA cert to check for TLS events input",
+        "type": "file",
+        "value": "",
+        "category": "TLS",
+        "restriction": {
+          "type": "bundle",
+          "extensions": [".pem", ".crt", ".key"]
         }
       },
       {
