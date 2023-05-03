@@ -47,6 +47,7 @@ class Notificationbar extends Component {
         this.dontshow = this.dontshow.bind(this);
         this.shouldShow = this.shouldShow.bind(this);
         this.update = this.update.bind(this);
+        this.getNotification = this.getNotification.bind(this);
         window.notification = this;
 
     }
@@ -122,7 +123,13 @@ class Notificationbar extends Component {
     * @return {object} 
     * */
     getNotification(errno) {
-        return NOTIFICATIONS[errno];
+        var array = [...this.state.notifications];
+        for (let j = 0; j < array.length; j++) {
+            if (array[j].errno === errno) {
+                return (array[j]);
+            }
+        }
+        return null;
     }
 
     /**

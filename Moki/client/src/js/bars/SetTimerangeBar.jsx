@@ -72,7 +72,6 @@ class timerangeBar extends Component {
             history: [],
             timeFormat: timeFormat,
             dateFormat: dateFormat,
-            exportJSONOpen: false,
             timezone: timezone,
             type: ""
         }
@@ -100,8 +99,6 @@ class timerangeBar extends Component {
         this.popupTrigger = React.createRef();
         this.addHistory = this.addHistory.bind(this);
         this.loadHistory = this.loadHistory.bind(this);
-        this.exportJSON = this.exportJSON.bind(this);
-        this.exportJSONclose = this.exportJSONclose.bind(this);
         this.toggleMenu = this.toggleMenu.bind(this);
         store.subscribe(() => this.rerenderTimerange());
 
@@ -491,28 +488,6 @@ class timerangeBar extends Component {
         });
     }
 
-    exportCSV() {
-        document.getElementById("CSVexport").style.display = "block";
-        this.setState({ exportCSVOpen: true });
-    }
-
-    exportJSON() {
-        if (storePersistent.getState().user.jwt) {
-            document.getElementById("JSONexport").style.display = "block";
-
-        }
-        this.setState({ exportJSONOpen: true });
-    }
-
-    exportJSONclose() {
-        document.getElementById("JSONexport").style.display = "none"
-        this.setState({ exportJSONOpen: false });
-    }
-    exportCSVclose() {
-        document.getElementById("CSVexport").style.display = "none"
-        this.setState({ exportCSVOpen: false });
-    }
-
 
     render() {
         const sipUser = storePersistent.getState().user.user;
@@ -523,12 +498,7 @@ class timerangeBar extends Component {
             <div id="popup">
                 <div className="d-flex justify-content-between">
                     {sipUserSwitch}
-                    {!hiddenExport.includes(name) && sipUser !== "report" && <div className="dropdown float-right text-right">
-                        <button className="btn" type="button" id="dropdownMenuExportButton" onClick={this.exportJSON} aria-haspopup="true" aria-expanded="false">
-                            Export
-                        </button>
-                    </div>
-                    }
+                    {!hiddenExport.includes(name) && sipUser !== "report"  && sipUser !== "report" &&  <Export />}
                     {sipUser === "report" && <div style={{ "marginLeft": "30px" }}> {this.props.type +" - "+store.getState().timerange[2]}</div>}  
                     {name !== "wblist" && sipUser !== "report" && <div className="dropdown float-right text-right">
                         <span onClick={this.share} className="tabletd marginRight" ><img className="iconShare" alt="shareIcon" src={shareIcon} title="share" /><span id="tooltipshare" style={{ "display": "none" }}>copied to clipboard</span></span>
@@ -605,13 +575,7 @@ class timerangeBar extends Component {
 
 
                 </div>
-                {name !== "web" && sipUser !== "report" && <div className="export" id="JSONexport">
-                    <button className="close" onClick={this.exportJSONclose}>
-                        &times;
-                    </button>
-                    <Export type="JSON" exportOpen={this.state.exportJSONOpen} close={this.exportJSONclose} />
-                </div>
-                }
+                
             </div>
         );
     }
