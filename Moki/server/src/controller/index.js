@@ -21,7 +21,6 @@ const SecurityController = require('./security');
 const SystemController = require('./system');
 const TransportController = require('./transport');
 const ProfileController = require('./profile');
-const ReportController = require('./report');
 const Controller = require('./controller');
 
 // controller boilerplate code
@@ -61,6 +60,5 @@ module.exports = {
   SystemController,
   TransportController,
   ProfileController,
-  ReportController
   Controller
 };
