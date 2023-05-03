@@ -462,7 +462,7 @@ export default class MultipleLineChart extends Component {
         var bucket = getTimeBucket();
         return (<div id={
             this.props.id
-        } className="chart">
+        } className="chart" style={{"minHeight": "217px"}}>
             <h3 className="alignLeft title" style={{ "float": "inherit" }}> {
                 this.props.name
             } <span className="smallText"> (interval: {bucket})</span></h3>
