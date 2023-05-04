@@ -25,17 +25,16 @@ var getTemplate = function ( field, field2, queries, supress) {
                     }
                 },
                  "aggs": {
-                "docs_count": {
+                "type_count": {
                     "cardinality": {
-                        "field": field2,
-                        "format": "#,##0.00;(#,##0.00)"
+                        "field": field2
                     }
                 }
             }
             },
             "avg_count": {
                   "avg_bucket": {
-                    "buckets_path": "count_bucket>docs_count" 
+                    "buckets_path": "count_bucket>type_count" 
                   }
             }
         }
