@@ -262,12 +262,25 @@ class Controller {
     });
   }
 
-  //scroll function for export
+  //scroll function for export (local or remote)
   static async scroll(req, res) {
+    let scroll_id = null;
+    if (req.body && req.body.scroll_id) {
+      scroll_id = req.body.scroll_id;
+    }
+    else {
+      scroll_id = req._scroll_id;
+    }
+
     try {
       const client = connectToES();
-      const responseScroll = await scroll.scroll(client, req.body.scroll_id);
-      res.json(responseScroll);
+      const responseScroll = await scroll.scroll(client, scroll_id);
+      if (res) {
+        res.json(responseScroll);
+      }
+      else {
+        return responseScroll;
+      }
     }
     catch (error) {
 
@@ -387,6 +400,9 @@ class Controller {
         }
       }
 
+      const exportFileName = "/tmp/export-" + dashboard + "-" + new Date(timestamp_gte).toISOString() + "-" + new Date(timestamp_lte).toISOString() + ".json";
+
+
       //no filters for report index
       if (requests.index === "report*") {
         filters = "*";
@@ -395,29 +411,63 @@ class Controller {
       console.info("SERVER search with filters: " + JSON.stringify(filters) + " types: " + types + " timerange: " + timestamp_gte + "-" + timestamp_lte + " timebucket: " + timebucket + " userFilter: " + userFilter + " domainFilter: " + domainFilter + " encrypt checksum filter: " + isEncryptChecksumFilter);
       //always timerange_query
       let shouldSortByTime = requests.index.includes("logstash") || requests.index.includes("collectd") || requests.index.includes("exceeded") ? true : false;
-      requests.query = timerange_query.getTemplate(getQueries(filters, types, timestamp_gte, timestamp_lte, userFilter, requests.filter, domainFilter, isEncryptChecksumFilter, false, requests.index), supress, source, shouldSortByTime, querySize);
+      requests.query = timerange_query.getTemplate(getQueries(filters, types, timestamp_gte, timestamp_lte, userFilter, requests.filter, domainFilter, isEncryptChecksumFilter, false, requests.index), supress, source, shouldSortByTime, 1000);
       if (cfg.debug) console.info(requests.index);
       if (cfg.debug) console.info(JSON.stringify(requests.query));
 
       var response = await client.search({
         index: requests.index,
-        scroll: '5m',
+        scroll: '3m',
         "ignore_unavailable": true,
         "preference": 1542895076143,
         body: requests.query
       });
 
-      resp = res.json(response);
-      
-      userFilter = "*";
-      console.info(new Date() + " got elastic data");
-
-      client.close();
-      if (typeof resp === "string") {
-        console.error("Failed msearch: " + resp);
+      //es connection problem
+      if (typeof response === "string") {
+        console.error("Failed msearch: " + response);
         console.error("Failed msearch query: " + JSON.stringify(requests.query));
       }
-      return resp;
+      else {
+
+        userFilter = "*";
+        console.info(new Date() + " got elastic data");
+
+        let totalHits = response.hits.total.value;
+        let actualHits = response.hits.hits.length;
+
+        //if export too big, store in file
+        if (req.body.params && req.body.params.type === "export" && actualHits < totalHits && totalHits > 100000) {
+          async function exportFile() {
+            while (actualHits < totalHits) {
+              try {
+                //if file exists, delete it
+                if (fs.existsSync(exportFileName)) {
+                  fs.unlinkSync(exportFileName);
+                }
+
+                await fs.promises.appendFile(exportFileName, JSON.stringify(response.hits.hits));
+              }
+              catch (error) {
+                console.error("Can't write to  data to " + exportFileName + ". " + error);
+              }
+
+              response = await Controller.scroll(response, null);
+              actualHits = actualHits + response.hits.hits.length;
+            }
+
+            //done, send a link
+            return res.json({ "info": "Export too big and is ready on server. Path: " + exportFileName });
+
+          }
+          exportFile();
+        }
+        else {
+          resp = res.json(response);
+          client.close();
+          return resp;
+        }
+      }
     }
 
     return search().catch(e => {

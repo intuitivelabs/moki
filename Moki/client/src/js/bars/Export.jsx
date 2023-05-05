@@ -37,9 +37,22 @@ class Export extends Component {
             }
             // Retrieves the list of calls
             var calls = await elasticsearchConnection(name + "/table", { "size": size, "type": "export" });
+
+            
+            if (calls.info) {
+                window.notification.update({ errno: 5, text: calls.info, level: "info" });
+                return;
+            }
+
             const totalHits = calls.hits.total.value;
             let actualHits = calls.hits.hits.length;
             let exportData = [];
+
+            if (totalHits > 100000) {
+                window.notification.update({ errno: 5, text: "Export is too big. File will be ready on server site do download. Don't close monitor, you will receive link to download here.", level: "info" });
+                return;
+            }
+
 
             this.updateProgressBar("Downloading data... total: " + totalHits + ", downloaded: " + actualHits);
 
@@ -54,8 +67,8 @@ class Export extends Component {
                     // exportData +  Buffer.from(JSON.stringify(data)).toString('base64');
                     //new Blob([Buffer.from(exportData, 'base64').toString('ascii')], { type: "application/json" });
 
-                   // exportData = exportData + new Blob([JSON.stringify(data)], { type: "application/json" });
-                   exportData =  exportData +  JSON.stringify(data); 
+                    // exportData = exportData + new Blob([JSON.stringify(data)], { type: "application/json" });
+                    exportData = exportData + JSON.stringify(data);
 
                     //get new scroll data
                     try {
@@ -106,7 +119,7 @@ class Export extends Component {
 
                 }
 
-                exportData =  exportData +  JSON.stringify(data); 
+                exportData = exportData + JSON.stringify(data);
 
 
                 //export
