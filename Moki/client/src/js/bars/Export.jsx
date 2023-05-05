@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { elasticsearchConnection } from '@moki-client/gui';
 import { parseTableHits, decrypt } from '@moki-client/es-response-parser';
 import storePersistent from "../store/indexPersistent";
+import store from "../store/index";
 
 class Export extends Component {
     constructor(props) {
@@ -127,9 +128,12 @@ class Export extends Component {
     //create an element and export data
     //partialExport - fot not closing export notification
     async export(exportData, partialExport) {
+        let gte = store.getState().timerange[0];
+        let lte = store.getState().timerange[1];
+
         const element = document.createElement("a");
         var file = ""
-        element.download = "data.json";
+        element.download = "export-"+new Date(gte).toISOString()+"-"+new Date(lte).toISOString()+".json";
         // file = new Blob([this.state.blobData], { type: "text/plain" });
         // file = new Blob([JSON.stringify(this.state.blobData, null, 2)], { type: "application/json" });
         // new Blob([Buffer.from(exportData, 'base64').toString('ascii')], { type: "application/json" });
