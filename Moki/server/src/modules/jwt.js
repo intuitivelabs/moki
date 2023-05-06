@@ -2,7 +2,6 @@
 const { isRequireJWT } = require('./config');
 const { cfg } = require('../modules/config');
 const { searchES, updateES, } = require('../utils/ES_queries');
-const AdminController = require('../controller/admin');
 
 const hfName = 'x-amzn-oidc-data';
 const indexName = "profiles";
