@@ -7,21 +7,21 @@ import { parseTableHits } from "../../es-response-parser";
 import { getTypes } from "../helpers/getTypes";
 
 import store from "@/js/store";
-import { useSelector, shallowEqual } from "react-redux";
+import { shallowEqual } from "react-redux";
+import { useAppSelector } from ".";
 
-/**
- * @param {string} dashboardName
- * @return {{ calls: any[], total: number }}
- */
-function useTableData(dashboardName, withTypes = true) {
-  const [calls, setCalls] = useState([]);
+function useTableData(
+  dashboardName: string,
+  withTypes = true,
+): { calls: any[]; total: number } {
+  const [calls, setCalls] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
-  const timerange = useSelector(
+  const timerange = useAppSelector(
     (state) => state.filter.timerange,
     shallowEqual,
   );
-  const filters = useSelector((state) => state.filter.filters, shallowEqual);
-  const types = useSelector((state) => state.filter.types, shallowEqual);
+  const filters = useAppSelector((state) => state.filter.filters, shallowEqual);
+  const types = useAppSelector((state) => state.filter.types, shallowEqual);
 
   useEffect(() => {
     if (withTypes && getTypes().length == 0) return;
@@ -50,10 +50,10 @@ function useTableData(dashboardName, withTypes = true) {
 
   /**
    * parse table hits with profile attrs
-   * @param {ES response}  array ES data
-   * @return {} stores data in state
+   * @param  array ES data
+   * @return stores data in state
    */
-  const processESData = async (esResponse) => {
+  const processESData = async (esResponse: any) => {
     if (!esResponse) return;
 
     //only parse table fnc and set total value
