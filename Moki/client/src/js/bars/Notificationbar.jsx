@@ -18,19 +18,13 @@ LEVELS
     - {errno: 6, text: "Can't connect to monitor server", level: "error" }
 2) warning
     - {errno: 4, text: "Disk full > 80%", level: "warning"}
+    - {errno: 8, text: "Use caution when changing configuration", level: "warning"}
 3) info
     - {errno: 5, text: "Downloading data", level: "info"}
+    - {errno: 7, text: "Config created", level: "info"}
 
 */
-const NOTIFICATIONS = [
-    {},
-    { errno: 1, text: "Logstash is not running or can't index event", level: "error" },
-    { errno: 2, text: "Elasticsearch is not running or can't create index", level: "error" },
-    { errno: 3, text: "Disk full > 90%", level: "error" },
-    { errno: 4, text: "Disk full > 80%", level: "warning" },
-    { errno: 5, text: "Downloading data", level: "info" },
-    { errno: 6, text: "Can't connect to monitor server", level: "error" }
-]
+
 class Notificationbar extends Component {
     constructor(props) {
         super(props);
@@ -157,10 +151,10 @@ class Notificationbar extends Component {
         for (let j = 0; j < array.length; j++) {
             if (array[j].errno === errno) {
                 isFound = true;
-                //for warning type only
-                if (array[j].level === "warning") {
-                    this.dontshow(errno);
-                }
+                //for warning type only - REMOVED
+                //if (array[j].level === "warning") {
+                   // this.dontshow(errno);
+                //}
                 array.splice(j, 1);
 
             }
@@ -240,12 +234,11 @@ class Notificationbar extends Component {
             }
             window.localStorage.setItem("dontshowNotification", JSON.stringify(dontShowresult));
         }
-
         return result;
     }
 
     render() {
-        var notifications = this.shouldShow();
+        var notifications = this.getAllNotifications();
         if (notifications.length === 0) {
             return (<div></div>)
         } else {
