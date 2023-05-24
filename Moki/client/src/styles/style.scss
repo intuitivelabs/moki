@@ -792,6 +792,11 @@ h6 {
     shape-rendering: crispEdges;
 }
 
+.grid-line {
+    stroke: lightgrey !important;
+    stroke-opacity: 0.7 !important;
+}
+
 .grid line {
     stroke: lightgrey;
     stroke-opacity: 0.7;
@@ -821,13 +826,6 @@ text {
 /*.axis text {
   font: 12px sans-serif;
 }*/
-
-.axis line,
-.axis path {
-    fill: none;
-    stroke: #000;
-    shape-rendering: crispEdges;
-}
 
 .axis--x path {
     display: none;

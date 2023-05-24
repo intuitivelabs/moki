@@ -1,15 +1,14 @@
 /*
 Class to get data for all charts iin Call dashboard
 */
-import React from "react";
 import { useDashboardData, getLastValueInInterval } from "@hooks/useDashboardData";
-import TimedateHeatmap from "@charts/timedate_heatmap.jsx";
-import CountUpChart from "@charts/count_chart.jsx";
-import ValueChart from "@charts/value_chart.jsx";
-import MultipleAreaChart from "@charts/multipleArea_chart";
+import TimedateHeatmap from "@charts/TimedateHeatmap";
+import CountUpChart from "@charts/CountUpChart";
+import ValueChart from "@charts/ValueChart";
+import MultipleAreaChart from "@charts/MultipleAreaChart";
 import LoadingScreenCharts from "../../helpers/LoadingScreenCharts";
-import MultivalueChart from "@charts/multivalue_chart.jsx";
-import ListChart from "@charts/list_chart.jsx";
+import MultivalueChart from "@charts/multivalue_chart";
+import ListChart from "@charts/list_chart";
 import {
   parseAggData,
   parseAggDistinct,
@@ -89,8 +88,6 @@ function HomeCharts() {
       [{ result: "severity", func: parseListData, attrs: ["severity"] }],
     ],
   }, false);
-
-  const width = useSelector((state) => state.persistent.width);
 
   return (
     <div>
@@ -180,7 +177,6 @@ function HomeCharts() {
               id="dateHeatmap"
               name={"TYPE DATE HEATMAP"}
               field={"attrs.type"}
-              width={width - 300}
               units={"count"}
             />
           </div>
@@ -218,7 +214,6 @@ function HomeCharts() {
                 data={chartsData.parallelCalls}
                 name={"PARALLEL CALLS"}
                 id={"parallelCalls"}
-                width={width - 300}
                 units={"count"}
               />
             </div>

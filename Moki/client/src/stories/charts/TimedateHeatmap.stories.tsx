@@ -1,54 +1,75 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { TimedateHeatmapRender } from "@/js/charts/timedate_heatmap";
+import {
+  RenderProps,
+  TimedateHeatmapRender,
+} from "@/js/charts/TimedateHeatmap";
 import { timerangeProps } from "@/stories/utils/timerange";
 import type { TimerangeProps } from "@/stories/utils/timerange";
-import { generateHeatmapData } from "@/data/charts/timedate_heatmap";
+import { genHeatmapData } from "@/data/charts/genHeatmapData";
 import { DAY_TIME } from "@/data/utils/date";
 import { parseDateHeatmap } from "@/es-response-parser";
+import { ChartGeneratorProps } from "@/data/types";
+import { ColorsGreen, ColorsRedGreen } from "@/gui";
 
-type TimedateProps = {
-  timerange: [number, number];
-  setTimerange: (timerange: number[]) => void;
-  data: [];
-  id: string;
-  field: string;
-  width: number;
-  name: string;
-  units: string;
+type ColorScheme = "Green" | "RedGreen";
+const COLOR_SCHEME = {
+  "Green": ColorsGreen,
+  "RedGreen": ColorsRedGreen,
 };
 
-type FakeDataProps = {
-  seed: number;
-  sample: number;
-  valueMod: number;
+const TYPES_SCHEME = {
+  "Green": [
+    "error",
+    "auth-failed",
+    "call-attempt",
+    "reg-new",
+    "notice",
+    "reg-del",
+    "reg-expired",
+    "call-start",
+    "call-end",
+  ],
+  "RedGreen": ["backend-proxy", "public-users"],
 };
 
-type StoryProps = TimedateProps & TimerangeProps & FakeDataProps;
+type StoryProps =
+  & {
+    colorScheme: ColorScheme;
+  }
+  & RenderProps
+  & TimerangeProps
+  & ChartGeneratorProps;
 
 const meta: Meta<StoryProps> = {
   title: "charts/TimedateHeatmap",
-  component: TimedateHeatmapRender,
   tags: ["autodocs"],
   argTypes: {
-    width: {
-      control: { type: "range", min: 50, max: 2000, step: 5 },
+    colorScheme: {
+      options: ["Green", "RedGreen"],
+      control: { type: "select" },
     },
     sample: {
       control: { type: "range", min: 0, max: 100, step: 1 },
     },
+    startDate: { control: "date" },
+    endDate: { control: "date" },
   },
   args: {
     seed: 0,
+    colorScheme: "Green",
     startDate: Date.now(),
     endDate: Date.now() + DAY_TIME * 15,
     valueMod: 10,
+    marginLeft: 150,
   },
   render: (args) => {
-    const data = generateHeatmapData(args);
+    const colorOneShade = COLOR_SCHEME[args.colorScheme];
+    const types = TYPES_SCHEME[args.colorScheme];
+    const data = genHeatmapData({ ...args, types });
     const parsedData = parseDateHeatmap(data);
     return (
       <TimedateHeatmapRender
-        {...{ ...timerangeProps(args), data: parsedData }}
+        {...{ ...timerangeProps(args), data: parsedData, colorOneShade }}
       />
     );
   },
@@ -60,23 +81,25 @@ type Story = StoryObj<StoryProps>;
 export const Primary: Story = {
   args: {
     sample: 50,
-    id: "dateHeatmap",
     name: "TYPE DATE HEATMAP",
     field: "attrs.type",
-    width: 800,
-    units: "AVG",
+    units: "count",
   },
 };
 
 export const ZoomedIn: Story = {
   args: {
+    ...Primary.args,
     startDate: 1684288472208,
     endDate: 1684419331200,
-    sample: 50,
-    id: "dateHeatmap",
-    name: "TYPE DATE HEATMAP",
-    field: "attrs.type",
-    width: 800,
-    units: "AVG",
   },
-}
+};
+
+export const RedGreenScheme: Story = {
+  args: {
+    ...Primary.args,
+    valueMod: 500,
+    units: "AVG",
+    colorScheme: "RedGreen",
+  },
+};
