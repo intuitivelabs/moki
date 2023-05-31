@@ -12,42 +12,80 @@ stages:
   - test
   - build
 
-
-
-lint:
-  image: docker.frafos.net/debian/mon-builder:5.3
-  interruptible: true
-  allow_failure: true
-  script:
-    - npm install --prefix Moki/client
-    - npm run lint --prefix Moki/client
-    # TODO: convert for gitlab CI report
-    # TODO: artifacts
-    # TODO: rules
-    # TODO: client/server
-
-test:
-  image: docker.frafos.net/debian/mon-builder:5.3
-  interruptible: true
-  script:
-    - npm install --prefix Moki/client
-    - npm run test --prefix Moki/client
-    # TODO: convert for gitlab CI report
-    # TODO: artifacts
-    # TODO: rules
-    # TODO: client/server
-    # TODO: coverage
-
-build:
-  image: docker.frafos.net/debian/mon-builder:5.3
-  interruptible: true
-  script:
-    - npm install --prefix Moki/client --omit-dev
-    - npm run build --prefix Moki/client
-    # TODO: artifacts
-    # TODO: rules
-    # TODO: client/server
-
 # TODO: docker image build ? pull latest mon, deploy custom dist on top
 # TODO: call to make
 # TODO: color
+
+.lint:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  allow_failure: true
+  variables:
+    WHERE: ''
+  script:
+    - npm install --prefix $WHERE
+    - npm run lint --prefix $WHERE
+    # TODO: artifacts to gitlab
+
+client:lint:
+  stage: test
+  extends: .lint
+  variables:
+    WHERE: Moki/client
+    # TODO: rules
+
+server:lint:
+  stage: test
+  extends: .lint
+  variables:
+    WHERE: Moki/server
+    # TODO: rules
+
+.test:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  variables:
+    WHERE: ''
+  script:
+    - npm install --prefix $WHERE
+    - npm run test --prefix $WHERE
+    # TODO: convert for gitlab CI report
+    # TODO: coverage
+
+client:test:
+  stage: test
+  extends: .test
+  variables:
+    WHERE: Moki/client
+    # TODO: rules
+
+server:test:
+  stage: test
+  extends: .test
+  variables:
+    WHERE: Moki/server
+    # TODO: rules
+
+.build:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  variables:
+    WHERE: ''
+  script:
+    - npm install --prefix $WHERE --omit-dev
+    - npm run build --prefix $WHERE
+    # TODO: artifacts
+
+client:build:
+  stage: build
+  extends: .build
+  variables:
+    WHERE: Moki/client
+    # TODO: rules
+
+server:build:
+  stage: build
+  extends: .build
+  variables:
+    WHERE: Moki/server
+    # TODO: rules
