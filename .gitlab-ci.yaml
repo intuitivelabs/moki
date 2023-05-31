@@ -92,3 +92,4 @@ client:build:
   extends: .build
   variables:
     WHERE: Moki/client
+    # TODO: artifac
