@@ -80,8 +80,8 @@ server:test:
   variables:
     WHERE: ''
   rules:
-    changes: 
-      - $WHERE
+    - changes:
+        - $WHERE
   script:
     - npm install --prefix $WHERE --omit-dev
     - npm run build --prefix $WHERE
