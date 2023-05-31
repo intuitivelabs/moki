@@ -25,10 +25,14 @@ variables:
   allow_failure: true
   variables:
     WHERE: ''
+    ESLINT_CODE_QUALITY_REPORT: gl-codequality.json
   script:
     - npm install --prefix $WHERE
     - npm run lint --prefix $WHERE
     # TODO: artifacts to gitlab
+  artifacts:
+    reports:
+      codequality: $WHERE/gl-codequality.json
 
 client:lint:
   stage: test
@@ -84,11 +88,4 @@ client:build:
   extends: .build
   variables:
     WHERE: Moki/client
-    # TODO: rules
-
-server:build:
-  stage: build
-  extends: .build
-  variables:
-    WHERE: Moki/server
     # TODO: rules
