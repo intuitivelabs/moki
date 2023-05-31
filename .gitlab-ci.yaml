@@ -79,8 +79,9 @@ server:test:
   interruptible: true
   variables:
     WHERE: ''
-  when:
-    change: $WHERE
+  rules:
+    changes: 
+      - $WHERE
   script:
     - npm install --prefix $WHERE --omit-dev
     - npm run build --prefix $WHERE
