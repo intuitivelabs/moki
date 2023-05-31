@@ -57,8 +57,14 @@ server:lint:
     - changes:
         - $WHERE/**
   script:
-    - npm install --prefix $WHERE
-    - npm run test --prefix $WHERE
+    - cd $WHERE
+    - npm install
+    - npm run testlab
+  reports:
+      junit: $WHERE/report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: $WHERE/cover.xml
     # TODO: convert for gitlab CI report
     # TODO: coverage
 
