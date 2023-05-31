@@ -27,7 +27,7 @@ variables:
     ESLINT_CODE_QUALITY_REPORT: gl-codequality.json
   rules:
     - changes:
-        - $WHERE
+        - $WHERE/**
   script:
     - cd $WHERE
     - npm install
@@ -55,7 +55,7 @@ server:lint:
     WHERE: ''
   rules:
     - changes:
-        - $WHERE
+        - $WHERE/**
   script:
     - npm install --prefix $WHERE
     - npm run test --prefix $WHERE
@@ -86,4 +86,4 @@ client:build:
     - client:lint
   rules:
     - changes:
-        - Moki/client
+        - Moki/client/**
