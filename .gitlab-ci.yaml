@@ -61,6 +61,7 @@ server:lint:
     - npm install
     - npm run testlab
   artifacts:
+    when: always
     reports:
       junit: $WHERE/report.xml
       coverage_report:
