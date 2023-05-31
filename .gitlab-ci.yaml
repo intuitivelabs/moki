@@ -74,22 +74,16 @@ server:test:
   variables:
     WHERE: Moki/server
 
-.build:
-  image: docker.frafos.net/debian/mon-builder:5.3
-  interruptible: true
-  variables:
-    WHERE: ''
-  rules:
-    - changes:
-        - $WHERE
-  script:
-    - npm install --prefix $WHERE --omit-dev
-    - npm run build --prefix $WHERE
-    # TODO: artifacts
-
 client:build:
   stage: build
-  extends: .build
-  variables:
-    WHERE: Moki/client
-    # TODO: artifac
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  script:
+    - npm install --prefix Moki/client --omit-dev
+    - npm run build --prefix Moki/client
+  needs:
+    - client:test
+    - client:lint
+  rules:
+    - changes:
+        - Moki/client
