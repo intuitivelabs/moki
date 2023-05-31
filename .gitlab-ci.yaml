@@ -1,0 +1,53 @@
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_TITLE =~ /^(\[Draft\]|\(Draft\)|Draft:|\[WIP\]|WIP:)/
+      when: never
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      # trigger on tag
+    - if: '$CI_COMMIT_TAG =~ /^5.3.*/ || $CI_COMMIT_TAG =~ /^m5.3.*/'
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+stages:
+  - test
+  - build
+
+
+
+lint:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  allow_failure: true
+  script:
+    - npm install --prefix Moki/client
+    - npm run lint --prefix Moki/client
+    # TODO: convert for gitlab CI report
+    # TODO: artifacts
+    # TODO: rules
+    # TODO: client/server
+
+test:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  script:
+    - npm install --prefix Moki/client
+    - npm run test --prefix Moki/client
+    # TODO: convert for gitlab CI report
+    # TODO: artifacts
+    # TODO: rules
+    # TODO: client/server
+    # TODO: coverage
+
+build:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  script:
+    - npm install --prefix Moki/client --omit-dev
+    - npm run build --prefix Moki/client
+    # TODO: artifacts
+    # TODO: rules
+    # TODO: client/server
+
+# TODO: docker image build ? pull latest mon, deploy custom dist on top
+# TODO: call to make
+# TODO: color
