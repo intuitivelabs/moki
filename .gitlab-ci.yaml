@@ -32,7 +32,7 @@ variables:
     # TODO: artifacts to gitlab
   artifacts:
     reports:
-      codequality: $WHERE/gl-codequality.json
+      codequality: gl-codequality.json
 
 client:lint:
   stage: test
