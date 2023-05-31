@@ -12,6 +12,9 @@ stages:
   - test
   - build
 
+variables:
+  CLICOLOR_FORCE: '1'
+
 # TODO: docker image build ? pull latest mon, deploy custom dist on top
 # TODO: call to make
 # TODO: color
