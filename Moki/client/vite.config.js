@@ -12,7 +12,8 @@ const require = createRequire(import.meta.url);
 export default defineConfig({
  test: {
    coverage: {
-     provider: 'istanbul'
+     provider: 'istanbul',
+     reporter: ['text', 'json', 'html', 'cobertura'],
    },
   },
   plugins: [react(), svgrPlugin(), dsv()],
