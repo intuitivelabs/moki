@@ -13,7 +13,7 @@ export default defineConfig({
  test: {
    coverage: {
      provider: 'istanbul',
-     reporter: ['text', 'json', 'html', 'cobertura'],
+       reporter: ['text', 'text-summary', 'json', 'html', 'cobertura'],
    },
   },
   plugins: [react(), svgrPlugin(), dsv()],
