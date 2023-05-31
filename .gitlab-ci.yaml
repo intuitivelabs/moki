@@ -17,7 +17,6 @@ variables:
 
 # TODO: docker image build ? pull latest mon, deploy custom dist on top
 # TODO: call to make
-# TODO: color
 
 .lint:
   image: docker.frafos.net/debian/mon-builder:5.3
@@ -26,6 +25,9 @@ variables:
   variables:
     WHERE: ''
     ESLINT_CODE_QUALITY_REPORT: gl-codequality.json
+  rules:
+    - changes:
+        - $WHERE
   script:
     - cd $WHERE
     - npm install
@@ -39,20 +41,21 @@ client:lint:
   extends: .lint
   variables:
     WHERE: Moki/client
-    # TODO: rules
 
 server:lint:
   stage: test
   extends: .lint
   variables:
     WHERE: Moki/server
-    # TODO: rules
 
 .test:
   image: docker.frafos.net/debian/mon-builder:5.3
   interruptible: true
   variables:
     WHERE: ''
+  rules:
+    - changes:
+        - $WHERE
   script:
     - npm install --prefix $WHERE
     - npm run test --prefix $WHERE
@@ -64,20 +67,20 @@ client:test:
   extends: .test
   variables:
     WHERE: Moki/client
-    # TODO: rules
 
 server:test:
   stage: test
   extends: .test
   variables:
     WHERE: Moki/server
-    # TODO: rules
 
 .build:
   image: docker.frafos.net/debian/mon-builder:5.3
   interruptible: true
   variables:
     WHERE: ''
+  when:
+    change: $WHERE
   script:
     - npm install --prefix $WHERE --omit-dev
     - npm run build --prefix $WHERE
@@ -88,4 +91,3 @@ client:build:
   extends: .build
   variables:
     WHERE: Moki/client
-    # TODO: rules
