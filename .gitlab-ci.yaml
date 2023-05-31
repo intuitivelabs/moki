@@ -60,7 +60,7 @@ server:lint:
     - cd $WHERE
     - npm install
     - npm run testlab
-  coverage: Statements.*?(\d+(?:\.\d+)?)%
+  coverage: /Statements.*?(\d+(?:\.\d+)?)%/
   artifacts:
     when: always
     reports:
