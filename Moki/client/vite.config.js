@@ -10,6 +10,12 @@ const require = createRequire(import.meta.url);
 
 // https://vitejs.dev/config/
 export default defineConfig({
+ test: {
+   coverage: {
+     provider: 'istanbul',
+       reporter: ['text', 'text-summary', 'json', 'html', 'cobertura'],
+   },
+  },
   plugins: [react(), svgrPlugin(), dsv()],
   resolve: {
     alias: {

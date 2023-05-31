@@ -22,3 +22,4 @@ tmp/
 *.deb
 *.rpm
 package-lock.json
+Moki/*/report.xml

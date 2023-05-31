@@ -1,0 +1,96 @@
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_TITLE =~ /^(\[Draft\]|\(Draft\)|Draft:|\[WIP\]|WIP:)/
+      when: never
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      # trigger on tag
+    - if: '$CI_COMMIT_TAG =~ /^5.3.*/ || $CI_COMMIT_TAG =~ /^m5.3.*/'
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+stages:
+  - test
+  - build
+
+variables:
+  CLICOLOR_FORCE: '1'
+
+# TODO: docker image build ? pull latest mon, deploy custom dist on top
+# TODO: call to make
+
+.lint:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  allow_failure: true
+  variables:
+    WHERE: ''
+    ESLINT_CODE_QUALITY_REPORT: gl-codequality.json
+  rules:
+    - changes:
+        - $WHERE/**
+  script:
+    - cd $WHERE
+    - npm install
+    - npm run lintlab
+  artifacts:
+    reports:
+      codequality: $WHERE/gl-codequality.json
+
+client:lint:
+  stage: test
+  extends: .lint
+  variables:
+    WHERE: Moki/client
+
+server:lint:
+  stage: test
+  extends: .lint
+  variables:
+    WHERE: Moki/server
+
+.test:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  variables:
+    WHERE: ''
+  rules:
+    - changes:
+        - $WHERE/**
+  script:
+    - cd $WHERE
+    - npm install
+    - npm run testlab
+  coverage: /Statements.*?(\d+(?:\.\d+)?)%/
+  artifacts:
+    when: always
+    reports:
+      junit: $WHERE/report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: $WHERE/coverage/cobertura-coverage.xml
+
+client:test:
+  stage: test
+  extends: .test
+  variables:
+    WHERE: Moki/client
+
+server:test:
+  stage: test
+  extends: .test
+  variables:
+    WHERE: Moki/server
+
+client:build:
+  stage: build
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  script:
+    - npm install --prefix Moki/client --omit-dev
+    - npm run build --prefix Moki/client
+  needs:
+    - client:test
+    - client:lint
+  rules:
+    - changes:
+        - Moki/client/**
