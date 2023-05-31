@@ -27,12 +27,12 @@ variables:
     WHERE: ''
     ESLINT_CODE_QUALITY_REPORT: gl-codequality.json
   script:
-    - npm install --prefix $WHERE
-    - npm run lint --prefix $WHERE
-    # TODO: artifacts to gitlab
+    - cd $WHERE
+    - npm install
+    - npm run lintlab
   artifacts:
     reports:
-      codequality: gl-codequality.json
+      codequality: $WHERE/gl-codequality.json
 
 client:lint:
   stage: test
