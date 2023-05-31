@@ -60,13 +60,12 @@ server:lint:
     - cd $WHERE
     - npm install
     - npm run testlab
-  reports:
+  artifacts:
+    reports:
       junit: $WHERE/report.xml
       coverage_report:
         coverage_format: cobertura
-        path: $WHERE/cover.xml
-    # TODO: convert for gitlab CI report
-    # TODO: coverage
+        path: $WHERE/coverage/cobertura-coverage.xml
 
 client:test:
   stage: test
