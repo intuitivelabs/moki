@@ -20,6 +20,7 @@ IMG_BASE	?= ${REGISTRY}/debian/mon:${VERSION}
 IMG_BUILD	?= ${REGISTRY}/debian/mon:${VERSION}
 IMG_OUT		?= ${REGISTRY}/debian/mon-overlay:${VERSION}
 
+.PHONY: pull-base pull-build overlay push
 pull-base:
 	@${ENGINE} pull ${IMG_BASE}
 
@@ -32,8 +33,10 @@ overlay: dist Dockerfile.overlay
 push:
 	${ENGINE} push ${IMG_OUT}
 
+DIR = `pwd`
+
 dist:
 	docker run \
-      --rm -v ./:/app -w /app \
+      --rm -v ${DIR}:/app -w /app \
       ${IMG_BUILD} \
-      make install DESTDIR=/app/dist
+      bash -c "ls ; make install DESTDIR=/app/dist"
