@@ -1,9 +1,4 @@
 NAME	= moki-server
-RPM_NAME	= $(NAME)
-
-RELEASE			?= $(shell sed -n 's/^ *Version: *//p' $(NAME).spec 2> /dev/null || echo "alpha")
-GIT_COMMIT	:= $(shell git rev-parse --short HEAD 2> /dev/null || echo "dev")
-VERSION			?= "$(RELEASE)-$(GIT_COMMIT)"
 
 # docker build target
 BUILD_TARGET	=	dev
@@ -86,13 +81,10 @@ lint:
 	$(MAKE) run -e CMD="npm run pretty"
 
 .PHONY: all
-## all: Build then run the dockerized nodejs
-all: build run
+all: build run ## all: Build then run the dockerized nodejs
 
 .PHONY: elastic
-## elastic: Start the elastic container
-
-elastic:
+elastic: ## elastic: Start the elastic container
 	docker run --rm --name $(NAME)-es \
 		 -p 9200:9200 -p 9300:9300 \
 		--net=host \
@@ -104,56 +96,42 @@ docker.elastic.co/elasticsearch/elasticsearch:7.7.1
 stop-elastic:
 	$(MAKE) stop -e NAME="$(NAME)-es"
 
-.PHONY: rpmtar
-## create tarbal for rpm packaging
-PERCENT := %
-rpmtar:
-	RPM_VERSION=`cat $(RPM_NAME).spec|grep -e "^Version:"|awk '{print $$2}'`; \
-  RPM_RELEASE=`cat $(RPM_NAME).spec|grep -e "^Release:"|awk '{print $$2}'| awk -F $(PERCENT) '{print $$1}'`; \
-    echo "RPM_VERSION=$${RPM_VERSION}"; \
-    echo "RPM_RELEASE=$${RPM_VERSION}"; \
-    tar -C .. \
-    --exclude=$(notdir $(CURDIR))/tmp \
-    --exclude=.svn* \
-    --exclude=.git* \
-    --exclude=.\#* \
-    --exclude=*.[do] \
-    --exclude=*.la \
-    --exclude=*.lo \
-    --exclude=*.so \
-    --exclude=*.il \
-    --exclude=*.gz \
-    --exclude=*.bz2 \
-    --exclude=*.tar \
-    --exclude=*~ \
-    -cf - $(notdir $(CURDIR)) | \
-    (mkdir -p tmp/_tar1; mkdir -p tmp/_tar2 ; \
-    cd tmp/_tar1; tar -xf - ) && \
-    mv tmp/_tar1/$(notdir $(CURDIR)) \
-    tmp/_tar2/"$(RPM_NAME)-$${RPM_VERSION}" && \
-    (cd tmp/_tar2 && tar -zcf ../../"$(RPM_NAME)-$${RPM_VERSION}-$${RPM_RELEASE}".tar.gz "$(RPM_NAME)-$${RPM_VERSION}" ) ; \
-    rm -rf tmp
+#
+# instsall debian:1*
+#
 
-.PHONY: help
-## help: Prints this help message
- help:
-	@echo "Usage: \n"
-	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
+# include makefile targets
+MAKE_PATH	= $(shell if [ -d ../../make_src ]; then \
+		echo "../../make_src"; \
+		else echo "./make_src"; fi)
+# npm-proxy
+SKIP_NODE_TARGET := 0 ## TODO: don't skip, use npm ci, pkg lock needed
+include $(MAKE_PATH)/npm.mk
+include $(MAKE_PATH)/help.mk
 
-.PHONY: install_mon
-install_mon:
+server_deps := server_node
+ifeq ($(DEV_INSTALL),1)
+server_deps += server_node_dev
+endif
+
+server_node: # ${server_lock} ## smth
+	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy ; fi
+	NODE_ENV=production npm i --production
+	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy-off ; fi
+
+server_node_dev: # ${server_lock}  ## smth else
+	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy ; fi
+	npm i
+	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy-off ; fi
+
+install: ${server_deps}
 	install -d $(DESTDIR)/usr/share/Moki/server
 	cp -r js $(DESTDIR)/usr/share/Moki/server/
 	cp -r src $(DESTDIR)/usr/share/Moki/server/
 	cp package*.json $(DESTDIR)/usr/share/Moki/server
-	# install moki service file
+	cp config.js $(DESTDIR)/usr/share/Moki/server
+	cp -r node_modules $(DESTDIR)/usr/share/Moki/server
 	install -d $(DESTDIR)/usr/lib/systemd/system
 	install -m 0644 moki-server.service $(DESTDIR)/usr/lib/systemd/system/
-	# perform moki API install
-	cd $(DESTDIR)/usr/share/Moki/server ; \
-	npm install ; \
-	mv node_modules node_modules_dev ; \
-	NODE_ENV=production npm install --production ; \
-	mv node_modules node_modules_prod
 	# fix absolute paths that npm leaves there due to npm feature/bug
 	find $(DESTDIR)/usr/share/Moki -name "package.json" -exec sed -i 's#$(DESTDIR)##' '{}' \;
