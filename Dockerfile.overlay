@@ -1,0 +1,7 @@
+ARG img=docker.frafos.net/debian/mon
+ARG version=5.3
+
+FROM ${img}:${version}
+
+COPY . /app
+RUN make -C /app install && rm -rf /app

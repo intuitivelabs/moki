@@ -62,3 +62,15 @@ client:build:
   rules:
     - changes:
         - Moki/client/**
+
+overlay:
+  stage: docker
+  image: docker.frafos.net/docker:20.10-ci
+  interruptible: true
+  services:
+  - name: docker.frafos.net/docker:20.10-dind
+    alias: docker
+  script:
+    - docker pull docker.frafos.net/debian/mon:5.3
+    - docker build -f Dockerfile.overlay docker.frafos.net/debian/mon-overlay:5.3 .
+    - docker push docker.frafos.net/debian/mon-overlay:5.3
