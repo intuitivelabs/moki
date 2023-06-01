@@ -66,10 +66,23 @@ client:build:
     - changes:
         - Moki/client/**
 
-overlay:
+docker:dist:
+  stage: build
+  needs: []
+  image: docker.frafos.net/debian/mon-builder:5.3
+  script:
+    - make install DESTDIR=./dist
+  artifacts:
+    expire_in: 1h
+    paths:
+      - dist
+
+docker:overlay:
   stage: docker
   image: docker.frafos.net/docker:20.10-ci
   interruptible: true
+  needs:
+    - docker:dist
   services:
   - name: docker.frafos.net/docker:20.10-dind
     alias: docker

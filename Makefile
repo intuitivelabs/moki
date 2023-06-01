@@ -33,10 +33,8 @@ overlay: dist Dockerfile.overlay
 push:
 	${ENGINE} push ${IMG_OUT}
 
-DIR = `pwd`
-
 dist:
 	docker run \
-      --rm -v ${DIR}:/app -w /app \
+      --rm -v ./:/app -w /app \
       ${IMG_BUILD} \
-      bash -c "ls ; make install DESTDIR=/app/dist"
+      make install DESTDIR=/app/dist
