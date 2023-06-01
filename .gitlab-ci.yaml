@@ -16,6 +16,7 @@ stages:
 variables:
   CLICOLOR_FORCE: '1'
   GIT_SUBMODULE_STRATEGY: recursive
+  NPM_PROXY: '1'
 
 include:
   - .gitlab-ci/template.yaml
