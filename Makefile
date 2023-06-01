@@ -5,6 +5,7 @@ include ./make_src/help.mk
 
 .PHONY: install install_mon install_client install_server
 
+.PRECIOUS: dist ${DESTDIR}
 install: install_server install_client ## Install moki
 install_mon: install ## Install the ABC SBC Monitor
 install_client: ## Install moki' client

@@ -71,7 +71,7 @@ docker:dist:
   needs: []
   image: docker.frafos.net/debian/mon-builder:5.3
   script:
-    - make install DESTDIR=./dist
+    - make install DESTDIR=`pwd`/dist --debug
     - ls ; ls ./dist
     - ls -RAplna ./dist
     - pwd
