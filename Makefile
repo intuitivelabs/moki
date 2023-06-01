@@ -26,13 +26,14 @@ docker-pull-base:
 docker-pull-build:
 	@${ENGINE} pull ${IMG_BUILD}
 
-docker-overlay: dist Dockerfile.overlay
-	tar -cf - $^ | docker build -f Dockerfile.overlay -t ${IMG_OUT} -
+overlay: dist Dockerfile.overlay
+	tar -cf - $^ | ${ENGINE} build -f Dockerfile.overlay -t ${IMG_OUT} -
+
+push:
+	${ENGINE} push ${IMG_OUT}
 
 dist:
 	docker run \
-      --rm \
-      -v ./:/app \
-      -w /app \
-      ${IMG_BUILD}\
+      --rm -v ./:/app -w /app \
+      ${IMG_BUILD} \
       make install DESTDIR=/app/dist

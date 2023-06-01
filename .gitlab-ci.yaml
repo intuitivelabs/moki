@@ -71,9 +71,6 @@ overlay:
   - name: docker.frafos.net/docker:20.10-dind
     alias: docker
   script:
-    - docker pull docker.frafos.net/debian/mon:5.3
-    # building dist
-    - make docker-overlay
-    - tar -cf ./dist Dockerfile.overlay |
-      docker build -f Dockerfile.overlay -t docker.frafos.net/debian/mon-overlay:5.3 -
+    - make pull-base pull-build
+    - make overlay
     - docker push docker.frafos.net/debian/mon-overlay:5.3
