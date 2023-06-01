@@ -20,10 +20,10 @@ IMG_BASE	?= ${REGISTRY}/debian/mon:${VERSION}
 IMG_BUILD	?= ${REGISTRY}/debian/mon:${VERSION}
 IMG_OUT		?= ${REGISTRY}/debian/mon-overlay:${VERSION}
 
-docker-pull-base:
+pull-base:
 	@${ENGINE} pull ${IMG_BASE}
 
-docker-pull-build:
+pull-build:
 	@${ENGINE} pull ${IMG_BUILD}
 
 overlay: dist Dockerfile.overlay
