@@ -6,6 +6,8 @@
     WHERE: ''
     ESLINT_CODE_QUALITY_REPORT: gl-codequality.json
   rules:
+    - if: $CI_MERGE_REQUEST_LABELS =~ /^(.*,)?ci-skip-tests(,.*)*$/
+      when: never
     - changes:
         - $WHERE/**
   script:
@@ -22,6 +24,8 @@
   variables:
     WHERE: ''
   rules:
+    - if: $CI_MERGE_REQUEST_LABELS =~ /^(.*,)?ci-skip-tests(,.*)*$/
+      when: never
     - changes:
         - $WHERE/**
   script:
