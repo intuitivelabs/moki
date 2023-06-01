@@ -11,12 +11,12 @@ workflow:
 stages:
   - test
   - build
-  - docker
+  - image
 
 variables:
   CLICOLOR_FORCE: '1'
   GIT_SUBMODULE_STRATEGY: recursive
-  NPM_PROXY: '1'
+  # NPM_PROXY: '1'
 
 include:
   - .gitlab-ci/template.yaml
@@ -72,13 +72,16 @@ docker:dist:
   image: docker.frafos.net/debian/mon-builder:5.3
   script:
     - make install DESTDIR=./dist
+    - ls ; ls ./dist
+    - ls -RAplna ./dist
+    - pwd
   artifacts:
     expire_in: 1h
     paths:
       - dist
 
 docker:overlay:
-  stage: docker
+  stage: image
   image: docker.frafos.net/docker:20.10-ci
   interruptible: true
   needs:
