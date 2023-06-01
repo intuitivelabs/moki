@@ -1,0 +1,38 @@
+.lint:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  allow_failure: true
+  variables:
+    WHERE: ''
+    ESLINT_CODE_QUALITY_REPORT: gl-codequality.json
+  rules:
+    - changes:
+        - $WHERE/**
+  script:
+    - cd $WHERE
+    - npm install
+    - npm run lintlab
+  artifacts:
+    reports:
+      codequality: $WHERE/gl-codequality.json
+
+.test:
+  image: docker.frafos.net/debian/mon-builder:5.3
+  interruptible: true
+  variables:
+    WHERE: ''
+  rules:
+    - changes:
+        - $WHERE/**
+  script:
+    - cd $WHERE
+    - npm install
+    - npm run testlab
+  coverage: /Statements.*?(\d+(?:\.\d+)?)%/
+  artifacts:
+    when: always
+    reports:
+      junit: $WHERE/report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: $WHERE/coverage/cobertura-coverage.xml
