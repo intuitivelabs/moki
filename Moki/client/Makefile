@@ -58,9 +58,7 @@ stop:
 #
 
 # include makefile targets
-MAKE_PATH	= $(shell if [ -d ../../make_src ]; then \
-		echo "../../make_src"; \
-		else echo "./make_src"; fi)
+MAKE_PATH	= ../../make_src
 # npm-proxy
 SKIP_NODE_TARGET := 0 ## TODO: don't skip, use npm ci, pkg lock needed
 include $(MAKE_PATH)/npm.mk

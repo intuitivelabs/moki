@@ -101,9 +101,7 @@ stop-elastic:
 #
 
 # include makefile targets
-MAKE_PATH	= $(shell if [ -d ../../make_src ]; then \
-		echo "../../make_src"; \
-		else echo "./make_src"; fi)
+MAKE_PATH	= ../../make_src
 # npm-proxy
 SKIP_NODE_TARGET := 0 ## TODO: don't skip, use npm ci, pkg lock needed
 include $(MAKE_PATH)/npm.mk
@@ -116,7 +114,7 @@ endif
 
 server_node: # ${server_lock} ## smth
 	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy ; fi
-	NODE_ENV=production npm i --production
+	NODE_ENV=production npm i --omit-dev
 	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy-off ; fi
 
 server_node_dev: # ${server_lock}  ## smth else
