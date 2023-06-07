@@ -3,7 +3,7 @@ Class to get data for all charts iin Call dashboard
 */
 
 import LoadingScreenCharts from "../../helpers/LoadingScreenCharts";
-import MultipleLineChart from "@charts/multipleLine_chart";
+import MultipleLine from "@charts/MultipleLine";
 import { parseMultipleLineData } from "../../../es-response-parser";
 import { useDashboardData } from "@hooks/useDashboardData";
 
@@ -49,183 +49,173 @@ function NetworkCharts({ hostnames }) {
       <div className="row no-gutters">
         {charts["MAX CALLS BY HOST"] && (
           <div className="col-6 pr-1">
-            <MultipleLineChart
-              id="callsByHost"
-              hostnames={chartsData.hostnames}
+            <MultipleLine
+              field={"attrs.hostname"}
+              hostnames={hostnames}
               data={chartsData.callsByHost}
               name={"MAX CALLS BY HOST"}
-              ticks={3}
             />
           </div>
         )}
         {charts["MAX REGS BY HOST"] && (
           <div className="col-6 px-1">
-            <MultipleLineChart
-              id="regsByHost"
-              hostnames={chartsData.hostnames}
+            <MultipleLine
+              field={"attrs.hostname"}
+              hostnames={hostnames}
               data={chartsData.regsByHost}
               name={"MAX REGS BY HOST"}
-              ticks={3}
             />
           </div>
         )}
         {charts["MAX CALL STARTS BY HOST"] &&
           (
             <div className="col-6 pr-1">
-              <MultipleLineChart
-                id="callStartsByHost"
-                hostnames={chartsData.hostnames}
+              <MultipleLine
+                rate
+                field={"attrs.hostname"}
+                hostnames={hostnames}
                 data={chartsData.callStartsByHost}
                 name={"MAX CALL STARTS BY HOST"}
-                ticks={3}
               />
             </div>
           )}
         {charts["RELAYED RTP BY HOST"] &&
           (
             <div className="col-6 px-1">
-              <MultipleLineChart
-                id="relayedRtpByHost"
-                hostnames={chartsData.hostnames}
+              <MultipleLine
+                rate
+                field={"attrs.hostname"}
+                hostnames={hostnames}
                 data={chartsData.relayedRtpByHost}
                 name={"RELAYED RTP BY HOST"}
-                ticks={3}
               />
             </div>
           )}
         {charts["TX BYTES BY HOST"] &&
           (
             <div className="col-6 pr-1">
-              <MultipleLineChart
-                id="txBytesByHost"
-                hostnames={chartsData.hostnames}
+              <MultipleLine
+                rate
+                field={"attrs.hostname"}
+                hostnames={hostnames}
                 data={chartsData.txBytesByHost}
                 name={"TX BYTES BY HOST"}
-                ticks={3}
               />
             </div>
           )}
         {charts["RX PACKET BY HOST"] &&
           (
             <div className="col-6 px-1">
-              <MultipleLineChart
-                id="rxPacketByHost"
-                hostnames={chartsData.hostnames}
+              <MultipleLine
+                rate
+                field={"attrs.hostname"}
+                hostnames={hostnames}
                 data={chartsData.rxPacketByHost}
                 name={"RX PACKET BY HOST"}
-                ticks={3}
               />
             </div>
           )}
         {charts["TX PACKET BY HOST"] &&
           (
             <div className="col-6 pr-1">
-              <MultipleLineChart
-                id="txPacketByHost"
-                hostnames={chartsData.hostnames}
+              <MultipleLine
+                rate
+                field={"attrs.hostname"}
+                hostnames={hostnames}
                 data={chartsData.txPacketByHost}
                 name={"TX PACKET BY HOST"}
-                ticks={3}
               />
             </div>
           )}
         {charts["RX BYTES BY INTERFACE"] &&
           (
             <div className="col-6 px-1">
-              <MultipleLineChart
-                id="rxBytesByInterface"
+              <MultipleLine
+                rate
                 field="type_instance"
-                hostnames={chartsData.hostnames}
+                hostnames={hostnames}
                 data={chartsData.rxBytesByInterface}
                 name={"RX BYTES BY INTERFACE"}
-                ticks={3}
               />
             </div>
           )}
         {charts["TX BYTES BY INTERFACE"] &&
           (
             <div className="col-6 pr-1">
-              <MultipleLineChart
-                id="txBytesByInterface"
+              <MultipleLine
+                rate
                 field="type_instance"
-                hostnames={chartsData.hostnames}
+                hostnames={hostnames}
                 data={chartsData.txBytesByInterface}
                 name={"TX BYTES BY INTERFACE"}
-                ticks={3}
               />
             </div>
           )}
         {charts["RX PACKETS BY INTERFACE"] &&
           (
             <div className="col-6 px-1">
-              <MultipleLineChart
-                id="rxPacketByInterface"
+              <MultipleLine
+                rate
                 field="type_instance"
-                hostnames={chartsData.hostnames}
+                hostnames={hostnames}
                 data={chartsData.rxPacketByInterface}
                 name={"RX PACKETS BY INTERFACE"}
-                ticks={3}
               />
             </div>
           )}
         {charts["TX PACKETS BY INTERFACE"] &&
           (
             <div className="col-6 pr-1">
-              <MultipleLineChart
-                id="txPacketByInterface"
+              <MultipleLine
+                rate
                 field="type_instance"
-                hostnames={chartsData.hostnames}
+                hostnames={hostnames}
                 data={chartsData.txPacketByInterface}
                 name={"TX PACKETS BY INTERFACE"}
-                ticks={3}
               />
             </div>
           )}
         {charts["IPS ON FW BLACKLIST BY HOST"] &&
           (
             <div className="col-6 px-1">
-              <MultipleLineChart
-                id="blacklist"
-                hostnames={chartsData.hostnames}
+              <MultipleLine
+                field={"attrs.hostname"}
+                hostnames={hostnames}
                 data={chartsData.blacklist}
                 name={"IPS ON FW BLACKLIST BY HOST"}
-                ticks={3}
               />
             </div>
           )}
         {charts["IPS ON FW GREYLIST BY HOST"] &&
           (
             <div className="col-6 pr-1">
-              <MultipleLineChart
-                id="greylist"
-                hostnames={chartsData.hostnames}
+              <MultipleLine
+                field={"attrs.hostname"}
+                hostnames={hostnames}
                 data={chartsData.greylist}
                 name={"IPS ON FW GREYLIST BY HOST"}
-                ticks={3}
               />
             </div>
           )}
         {charts["IPS ON FW WHITELIST BY HOST"] &&
           (
             <div className="col-6 px-1">
-              <MultipleLineChart
-                id="whitelist"
-                hostnames={chartsData.hostnames}
+              <MultipleLine
+                field={"attrs.hostname"}
+                hostnames={hostnames}
                 data={chartsData.whitelist}
                 name={"IPS ON FW WHITELIST BY HOST"}
-                ticks={3}
               />
             </div>
           )}
         {charts["PACKET DROP ALERT COUNTERS"] &&
           (
             <div className="col-6 px-1">
-              <MultipleLineChart
-                id="dropAlert"
-                hostnames={chartsData.hostnames}
+              <MultipleLine
+                field={"attrs.hostname"}
+                hostnames={hostnames}
                 data={chartsData.dropAlert}
                 name={"PACKET DROP ALERT COUNTERS"}
-                ticks={3}
               />
             </div>
           )}

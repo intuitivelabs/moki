@@ -1,4 +1,5 @@
 import { formatDuration } from "@/js/helpers/formatTime";
+import { formatValueISO } from "../helpers/formatValue";
 
 export type ChartColors = "" | "zerogreen";
 
@@ -9,7 +10,7 @@ export interface Props {
   biggerFont?: string;
 }
 
-export default function ValueChart({ biggerFont, name, color, data }: Props) {
+export default function Value({ biggerFont, name, color, data }: Props) {
   let chartColor = "grey";
   if (color === "zerogreen") {
     if (data === 0) chartColor = "green";
@@ -20,7 +21,7 @@ export default function ValueChart({ biggerFont, name, color, data }: Props) {
   const niceNumber = (name: string) => {
     return (nmb: number) => {
       if (name.includes("DURATION")) return formatDuration(nmb);
-      if (nmb) return nmb.toLocaleString();
+      if (nmb) return formatValueISO(nmb);
       return 0;
     };
   };

@@ -26,6 +26,7 @@ import {
   showItemSelection,
 } from "@/js/d3helpers/itemSelection";
 import { addDateAxis } from "@/js/d3helpers/addDateAxis";
+import { formatValueISO } from "../helpers/formatValue";
 
 export interface ChartData {
   attr1: number;
@@ -148,7 +149,7 @@ export function TimedateHeatmapRender(
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   const noData = data === undefined || data.length == 0;
-  const minHeight = 180;
+  const minHeight = 190;
   const windowWidth = useWindowWidth();
 
   const timeBucket = {
@@ -179,7 +180,6 @@ export function TimedateHeatmapRender(
     tooltip.style("visibiliy", "hidden");
     tooltip.append("div");
 
-    const formatedUnits = units ? "(" + units + ")" : "";
     const margin = {
       top: 10,
       right: 40,
@@ -269,7 +269,7 @@ export function TimedateHeatmapRender(
       .on("mouseover", function (event, d) {
         const formatedValue = mapValue
           ? mapValue(d.value as string)
-          : (d.value as number).toFixed(2);
+          : formatValueISO(d.value as number);
         showTooltip(
           event,
           tooltip,

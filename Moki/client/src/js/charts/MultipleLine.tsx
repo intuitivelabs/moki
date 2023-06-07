@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as d3 from "d3";
 import {
   getTimeBucket,
@@ -12,7 +12,6 @@ import NoData from "./NoData";
 import { useWindowWidth } from "@hooks/useWindowWidth";
 import { useAppSelector } from "@hooks/index";
 import { curtainTransition } from "@/js/d3helpers/curtainTransition";
-import { addGridlines } from "@/js/d3helpers/addGridlines";
 import { addDateBrush } from "@/js/d3helpers/addDateBrush";
 import { addDateAxis } from "@/js/d3helpers/addDateAxis";
 import {
@@ -20,6 +19,9 @@ import {
   showTooltip,
   tooltipTimeFormat,
 } from "@/js/d3helpers/tooltip";
+import { addValueAxis } from "../d3helpers/addValueAxis";
+import { formatValueISO } from "../helpers/formatValue";
+import { Colors, createFilter } from "@/gui";
 
 interface Chart {
   name: string;
@@ -31,14 +33,19 @@ interface ChartData {
   value: number;
 }
 
-export interface MultipleAreaChartProps {
+export interface Props {
   data: Chart[];
   units: string;
   name: string;
+  area: boolean;
+  rate?: boolean;
+  height?: number;
+  field?: string;
+  hostnames?: Record<string, string>;
 }
 
-export default function MultipleAreaChart(
-  { data, units, name }: MultipleAreaChartProps,
+export default function MultipleLines(
+  { name, rate = false, height, ...props }: Props,
 ) {
   const timerange = store.getState().filter.timerange;
   const setTimerange = (newTimerange: [number, number, string]) => {
@@ -47,41 +54,59 @@ export default function MultipleAreaChart(
   const { navbarExpanded } = useAppSelector((state) => state.view);
 
   // TODO: as parameters
-  let color = d3.scaleOrdinal<string, string>().range(["#caa547", "#30427F"]);
+  let colors = Colors;
   if (name === "PARALLEL REGS") {
-    color = d3.scaleOrdinal<string, string>().range(["#caa547", "#A5CA47"]);
+    colors = ["#caa547", "#A5CA47"];
   } else if (name === "INCIDENTS") {
-    color = d3.scaleOrdinal<string, string>().range(["#caa547", "#69307F"]);
+    colors = ["#caa547", "#69307F"];
   }
 
   return (
-    <MultipleAreaChartRender
+    <MultipleLineRender
       {...{
-        data,
-        units,
         name,
-        color,
+        colors,
+        absolute: !rate,
         navbarExpanded,
         timerange: [timerange[0], timerange[1]],
         setTimerange,
+        totalHeight: height,
+        ...props,
       }}
     />
   );
 }
 
-export interface MultipleAreaChartRenderProps {
+export interface RenderProps {
   data: Chart[];
   units: string;
   name: string;
-  color: d3.ScaleOrdinal<string, string, never>;
+  totalHeight?: number;
+  area: boolean;
+  absolute: boolean;
+  colors: string[];
   navbarExpanded: boolean;
   timerange: [number, number];
   setTimerange: (newTimerange: [number, number, string]) => void;
+  field?: string;
+  hostnames?: Record<string, string>;
 }
 
-export function MultipleAreaChartRender(
-  { data, units, name, color, navbarExpanded, timerange, setTimerange }:
-    MultipleAreaChartRenderProps,
+export function MultipleLineRender(
+  {
+    data,
+    units,
+    area,
+    name,
+    absolute,
+    totalHeight = 190,
+    colors = Colors,
+    navbarExpanded,
+    field,
+    hostnames,
+    timerange,
+    setTimerange,
+  }: RenderProps,
 ) {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartSVGRef = useRef<SVGSVGElement>(null);
@@ -90,7 +115,6 @@ export function MultipleAreaChartRender(
   const noData = data === undefined || data.length === 0 ||
     (data[0].values.length === 0 && data[1].values.length === 0);
   const windowWidth = useWindowWidth();
-  const totalHeight = 235;
 
   const timeBucket = {
     name: getTimeBucket(timerange),
@@ -98,9 +122,34 @@ export function MultipleAreaChartRender(
     format: getTimeBucketFormat(timerange),
   };
 
+  // transform to rate if needed
+  const transformedData = useMemo(() => {
+    if (absolute || noData) return data;
+
+    return data.map((chart) => {
+      let values = chart.values;
+      for (let i = 0; i < values.length; i++) {
+        const current = values[i];
+        const next = values[i + 1];
+        if (next == undefined) continue;
+
+        const valueDiff = next.value - current.value;
+        const timeDiff = next.date - current.date;
+        if (timeDiff === 0) continue;
+
+        values[i].value = valueDiff / (timeDiff / 1000);
+      }
+
+      values.pop();
+      values = values.filter((data) => data.value > 0);
+
+      return { ...chart, values };
+    });
+  }, [absolute, data]);
+
   useEffect(() => {
     draw(true);
-  }, [data]);
+  }, [transformedData]);
 
   useEffect(() => {
     draw(false);
@@ -122,19 +171,34 @@ export function MultipleAreaChartRender(
 
     const margin = {
       top: 20,
-      right: 35,
+      right: 20,
       bottom: 40,
       left: 50,
     };
 
     const totalWidth = chartRef.current.clientWidth;
     const svgHeight = chartSVGRef.current.clientHeight;
-    const width = Math.max(100, totalWidth - (margin.left + margin.right));
+
+    const legendWidth = 110;
+    const legendSpacer = 10;
+
+    const width = Math.max(
+      100,
+      totalWidth - (margin.left + margin.right + legendWidth),
+    );
     const height = svgHeight - margin.top - margin.bottom;
-    const formatValue = (
-      d: d3.NumberValue,
-    ) => (d.valueOf() <= 1 ? d.toString() : d3.format(".2s")(d));
+
+    data = transformedData;
+    const colorScale = d3.scaleOrdinal<number, string>().range(colors);
+    const labels = data.map((chart) => chart.name);
+    const getColor = (i: number) => {
+      const name = labels[i];
+      if (hostnames && hostnames[name]) return hostnames[name];
+      return colorScale(i);
+    };
+
     const duration = 250;
+    const nbValueTicks = 5;
 
     const otherAreasOpacityHover = 0.1;
     const areaOpacity = 0.45;
@@ -165,39 +229,25 @@ export function MultipleAreaChartRender(
     const minTime = Math.min(minDateTime, timerange[0]);
     const maxTime = Math.max(maxDateTime, timerange[1] + timeBucket.value);
 
-    // min and max value in data
-    const minValue = d3.min(data, (chart) => (
-      d3.min(chart.values, (d) => d.value)
-    )) ?? 0;
+    // max value in data
     const maxValue = d3.max(data, (chart) => (
       d3.max(chart.values, (d) => d.value)
-    )) ?? 1;
+    )) ?? nbValueTicks;
 
     // add offset to max based on id
-    let domain = 1;
-    if (maxValue !== 0) {
-      const offset = maxValue / 3; // id === "parallelRegs"
-      // ? (maxValue - minValue) : maxValue / 3;
-      domain = maxValue + offset;
-    }
+    const domain = Math.max(maxValue, nbValueTicks);
 
     // scale and axis
     const xScale = d3.scaleLinear()
       .range([0, width])
       .domain([minTime, maxTime]);
-    const yScale = d3.scaleLinear().domain([minValue, domain])
+    const yScale = d3.scaleLinear().domain([0, domain + domain / 8])
       .range([height, 0]);
-    const yAxis = d3.axisLeft(yScale).ticks(5).tickFormat(formatValue);
 
-    // date axis and selection
+    // date and values axis and selection
     addDateBrush(svg, width, height, xScale, setTimerange);
     addDateAxis(svg, width, height, xScale, timeBucket.format);
-
-    // y axis rendering
-    svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-      .call((g) => addGridlines(g, width));
+    addValueAxis(svg, width, yScale, nbValueTicks);
 
     // area and points
     const areas = svg
@@ -216,9 +266,9 @@ export function MultipleAreaChartRender(
         .style("cursor", "pointer");
       areaChart.selectAll(".area-fill")
         .selectAll("path")
-        .style("fill", color(index.toString()))
-        .style("fill-opacity", areaOpacity)
-        .style("stroke", color(index.toString()))
+        .style("fill", getColor(index))
+        .style("fill-opacity", area ? areaOpacity : 0)
+        .style("stroke", getColor(index))
         .style("stroke-opacity", areaStrokeOpacity)
         .style("stroke-width", areaStroke);
     };
@@ -233,7 +283,7 @@ export function MultipleAreaChartRender(
       areaChart.selectAll(".area-fill")
         .select("path")
         .style("opacity", 1.0)
-        .style("fill-opacity", areaOpacityHover)
+        .style("fill-opacity", area ? areaOpacityHover : 0)
         .style("stroke-opacity", areaStrokeOpacityHover);
     };
 
@@ -243,7 +293,6 @@ export function MultipleAreaChartRender(
       .attr("class", "circle-group");
 
     // individual circle rendering
-
     circles
       .each(function (d, i) {
         const circleChart = d3.select(this);
@@ -255,7 +304,7 @@ export function MultipleAreaChartRender(
           .attr("cx", (d) => xScale(d.date))
           .attr("cy", (d) => yScale(d.value))
           .attr("r", circleRadius)
-          .attr("fill", color(i.toString()))
+          .attr("fill", getColor(i))
           .style("opacity", circleOpacity)
           .on("mouseover", function (event, d) {
             styleAreaHover(i);
@@ -265,7 +314,7 @@ export function MultipleAreaChartRender(
               event,
               tooltip,
               tooltipTimeFormat(
-                formatValue(d.value),
+                formatValueISO(d.value),
                 d.date,
                 timeBucket.name,
                 units,
@@ -280,19 +329,25 @@ export function MultipleAreaChartRender(
           });
       });
 
-    // area rendering
+    // area and/or lines rendering
 
-    // data area
-    const area = d3.area<ChartData>()
+    const areaGen = d3.area<ChartData>()
       .x((d) => xScale(d.date))
       .y1((d) => yScale(d.value))
       .y0(height);
+
+    const lineGen = d3.line<ChartData>()
+      .x((d) => xScale(d.date))
+      .y((d) => yScale(d.value));
 
     const areasFill = areas
       .append("g")
       .attr("class", "area-fill")
       .append("path")
-      .attr("d", (d) => area(d.values));
+      .attr(
+        "d",
+        (d) => (area ? areaGen(d.values) : lineGen(d.values)),
+      );
 
     areasFill
       .each(function (_d, i) {
@@ -307,33 +362,48 @@ export function MultipleAreaChartRender(
           });
       });
 
+    if (!area) {
+      areasFill.attr("pointer-events", "visibleStroke");
+    }
+
     // legend
-    const legend = svg.selectAll(".legend")
+    const legend = svg.append("g")
+      .selectAll(".legend")
       .data(data).enter()
       .append("g")
       .attr("class", "legend")
       .each(function (_d, i) {
-        d3.select(this)
+        const labelField = d3.select(this);
+        labelField
           .on("mouseover", () => styleAreaHover(i))
           .on("mouseout", () => styleAreaDefault(i));
+
+        if (field == undefined) return;
+        labelField
+          .on("click", () => createFilter(`${field}:"${_d.name}"`));
       });
 
     legend.append("rect")
-      .attr("x", width - 80)
       .attr("y", (_d, i) => (i * 15))
       .attr("width", 10)
       .attr("height", 10)
-      .style("fill", (_d, i) => color(i.toString()));
+      .style("fill", (_d, i) => getColor(i));
 
     legend.append("text")
       .attr("height", 20)
-      .attr("x", width - 60)
-      .attr("y", (_d, i) => (i * 15) + 10)
+      .attr("x", 20)
+      .attr("y", (_d, i) => (i * 15) + 8)
       .text((d) => d.name);
+
+    legend.raise()
+      .attr("transform", `translate(${width + legendSpacer}, 0)`);
 
     // curtain animation
     if (transition) {
-      curtainTransition(svgElement, totalWidth, svgHeight, margin);
+      curtainTransition(areas, width, svgHeight, {
+        bottom: margin.bottom * 1.5,
+        left: 0,
+      });
     }
   };
 

@@ -3,7 +3,7 @@ Class to get data for all charts iin Call dashboard
 */
 
 import LoadingScreenCharts from "../../helpers/LoadingScreenCharts";
-import MultipleLineChart from "@charts/multipleLine_chart";
+import MultipleLine from "@charts/MultipleLine";
 import { parseMultipleLineData } from "../../../es-response-parser";
 import { useDashboardData } from "@hooks/useDashboardData";
 
@@ -42,16 +42,15 @@ function SystemCharts({ hostnames }) {
       {isLoading && <LoadingScreenCharts />}
       <div className="row no-gutters">
         <div className="col-6 pr-1">
-          <MultipleLineChart
-            id="shortterm"
+          <MultipleLine
             data={chartsData.shortterm}
+            field={"attrs.hostname"}
             name={"LOAD-SHORTTERM"}
             hostnames={hostnames}
-            ticks={3}
           />
         </div>{" "}
         <div className="col-6 px-1">
-          <MultipleLineChart
+          <MultipleLine
             id="midterm"
             data={chartsData.midterm}
             name={"LOAD-MIDTERM"}
@@ -60,7 +59,7 @@ function SystemCharts({ hostnames }) {
           />
         </div>{" "}
         <div className="col-6 pr-1">
-          <MultipleLineChart
+          <MultipleLine
             id="longterm"
             data={chartsData.longterm}
             name={"LOAD-LONGTERM"}
@@ -69,7 +68,7 @@ function SystemCharts({ hostnames }) {
           />
         </div>{" "}
         <div className="col-6 px-1">
-          <MultipleLineChart
+          <MultipleLine
             id="memoryFree"
             data={chartsData.memoryFree}
             hostnames={hostnames}
@@ -79,7 +78,7 @@ function SystemCharts({ hostnames }) {
         </div>
 
         <div className="col-6 pr-1">
-          <MultipleLineChart
+          <MultipleLine
             id="memoryUsed"
             data={chartsData.memoryUsed}
             hostnames={hostnames}
@@ -89,7 +88,7 @@ function SystemCharts({ hostnames }) {
         </div>
 
         <div className="col-6 px-1">
-          <MultipleLineChart
+          <MultipleLine
             id="memoryCached"
             hostnames={hostnames}
             data={chartsData.memoryCached}
@@ -99,7 +98,7 @@ function SystemCharts({ hostnames }) {
         </div>
 
         <div className="col-6 pr-1">
-          <MultipleLineChart
+          <MultipleLine
             id="memoryBuffered"
             data={chartsData.memoryBuffered}
             hostnames={hostnames}
@@ -109,7 +108,7 @@ function SystemCharts({ hostnames }) {
         </div>
 
         <div className="col-6 px-1">
-          <MultipleLineChart
+          <MultipleLine
             id="uas"
             data={chartsData.uas}
             name={"UAS SIP trans."}
@@ -119,7 +118,7 @@ function SystemCharts({ hostnames }) {
         </div>
 
         <div className="col-6 pr-1">
-          <MultipleLineChart
+          <MultipleLine
             id="uac"
             data={chartsData.uac}
             name={"UAC SIP trans."}
@@ -129,7 +128,7 @@ function SystemCharts({ hostnames }) {
         </div>
 
         <div className="col-6 px-1">
-          <MultipleLineChart
+          <MultipleLine
             id="cpuUser"
             data={chartsData.cpuUser}
             hostnames={hostnames}
@@ -139,7 +138,7 @@ function SystemCharts({ hostnames }) {
         </div>
 
         <div className="col-6 pr-1">
-          <MultipleLineChart
+          <MultipleLine
             id="cpuSystem"
             data={chartsData.cpuSystem}
             hostnames={hostnames}
@@ -148,7 +147,7 @@ function SystemCharts({ hostnames }) {
           />
         </div>
         <div className="col-6 px-1">
-          <MultipleLineChart
+          <MultipleLine
             id="cpuIdle"
             data={chartsData.cpuIdle}
             hostnames={hostnames}
