@@ -11,30 +11,20 @@ workflow:
 stages:
   - test
   - build
+  - image
 
 variables:
   CLICOLOR_FORCE: '1'
+  GIT_SUBMODULE_STRATEGY: recursive
+  # NPM_PROXY: '1'
 
-# TODO: docker image build ? pull latest mon, deploy custom dist on top
-# TODO: call to make
+include:
+  - .gitlab-ci/template.yaml
 
-.lint:
-  image: docker.frafos.net/debian/mon-builder:5.3
-  interruptible: true
-  allow_failure: true
-  variables:
-    WHERE: ''
-    ESLINT_CODE_QUALITY_REPORT: gl-codequality.json
-  rules:
-    - changes:
-        - $WHERE/**
-  script:
-    - cd $WHERE
-    - npm install
-    - npm run lintlab
-  artifacts:
-    reports:
-      codequality: $WHERE/gl-codequality.json
+# TODO: docker image build
+# --> pull latest mon, deploy custom dist on top
+
+# TODO: makefile install
 
 client:lint:
   stage: test
@@ -47,27 +37,6 @@ server:lint:
   extends: .lint
   variables:
     WHERE: Moki/server
-
-.test:
-  image: docker.frafos.net/debian/mon-builder:5.3
-  interruptible: true
-  variables:
-    WHERE: ''
-  rules:
-    - changes:
-        - $WHERE/**
-  script:
-    - cd $WHERE
-    - npm install
-    - npm run testlab
-  coverage: /Statements.*?(\d+(?:\.\d+)?)%/
-  artifacts:
-    when: always
-    reports:
-      junit: $WHERE/report.xml
-      coverage_report:
-        coverage_format: cobertura
-        path: $WHERE/coverage/cobertura-coverage.xml
 
 client:test:
   stage: test
@@ -92,5 +61,32 @@ client:build:
     - client:test
     - client:lint
   rules:
+    - if: $CI_MERGE_REQUEST_LABELS =~ /^(.*,)?ci-skip-tests(,.*)*$/
+      when: never
     - changes:
         - Moki/client/**
+
+docker:dist:
+  stage: build
+  needs: []
+  image: docker.frafos.net/debian/mon-builder:5.3
+  script:
+    - make install DESTDIR=`pwd`/dist
+  artifacts:
+    expire_in: 1h
+    paths:
+      - dist
+
+docker:overlay:
+  stage: image
+  image: docker.frafos.net/docker:20.10-ci
+  interruptible: true
+  needs:
+    - docker:dist
+  services:
+  - name: docker.frafos.net/docker:20.10-dind
+    alias: docker
+  script:
+    - make pull-base pull-build
+    - make overlay
+    - docker push docker.frafos.net/debian/mon-overlay:5.3
