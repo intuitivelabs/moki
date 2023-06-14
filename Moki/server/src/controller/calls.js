@@ -1,12 +1,12 @@
-const Controller = require('./controller');
-const query_string = require('../../js/template_queries/query_string');
-const agg_sum_bucket_query = require('../../js/template_queries/agg_sum_bucket_query');
-const agg_query = require('../../js/template_queries/agg_query');
-const agg_filter = require('../../js/template_queries/agg_filter');
-const two_agg_no_order_query = require('../../js/template_queries/two_agg_no_order_query');
-const date_bar = require('../../js/template_queries/date_bar_query');
-const datehistogram_agg_filter_query = require('../../js/template_queries/datehistogram_agg_filter_query');
-const datehistogram_agg_sum_bucket_query = require('../../js/template_queries/datehistogram_agg_sum_bucket_query');
+import Controller from './controller.js';
+import query_string from '../js/template_queries/query_string.js';
+import agg_sum_bucket_query from '../js/template_queries/agg_sum_bucket_query.js';
+import agg_query from '../js/template_queries/agg_query.js';
+import agg_filter from '../js/template_queries/agg_filter.js';
+import two_agg_no_order_query from '../js/template_queries/two_agg_no_order_query.js';
+import date_bar from '../js/template_queries/date_bar_query.js';
+import datehistogram_agg_filter_query from '../js/template_queries/datehistogram_agg_filter_query.js';
+import datehistogram_agg_sum_bucket_query from '../js/template_queries/datehistogram_agg_sum_bucket_query.js';
 
 class CallsController extends Controller {
 
@@ -128,4 +128,4 @@ class CallsController extends Controller {
   }
 }
 
-module.exports = CallsController;
+export default CallsController;

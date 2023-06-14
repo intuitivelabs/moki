@@ -12,3 +12,5 @@ coverage
 .env
 # merge temp files
 *.orig
+# build
+build-diagram

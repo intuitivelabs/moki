@@ -1,5 +1,5 @@
 .lint:
-  image: docker.frafos.net/debian/mon-builder:5.3
+  image: $CI_IMAGE_NAME
   interruptible: true
   allow_failure: true
   variables:
@@ -19,7 +19,7 @@
       codequality: $WHERE/gl-codequality.json
 
 .test:
-  image: docker.frafos.net/debian/mon-builder:5.3
+  image: $CI_IMAGE_NAME
   interruptible: true
   variables:
     WHERE: ''

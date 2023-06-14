@@ -1,10 +1,11 @@
 // Conference.js hold the conference endpoint
-const Controller = require('./controller');
-const query_string = require('../../js/template_queries/query_string');
-const agg_query = require('../../js/template_queries/agg_query');
-const datehistogram_agg_filter_query = require('../../js/template_queries/datehistogram_agg_filter_query');
-const agg_sum_bucket_query_term = require('../../js/template_queries/agg_sum_bucket_term_query');
-const sort_query = require('../../js/template_queries/sort_query');
+import Controller from './controller.js';
+
+import query_string from '../js/template_queries/query_string.js';
+import agg_query from '../js/template_queries/agg_query.js';
+import datehistogram_agg_filter_query from '../js/template_queries/datehistogram_agg_filter_query.js';
+import agg_sum_bucket_query_term from '../js/template_queries/agg_sum_bucket_term_query.js';
+import sort_query from '../js/template_queries/sort_query.js';
 
 class ConferenceController extends Controller {
 
@@ -108,4 +109,4 @@ class ConferenceController extends Controller {
   }
 }
 
-module.exports = ConferenceController;
+export default ConferenceController;

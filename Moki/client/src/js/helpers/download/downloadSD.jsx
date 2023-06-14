@@ -1,11 +1,13 @@
 import querySrv from '../querySrv';
+const BASE_NAME = import.meta.env.BASE_URL;
 
 export async function downloadSD(pathname) {
     if(! Array.isArray(pathname)){
         pathname = [pathname];
     }
     try {
-        const response = await querySrv("api/diagram/download", {
+        console.log(BASE_NAME + "api/diagram");
+        const response = await querySrv(BASE_NAME + "api/diagram/download", {
             method: "POST",
             credentials: 'include',
             headers: {
@@ -16,7 +18,7 @@ export async function downloadSD(pathname) {
                 url: pathname
             })
         });
-        var sd = await response.text();
+        const sd = await response.text();
         return sd;
     } catch (error) {
         console.error(error);

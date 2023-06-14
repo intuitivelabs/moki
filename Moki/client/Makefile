@@ -89,6 +89,7 @@ install_client: # ${client_lock}
 		NODE_ENV=production npm run build && npm prune --production
 	install -d $(DESTDIR)/usr/share/Moki
 	cp -r build $(DESTDIR)/usr/share/Moki
+	cp -r build-diagram $(DESTDIR)/usr/share/Moki
 
 dump_debug_flag: ## debug flag to trigger nginx template
 	install -d $(DESTDIR)/etc/abc-monitor

@@ -98,7 +98,7 @@ export function MultipleLineRender(
     units,
     area,
     name,
-    absolute,
+    absolute = true,
     totalHeight = 190,
     colors = Colors,
     navbarExpanded,

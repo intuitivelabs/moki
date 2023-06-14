@@ -1,7 +1,7 @@
-const Controller = require('./controller');
-const datehistogram_agg_filter_query = require('../../js/template_queries/datehistogram_agg_filter_query');
-const timerange_query = require('../../js/template_queries/timerange_query');
-const agg = require('../../js/template_queries/agg');
+import Controller from './controller.js';
+import datehistogram_agg_filter_query from '../js/template_queries/datehistogram_agg_filter_query.js';
+import timerange_query from '../js/template_queries/timerange_query.js';
+import agg from '../js/template_queries/agg.js';
 
 class exceededController extends Controller {
 
@@ -101,4 +101,4 @@ class exceededController extends Controller {
   }
 }
 
-module.exports = exceededController;
+export default exceededController;

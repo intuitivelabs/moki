@@ -9,7 +9,7 @@ import { getSettings } from './js/helpers/getSettings';
 import FilterBar from './js/bars/FilterBar.jsx';
 import Restricted from './js/dashboards/Restricted/Restricted';
 import Report from './js/dashboards/Report/Report';
-import Sequence from './js/pages/sequenceDiagram';
+import Sequence from './js/diagram/sequenceDiagram';
 import { Navigate } from 'react-router';
 import { paths } from "./js/controllers/paths.jsx";
 import Popup from "./js/helpers/Popup";
@@ -642,8 +642,7 @@ class App extends Component {
                 sipUserSwitch = <div className="row"
                     id="body-row">
                     <Routes>
-                        <Route path='/sequenceDiagram/:id' render={() => < Sequence />} />
-                        <Route path='/sequenceDiagram/' render={() => < Sequence />} />
+                        <Route path='/sequenceDiagram/*' element={<Sequence />} />
                     </Routes>
                 </div>
 
@@ -734,7 +733,7 @@ class App extends Component {
                                 <Route exact path='/' element={<Restricted name="restricted" />} />
                                 <Route path='/logout' />
                                 <Route path='/no-sip-identity/' />
-                                <Route path='/sequenceDiagram/:id' element={<Sequence />} />
+                                <Route path='/sequenceDiagram/*' element={<Sequence />} />
                                 <Route path='/sequenceDiagram/' element={<Sequence />} />
                                 <Route path="*" element={<Navigate to="/" />} />
                             </Routes>

@@ -75,8 +75,6 @@ function MonitoringCharts() {
 
     const values = {};
 
-    console.log(data);
-
     //get node name
     if (data && data[0] && data[0].hasOwnProperty("nodes")) {
       let node = Object.keys(data[0].nodes)[0];

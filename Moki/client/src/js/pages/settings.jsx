@@ -78,7 +78,6 @@ class Settings extends Component {
             }
 
         }
-console.log(jsonData);
 
         try {
             const response = await querySrv(Url, {

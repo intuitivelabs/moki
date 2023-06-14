@@ -1,7 +1,6 @@
 import { Table as BTable } from "react-bootstrap";
 import { useState } from "react";
 import { flexRender } from "@tanstack/react-table";
-import Pagination from "./pagination";
 
 // Table header and row content rendering
 

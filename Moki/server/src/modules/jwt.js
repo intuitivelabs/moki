@@ -1,7 +1,6 @@
 // jwt.js hold the json web token implementation
-const { isRequireJWT } = require('./config');
-const { cfg } = require('../modules/config');
-const { searchES, updateES, } = require('../utils/ES_queries');
+import { isRequireJWT, cfg } from './config.js';
+import { searchES, updateES } from '../utils/ES_queries.js';
 
 const hfName = 'x-amzn-oidc-data';
 const indexName = "profiles";
@@ -49,7 +48,7 @@ async function getJWTsipUserFilter(req) {
   // check config if JWT required
   let isAccept;
   try {
-    isAccept = cfg.JWT_required || await isRequireJWT();
+    isAccept = cfg.JWT_required || (await isRequireJWT());
   } catch (e) {
     // error in config processing:
     console.log("ACCESS getJWTsipUserFilter: error in config processing: ", JSON.stringify(e));
@@ -185,7 +184,7 @@ function getEncryptChecksumFilter(req) {
  * if lower, redirect to logout
  * 
  */
-async function checkIAT(req, res) {
+async function checkIAT(req) {
 
   //check if web access - allow it 
   if (req.originalUrl.startsWith("/api/web")) {
@@ -289,7 +288,7 @@ async function storeIATinProfile(iat, sub) {
 
 }
 
-module.exports = {
+export {
   getJWTsipUserFilter,
   parseBase64,
   getEncryptChecksumFilter,

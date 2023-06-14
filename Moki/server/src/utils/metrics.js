@@ -1,7 +1,8 @@
 // metrics.js hold some metric logic
-const fs = require('fs');
-const { cfg } = require('../modules/config');
-const { parseBase64 } = require('../modules/jwt');
+import fs from 'fs';
+
+import { cfg } from '../modules/config.js';
+import { parseBase64 } from '../modules/jwt.js';
 const hfName = 'x-amzn-oidc-data';
 
 function getFiltersConcat(filters) {
@@ -228,10 +229,10 @@ function getParameterFromHeader(req, info) {
 }
 
 
-module.exports = {
-  getFiltersConcat: getFiltersConcat,
-  getTypesConcat: getTypesConcat,
-  getQueries: getQueries,
-  checkSelectedTypes: checkSelectedTypes,
-  getParameterFromHeader: getParameterFromHeader
+export {
+  getFiltersConcat,
+  getTypesConcat,
+  getQueries,
+  checkSelectedTypes,
+  getParameterFromHeader
 };

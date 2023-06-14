@@ -1,5 +1,5 @@
-const Controller = require('./controller');
-const datehistogram_agg_filter_query = require('../../js/template_queries/datehistogram_agg_filter_query');
+import Controller from './controller.js';
+import datehistogram_agg_filter_query from '../js/template_queries/datehistogram_agg_filter_query.js';
 
 class diagnosticsController extends Controller {
 
@@ -86,4 +86,4 @@ class diagnosticsController extends Controller {
 
 }
 
-module.exports = diagnosticsController;
+export default diagnosticsController;

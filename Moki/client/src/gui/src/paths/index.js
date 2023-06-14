@@ -18,5 +18,4 @@ export { default as connectivity } from '../../../js/dashboards/Connectivity/Con
 export { default as calls } from '../../../js/dashboards/Call/Calls';
 export { default as alarms } from '../../../js/pages/alarms_settings';
 export { default as sns } from '../../../js/pages/sns_settings';
-export { default as sequence } from '../../../js/pages/sequenceDiagram';
 export { default as settings } from '../../../js/pages/general_settings';

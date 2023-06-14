@@ -3,7 +3,7 @@ import { formatValueISO } from "@/js/helpers/formatValue";
 import { describe, expect, it } from "vitest"
 
 describe("formatValueISO", () => {
-  const testCases: [number, string][] = [
+  const testCases: [number | undefined, string][] = [
     [123456789, "123.46M"],
     [9876543210, "9.88G"],
     [1234567.89, "1.23M"],
@@ -14,8 +14,6 @@ describe("formatValueISO", () => {
     [0, "0"],
     [NaN, ""],
     [undefined, ""],
-    [null, ""],
-    ["abc" as any, ""],
   ];
 
   testCases.forEach(([value, expected]) => {

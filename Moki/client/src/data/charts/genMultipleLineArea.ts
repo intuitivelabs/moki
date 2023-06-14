@@ -17,7 +17,7 @@ type Props = {
   dateOffset?: number;
 } & ChartGeneratorProps;
 
-function genMultiLineData(
+function genMutlipleLineArea(
   { seed, startDate, endDate, sample, valueMod, dateOffset = 0, interval }:
     Props,
 ): ESResponse<never, DataBucket> | [] {
@@ -42,4 +42,4 @@ function genMultiLineData(
   return { aggregations: { agg: { buckets: data } } };
 }
 
-export { genMultiLineData };
+export { genMutlipleLineArea };

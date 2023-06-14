@@ -1,7 +1,7 @@
-const Controller = require('./controller');
-const range_query = require('../../js/template_queries/range_query');
-const range_query_animation = require('../../js/template_queries/range_query_animation');
-const histogram_datehistogram_query = require('../../js/template_queries/histogram_datehistogram_query');
+import Controller from './controller.js';
+import range_query from '../js/template_queries/range_query.js';
+import range_query_animation from '../js/template_queries/range_query_animation.js';
+import histogram_datehistogram_query from '../js/template_queries/histogram_datehistogram_query.js';
 
 class qosController extends Controller {
 
@@ -133,4 +133,4 @@ class qosController extends Controller {
 
 }
 
-module.exports = qosController;
+export default qosController;

@@ -3,7 +3,7 @@ import type { TimerangeProps } from "@/stories/utils/timerange";
 import { timerangeProps } from "@/stories/utils/timerange";
 import { MultipleLineRender, RenderProps } from "@charts/MultipleLine";
 import { DAY_TIME } from "@/data/utils/date";
-import { genMultiLineData } from "@/data/charts/genMultipleLineArea";
+import { genMutlipleLineArea } from "@/data/charts/genMultipleLineArea";
 import { parseMultipleLineDataShareAxis } from "@/es-response-parser";
 import { getTimeBucketInt } from "@/js/helpers/getTimeBucket";
 import { ChartGeneratorProps } from "@/data/types";
@@ -51,8 +51,8 @@ const meta: Meta<StoryProps> = {
   render: ({ colorScheme, dataName, dataDayName, ...args }) => {
     const color = COLOR_SCHEME[colorScheme];
     const interval = getTimeBucketInt([args.startDate, args.endDate]);
-    const data = genMultiLineData({ ...args, interval });
-    const dataDay = genMultiLineData({
+    const data = genMutlipleLineArea({ ...args, interval });
+    const dataDay = genMutlipleLineArea({
       ...args,
       interval,
       dateOffset: DAY_TIME,

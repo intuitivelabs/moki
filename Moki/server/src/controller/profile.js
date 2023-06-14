@@ -1,17 +1,8 @@
 
-const {
-  searchES,
-  newIndexES,
-  existsIndexES,
-  insertES,
-  updateES,
-  deleteES
-} = require('../utils/ES_queries');
-const moment = require('moment-timezone');
-const AdminController = require('./admin');
-const { getDefaults, getUser } = require('../modules/config');
+import { searchES, newIndexES, existsIndexES, insertES, updateES, deleteES } from '../utils/ES_queries.js';
+import { getDefaults, getUser, cfg } from '../modules/config.js';
+
 const indexName = "profiles";
-const { cfg } = require('../modules/config');
 
 class ProfileController {
   //store setings by user in ES
@@ -22,8 +13,6 @@ class ProfileController {
     async function search() {
       if (cfg.debug) console.info("Storing settings in user profile in ES");
       const user = getUser(req);
-      let keys = Object.keys(req.body.userprefs);
-      const field = req.body.userprefs[Object.keys(req.body.userprefs)[0]];
 
       var secret = user.sub;
       let secretField = "sub";
@@ -285,4 +274,4 @@ class ProfileController {
   }
 }
 
-module.exports = ProfileController;
+export default ProfileController;

@@ -1,12 +1,13 @@
-const { connectToES } = require('../modules/elastic');
-const { parseBase64 } = require('../modules/jwt');
-//const { isRequireJWT } = require('../modules/config');
-const { exec } = require("child_process");
-const fs = require('fs');
-const https = require("https");
-const axios = require("axios");
-const { cfg } = require('../modules/config');
-const SettingController = require('./setting');
+import fs from 'fs';
+import https from 'https';
+import axios from 'axios';
+import { exec } from 'child_process';
+
+import { connectToES } from '../modules/elastic.js';
+import { parseBase64 } from '../modules/jwt.js';
+
+import SettingController from './setting.js';
+import { cfg } from '../modules/config.js';
 
 let oldJti = "";
 const hfName = 'x-amzn-oidc-data';
@@ -282,10 +283,8 @@ class AdminController {
       return res.json({ redirect: "JWTparsingError" });
     }
 
-    let parsedHeaderAccessToken;
     let IPs;
     try {
-      parsedHeaderAccessToken = parseBase64(req.headers['x-amzn-oidc-accesstoken']);
       //split x-forwarded-for by comma and take first IP
       IPs = req.headers['x-forwarded-for'].split(",");
     } catch (e) {
@@ -318,8 +317,7 @@ class AdminController {
       return res.json({ msg: "ok" });
     }
     else {
-      console.error(resp);
-      return res.json({ msg: "Problem to store mode change in ES index " + err });
+      return res.json({ msg: "Problem to store mode change in ES index " });
     }
   }
 
@@ -328,14 +326,14 @@ class AdminController {
 create new user with password in htpasswd
 */
   static async createUser(req, res) {
-    exec("sudo htpasswd -b -c " + cfg.htpasswd + " '" + req.body.name + "' '" + req.body.password + "'", (error, stdout, stderr) => {
+    exec("sudo htpasswd -b -c " + cfg.htpasswd + " '" + req.body.name + "' '" + req.body.password + "'", (error, _stdout, _stderr) => {
       if (error) {
         console.error(`Can't create new user in nginx : ${error.message}`);
         return res.json({ "error": error.message });
       }
 
       //restart nginx
-      exec("sudo abc-monitor-activate-config", (error, stdout, stderr) => {
+      exec("sudo abc-monitor-activate-config", (error, _stdout, _stderr) => {
         if (error) {
           console.error(`Can't create new user in nginx : ${error.message}`);
           //return res.json({ "error": error.message });
@@ -351,7 +349,7 @@ create new user with password in htpasswd
   /*
   Check if htpasswd file exists or if it's empty. Return true in that case (= no user)
   */
-  static noNginxUser(req, res) {
+  static noNginxUser(_req, res) {
     try {
       // Check if file exist
       fs.exists(cfg.htpasswd, function (file) {
@@ -494,7 +492,7 @@ create new user with password in htpasswd
     console.debug('updated JSON: %o', jsonData);
 
     SettingController.saveSettings(jsonData)
-      .then((msg) => {
+      .then(() => {
         console.log(`Settings updated`);
         res.send({ "msg": "Settings updated" });
       })
@@ -505,6 +503,6 @@ create new user with password in htpasswd
 
 }
 
-module.exports = AdminController;
+export default AdminController;
 
 

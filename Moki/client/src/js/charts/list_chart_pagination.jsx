@@ -71,9 +71,6 @@ class TableChart extends Component {
     const data = this.state.data?.at(0);
     if (data) {
       var pageCount = Math.ceil(data.length / 10);
-      console.log(data);
-      // console.log(data.length/10);
-      //console.log(pageCount);
       if (pageCount >= 2) {
         var buttons = [];
         for (var i = 0; i < pageCount; i++) {

@@ -1,7 +1,7 @@
-const Controller = require('./controller');
-const datehistogram_three_agg_query = require('../../js/template_queries/datehistogram_three_agg_query');
+import Controller from './controller.js';
+import datehistogram_three_agg_query from '../js/template_queries/datehistogram_three_agg_query.js';
 
-class systemController extends Controller {
+class SystemController extends Controller {
   /**
    * @swagger
    * /api/system/charts:
@@ -108,4 +108,4 @@ class systemController extends Controller {
 
 }
 
-module.exports = systemController;
+export default SystemController;

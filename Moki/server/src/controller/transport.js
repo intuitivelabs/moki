@@ -1,7 +1,7 @@
-const Controller = require('./controller');
-const datehistogram_agg_filter_query = require('../../js/template_queries/datehistogram_agg_filter_query');
+import Controller from './controller.js';
+import datehistogram_agg_filter_query from '../js/template_queries/datehistogram_agg_filter_query.js';
 
-class transportController extends Controller {
+class TransportController extends Controller {
 
   /**
    * @swagger
@@ -84,4 +84,4 @@ class transportController extends Controller {
   }
 }
 
-module.exports = transportController;
+export default TransportController;

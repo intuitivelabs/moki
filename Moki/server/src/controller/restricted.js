@@ -1,11 +1,11 @@
-const Controller = require('./controller');
-const datehistogram_agg_filter_query = require('../../js/template_queries/datehistogram_agg_filter_query');
-const query_string = require('../../js/template_queries/query_string');
-const agg_sum_bucket_query = require('../../js/template_queries/agg_sum_bucket_query');
-const agg_query = require('../../js/template_queries/agg_query');
-const date_bar = require('../../js/template_queries/date_bar_query');
+import Controller from './controller.js';
 
-class restrictedController extends Controller {
+import datehistogram_agg_filter_query from '../js/template_queries/datehistogram_agg_filter_query.js';
+import query_string from '../js/template_queries/query_string.js';
+import agg_sum_bucket_query from '../js/template_queries/agg_sum_bucket_query.js';import agg_query from '../js/template_queries/agg_query.js';
+import date_bar from '../js/template_queries/date_bar_query.js';
+
+class RestrictedController extends Controller {
 
   /**
    * @swagger
@@ -45,9 +45,9 @@ class restrictedController extends Controller {
   static getCharts(req, res, next) {
     super.request(req, res, next, [
       //SUM CALL-END
-      { index: "logstash*", template: query_string, filter: "attrs.type:call-end", filter: "*" },
+      { index: "logstash*", template: query_string, filter: "attrs.type:call-end" },
       //SUM CALL-ATTEMPT
-      { index: "logstash*", template: query_string, filter: "attrs.type:call-attempt",filter: "*" },
+      { index: "logstash*", template: query_string, filter: "attrs.type:call-attempt" },
       //CALLING COUNTRIES
       { index: "logstash*", template: agg_query, params: ["terms", "geoip.country_code2"], filter: "*" },
       //DURATION SUM 
@@ -153,4 +153,4 @@ class restrictedController extends Controller {
 
 }
 
-module.exports = restrictedController;
+export default RestrictedController;

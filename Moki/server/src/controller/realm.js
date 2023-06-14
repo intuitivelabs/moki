@@ -1,7 +1,7 @@
-const Controller = require('./controller');
-const datehistogram_three_agg_query_max = require('../../js/template_queries/datehistogram_three_agg_query_max');
+import Controller from './controller.js';
+import datehistogram_three_agg_query_max from '../js/template_queries/datehistogram_three_agg_query_max.js';
 
-class realmController extends Controller {
+class RealmController extends Controller {
 
   /**
    * @swagger
@@ -109,4 +109,4 @@ class realmController extends Controller {
 
 }
 
-module.exports = realmController;
+export default RealmController;

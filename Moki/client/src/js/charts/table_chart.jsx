@@ -82,7 +82,7 @@ function renderExpandRow(cell, value, isSearchable, category, attr) {
               <button className="noFormatButton" onClick={getPcap} file={value}>
                   <img className="icon" alt="downloadIcon" src={downloadPcapIcon} title="download PCAP" />
               </button>
-              <a href={"/sequenceDiagram/" + value} target="_blank" rel="noopener noreferrer"><img className="icon" alt="viewIcon" src={viewIcon} title="view PCAP" /></a></span></p>
+              <a href={"/sequenceDiagram/?id=" + value} target="_blank" rel="noopener noreferrer"><img className="icon" alt="viewIcon" src={viewIcon} title="view PCAP" /></a></span></p>
   }
 
   //if audio_file make download icon (only for call-end)
@@ -571,7 +571,7 @@ export default class ListChart extends Component {
                 for (var i = 0; i < selectedData.length; i++) {
                     var record = thiss.getRecord(selectedData[i]);
                     if (record._source.attrs.filename) {
-                        pcaps.push("/data/sbcsync/traffic_log/" + record._source.attrs.filename);
+                        pcaps.push(record._source.attrs.filename);
                     }
                 }
 
@@ -658,7 +658,7 @@ export default class ListChart extends Component {
             for (var i = 0; i < selectedData.length; i++) {
                 var record = thiss.getRecord(selectedData[i]);
                 if (record._source.attrs.filename) {
-                    pcaps.push("/data/sbcsync/traffic_log/" + record._source.attrs.filename);
+                    pcaps.push(record._source.attrs.filename);
                 }
             }
             if (pcaps.length === 0) {

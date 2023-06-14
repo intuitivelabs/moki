@@ -1,14 +1,14 @@
-const Controller = require('./controller');
-const query_string = require('../../js/template_queries/query_string');
-const agg_query = require('../../js/template_queries/agg_query');
-const two_agg_filter_query = require('../../js/template_queries/two_agg_filter_query');
-const heatmap_query_three = require('../../js/template_queries/three_agg_heatmap_query');
-const heatmap_query_three_animation = require('../../js/template_queries/three_agg_heatmap_query_animation');
-const heatmap_query = require('../../js/template_queries/four_agg_heatmap_query');
-const multiple_query = require('../../js/template_queries/multiple_query');
-const datehistogram_two_agg_query = require('../../js/template_queries/datehistogram_two_agg_query');
-const datehistogram_four_agg_query = require('../../js/template_queries/datehistogram_four_agg_query');
-const range_query_date =  require('../../js/template_queries/range_query_date');
+import Controller from './controller.js';
+import query_string from '../js/template_queries/query_string.js';
+import agg_query from '../js/template_queries/agg_query.js';
+import two_agg_filter_query from '../js/template_queries/two_agg_filter_query.js';
+import heatmap_query_three from '../js/template_queries/three_agg_heatmap_query.js';
+import heatmap_query_three_animation from '../js/template_queries/three_agg_heatmap_query_animation.js';
+import heatmap_query from '../js/template_queries/four_agg_heatmap_query.js';
+import multiple_query from '../js/template_queries/multiple_query.js';
+import datehistogram_two_agg_query from '../js/template_queries/datehistogram_two_agg_query.js';
+import datehistogram_four_agg_query from '../js/template_queries/datehistogram_four_agg_query.js';
+import range_query_date from '../js/template_queries/range_query_date.js';
 
 class ConnectivityCAController extends Controller {
 
@@ -387,4 +387,4 @@ class ConnectivityCAController extends Controller {
 
 
 
-module.exports = ConnectivityCAController;
+export default ConnectivityCAController;

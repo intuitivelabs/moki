@@ -1,0 +1,20 @@
+FROM docker.frafos.net/debian/mon-builder:5.3
+
+RUN echo "\n#\n#\n# installing deps for golang\n#\n#" && \
+    apt -y update && apt -y install --no-install-recommends \
+    make wget ca-certificates \
+    && \
+    apt -y clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # buildkit
+
+
+RUN echo "install golang 1.20" && \
+    wget -O go1.20.5.linux-amd64.tar.gz https://go.dev/dl/go1.20.5.linux-amd64.tar.gz &&  \
+    rm -rf /usr/local/go  &&  tar -C /usr/local -xzf go1.20.5.linux-amd64.tar.gz  && \
+    rm -rf go1.20.5.linux-amd64.tar.gz
+
+ENV GOPATH=$HOME/go
+ENV PATH="$PATH:/usr/local/go/bin"
+
+COPY external/decap /app
+
+RUN make -C /app install DESTDIR=/ && rm -rf /app

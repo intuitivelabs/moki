@@ -212,13 +212,15 @@ a {
 }
 
 .tooltipDiagram {
-    position: absolute;
+    position: fixed;
     background-color: #ffffff;
     border: 1px solid #d3d3d3;
     width: 40%;
 }
 
 .tooltipDiagramBody {
+    max-height: 75vh;
+    overflow-y: auto;
     padding: 10px;
     word-wrap: break-word;
     font-size: small;

@@ -28,8 +28,8 @@ function getTimestampBucket(timestamp_gte, timestamp_lte) {
   }
 }
 
-module.exports = {
-  getTimestampBucket: getTimestampBucket,
-  timestamp_gte: (Math.round(new Date().getTime() / 1000) - (6 * 3600)) * 1000,
-  timestamp_lte: Math.round(new Date().getTime())
-};
+let timestamp_gte = (Math.round(new Date().getTime() / 1000) - (6 * 3600)) *
+  1000;
+let timestamp_lte = Math.round(new Date().getTime());
+
+export { getTimestampBucket, timestamp_gte, timestamp_lte };

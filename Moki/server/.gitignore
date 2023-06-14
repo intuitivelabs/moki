@@ -12,3 +12,5 @@ coverage
 .env
 # data file
 monitor.json_backup
+pcaps-private
+cfanal

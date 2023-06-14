@@ -263,7 +263,6 @@ export default function GeoIpMap(props) {
 
   //draw only data
   const drawOnlyPins = (data, name, dataNotShown, activeAnimation) => {
-    console.log(data);
     const projection = d3.geoMercator();
 
     if (!activeAnimation) {

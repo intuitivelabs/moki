@@ -1,9 +1,8 @@
-const Controller = require('./controller');
-const agg_query = require('../../js/template_queries/agg_query');
-const agg_cardinality = require('../../js/template_queries/agg_cardinality');
-const agg_filter = require('../../js/template_queries/agg_filter');
-const two_agg_query = require('../../js/template_queries/two_agg_query');
-const distinct_query_string = require('../../js/template_queries/distinct_query_string');
+import Controller from './controller.js';
+import agg_cardinality from '../js/template_queries/agg_cardinality.js';
+import agg_filter from '../js/template_queries/agg_filter.js';
+import two_agg_query from '../js/template_queries/two_agg_query.js';
+import distinct_query_string from '../js/template_queries/distinct_query_string.js';
 
 class MicronalysisController extends Controller {
 
@@ -110,4 +109,4 @@ class MicronalysisController extends Controller {
 
 }
 
-module.exports = MicronalysisController;
+export default MicronalysisController;

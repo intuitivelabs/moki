@@ -50,8 +50,6 @@ export async function downloadAll(obj) {
             if (profile[0] && profile[0].userprefs.mode === "encrypt") {
                 name = "export_decrypted.zip";
             }
-            console.log(name);
-
             FileSaver.saveAs(blob, name);
         });
 }

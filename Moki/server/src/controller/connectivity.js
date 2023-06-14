@@ -1,6 +1,6 @@
-const Controller = require('./controller');
-const two_agg_filter_query = require('../../js/template_queries/two_agg_filter_query');
-const heatmap_query = require('../../js/template_queries/four_agg_heatmap_query');
+import Controller from './controller.js';
+import two_agg_filter_query from '../js/template_queries/two_agg_filter_query.js';
+import heatmap_query from '../js/template_queries/four_agg_heatmap_query.js';
 
 class ConnectivityController extends Controller {
 
@@ -56,4 +56,4 @@ class ConnectivityController extends Controller {
 
 }
 
-module.exports = ConnectivityController;
+export default ConnectivityController;

@@ -1,10 +1,12 @@
+[Unit]
+Description=Server the moki RESTful API
+After=nginx.service
+
 [Service]
 Type=simple
 Environment="HOST=127.0.0.1"
 ExecStart=/usr/bin/npm run start
 WorkingDirectory=/usr/share/Moki/server
-StandardOutput=syslog
-StandardError=syslog
 SyslogIdentifier=moki-server
 TimeoutStopSec=30
 Restart=always

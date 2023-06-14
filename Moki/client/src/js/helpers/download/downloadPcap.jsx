@@ -1,15 +1,16 @@
 import querySrv from '../querySrv';
+const BASE_NAME = import.meta.env.BASE_URL;
 
 export async function downloadPcap(pathname) {
     var response;
     console.info("Downloading pcap " + pathname);
     try {
-        response = await querySrv("api/download/pcap", {
+        response = await querySrv(BASE_NAME + "api/download/pcap", {
             method: "POST",
             timeout: 10000,
             credentials: 'include',
             body: JSON.stringify({
-                url: pathname
+                urls: [pathname]
             }),
             headers: {
                 "Content-Type": "application/json",

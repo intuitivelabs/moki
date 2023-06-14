@@ -1,11 +1,13 @@
-const Controller = require('./controller');
-const datehistogram_agg_filter_query = require('../../js/template_queries/datehistogram_agg_filter_query');
-const agg_query = require('../../js/template_queries/agg_query');
-const datehistogram_agg_query = require('../../js/template_queries/datehistogram_agg_query');
-const two_agg_query_limit = require('../../js/template_queries/two_agg_query_limit');
-const checkSelectedTypes = require('../utils/metrics');
-const distinct_query_string = require('../../js/template_queries/distinct_query_string');
-const query_string = require('../../js/template_queries/query_string');
+import { checkSelectedTypes } from '../utils/metrics.js';
+
+import Controller from './controller.js';
+import datehistogram_agg_filter_query from '../js/template_queries/datehistogram_agg_filter_query.js';
+import agg_query from '../js/template_queries/agg_query.js';
+import datehistogram_agg_query from '../js/template_queries/datehistogram_agg_query.js';
+import two_agg_query_limit from '../js/template_queries/two_agg_query_limit.js';
+import distinct_query_string from '../js/template_queries/distinct_query_string.js';
+import query_string from '../js/template_queries/query_string.js';
+
 
 class overviewController extends Controller {
 
@@ -103,10 +105,10 @@ class overviewController extends Controller {
   *               $ref: '#/definitions/ChartResponseError'
   */
   static async getTable(req, res, next) {
-    const types = await checkSelectedTypes.checkSelectedTypes([], "overview");
+    const types = await checkSelectedTypes([], "overview");
     super.requestTable(req, res, next, { index: "logstash*", filter: types });
   }
 
 }
 
-module.exports = overviewController;
+export default overviewController;

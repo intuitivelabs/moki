@@ -1,20 +1,18 @@
 // monitoring.js hold the home endpoint
-const exec = require('child_process').exec;
-const http = require('http');
-const {
-  getFiltersConcat,
-  getQueries
-} = require('../utils/metrics');
-const { connectToES } = require('../modules/elastic');
-let {
-  timestamp_gte,
-  timestamp_lte
-} = require('../utils/ts');
-const { getJWTsipUserFilter } = require('../modules/jwt');
-const two_agg_query_limit = require('../../js/template_queries/two_agg_query_limit');
-const { cfg } = require('../modules/config');
+import { exec } from 'child_process';
 
-let domainFilter = "*"; 
+import http from 'http';
+import { getQueries } from '../utils/metrics.js';
+import { connectToES } from '../modules/elastic.js';
+import { 
+  timestamp_gte as default_timestamp_gte, 
+  timestamp_lte as default_timestamp_lte } 
+from '../utils/ts.js';
+import { getJWTsipUserFilter } from '../modules/jwt.js';
+import two_agg_query_limit from '../js/template_queries/two_agg_query_limit.js';
+import { cfg } from '../modules/config.js';
+
+let domainFilter = "*";
 const supress = "nofield";
 
 class monitoringController {
@@ -108,7 +106,7 @@ class monitoringController {
         if (!error) {
           memoryFree = parseInt(stdout);
         } else {
-          memory = error;
+          memoryFree = error;
         }
       });
 
@@ -307,6 +305,10 @@ class monitoringController {
   static getSbc(req, res, next) {
     async function search() {
       const client = connectToES();
+
+      let timestamp_lte = default_timestamp_lte;
+      let timestamp_gte = default_timestamp_gte;
+
       if (req.body.timerange_lte) {
         timestamp_lte = Math.round(req.body.timerange_lte);
       }
@@ -340,4 +342,4 @@ class monitoringController {
   }
 }
 
-module.exports = monitoringController;
+export default monitoringController;

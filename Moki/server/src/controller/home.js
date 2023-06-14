@@ -1,14 +1,14 @@
-const Controller = require('./controller');
-const query_string = require('../../js/template_queries/query_string');
-const agg_sum_bucket_query = require('../../js/template_queries/agg_sum_bucket_query');
-const ratio = require('../../js/template_queries/ratio');
-const agg_query = require('../../js/template_queries/agg_query');
-const datehistogram_query = require('../../js/template_queries/datehistogram_query');
-const datehistogram_agg_query = require('../../js/template_queries/datehistogram_agg_query');
-const distinct_timerange_query_string = require('../../js/template_queries/distinct_timerange_query_string');
-const distinct_query_string = require('../../js/template_queries/distinct_query_string');
-const multiple_query_home = require('../../js/template_queries/multiple_query_home');
-const agg = require('../../js/template_queries/agg');
+import Controller from './controller.js';
+import query_string from '../js/template_queries/query_string.js';
+import agg_sum_bucket_query from '../js/template_queries/agg_sum_bucket_query.js';
+import ratio from '../js/template_queries/ratio.js';
+import agg_query from '../js/template_queries/agg_query.js';
+import datehistogram_query from '../js/template_queries/datehistogram_query.js';
+import datehistogram_agg_query from '../js/template_queries/datehistogram_agg_query.js';
+import distinct_timerange_query_string from '../js/template_queries/distinct_timerange_query_string.js';
+import distinct_query_string from '../js/template_queries/distinct_query_string.js';
+import multiple_query_home from '../js/template_queries/multiple_query_home.js';
+import agg from '../js/template_queries/agg.js';
 
 /**
  * @swagger
@@ -212,4 +212,4 @@ class HomeController extends Controller {
   }
 }
 
-module.exports = HomeController;
+export default HomeController;

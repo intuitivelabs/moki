@@ -1,34 +1,29 @@
 // middlewares.js hold some useful middlware to force json error
 
-const nodeEnv = require('../modules/config');
+import { cfg } from "../modules/config.js";
+const { nodeEnv } = cfg;
 
 // return a 404 error not found
 function notFound(req, res, next) {
-  const err = new Error('Not Found');
+  const err = new Error("Not Found");
   err.status = 404;
-  next(err);
+  next(err, req, res);
 }
 
 // handleError to generate JSON from obj
-// eslint-disable-next-line no-unused-vars
-function handleError(err, req, res, next) {
+function handleError(err, _req, res) {
   const val = err.status || 500;
   let ret = { error: err.message, trace: err.statck };
 
-  if (nodeEnv === 'production') {
+  if (nodeEnv === "production") {
     ret = { error: err.message };
   }
 
   if (val !== 404) {
-    // eslint-disable-next-line no-console
     console.error(err.stack);
   }
 
-  res.status(val);
-  res.json(ret);
+  res.status(val).json(ret)
 }
 
-module.exports = {
-  handleError: () => handleError,
-  notFound: () => notFound,
-};
+export { handleError, notFound };

@@ -15,7 +15,6 @@ export const renderFilters = (
   //exceeded exception, disable filter with exceeded-by or exceeded for any other dashboard than Exceeded
   //enable automatically exceeded filters in exceeded dashboard
   for (const filter of filters) {
-    console.log(filter);
     if (
       window.location.pathname === "/exceeded" ||
       window.location.pathname === "/alerts"

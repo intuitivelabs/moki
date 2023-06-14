@@ -9,6 +9,7 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == "web"
 
 stages:
+  - builder
   - test
   - build
   - image
@@ -17,6 +18,7 @@ variables:
   CLICOLOR_FORCE: '1'
   GIT_SUBMODULE_STRATEGY: recursive
   # NPM_PROXY: '1'
+  CI_IMAGE_NAME: docker.frafos.net/debian/moki-ci:5.3
 
 include:
   - .gitlab-ci/template.yaml
@@ -25,6 +27,20 @@ include:
 # --> pull latest mon, deploy custom dist on top
 
 # TODO: makefile install
+
+docker:ci:
+  stage: builder
+  image: docker.frafos.net/docker:20.10-ci
+  interruptible: true
+  rules:
+    - changes:
+      - Dockerfile.ci
+  services:
+  - name: docker.frafos.net/docker:20.10-dind
+    alias: docker
+  script:
+    - docker build -f Dockerfile.ci -t $CI_IMAGE_NAME .
+    - docker push $CI_IMAGE_NAME
 
 client:lint:
   stage: test
@@ -35,24 +51,33 @@ client:lint:
 server:lint:
   stage: test
   extends: .lint
+  needs:
+    - job: docker:ci
+      optional: true
   variables:
     WHERE: Moki/server
 
 client:test:
   stage: test
   extends: .test
+  needs:
+    - job: docker:ci
+      optional: true
   variables:
     WHERE: Moki/client
 
 server:test:
   stage: test
   extends: .test
+  needs:
+    - job: docker:ci
+      optional: true
   variables:
     WHERE: Moki/server
 
 client:build:
   stage: build
-  image: docker.frafos.net/debian/mon-builder:5.3
+  image: $CI_IMAGE_NAME
   interruptible: true
   script:
     - npm install --prefix Moki/client --omit-dev
@@ -60,16 +85,38 @@ client:build:
   needs:
     - client:test
     - client:lint
+    - job: docker:ci
+      optional: true
   rules:
     - if: $CI_MERGE_REQUEST_LABELS =~ /^(.*,)?ci-skip-tests(,.*)*$/
       when: never
     - changes:
         - Moki/client/**
 
+server:build:
+  stage: build
+  image: $CI_IMAGE_NAME
+  interruptible: true
+  script:
+    - npm install --prefix Moki/server --omit-dev
+    - npm run build --prefix Moki/server
+  needs:
+    - server:test
+    - server:lint
+    - job: docker:ci
+      optional: true
+  rules:
+    - if: $CI_MERGE_REQUEST_LABELS =~ /^(.*,)?ci-skip-tests(,.*)*$/
+      when: never
+    - changes:
+        - Moki/server/**
+
 docker:dist:
   stage: build
-  needs: []
-  image: docker.frafos.net/debian/mon-builder:5.3
+  needs:
+    - job: docker:ci
+      optional: true
+  image: $CI_IMAGE_NAME
   script:
     - make install DESTDIR=`pwd`/dist
   artifacts:

@@ -1,17 +1,24 @@
 // setting.js hold the setting endpoints
 
-const fs = require('fs');
-const { exec } = require('child_process');
-const { spawn } = require('child_process')
-const { newHTTPError } = require('./index');
-const { cfg, setMonitorVersion, getUser } = require('../modules/config');
-const { connectToES } = require('../modules/elastic');
-const distinct_query = require('../../js/template_queries/distinct_query');
-const { getJWTsipUserFilter, checkIAT } = require('../modules/jwt');
-const elastic = require('../modules/elastic');
+import fs from 'fs';
+
+import { exec, spawn } from 'child_process';
+import { cfg, setMonitorVersion, getUser } from '../modules/config.js';
+import { connectToES } from '../modules/elastic.js';
+import { getJWTsipUserFilter, checkIAT } from '../modules/jwt.js';
+
+function newHTTPError(status, msg) {
+  const err = new Error(msg);
+  err.status = status;
+  return err;
+}
+
+
+import distinct_query from '../js/template_queries/distinct_query.js';
 
 let domainFilter = "*";
 let monitorVersion = "4.6";
+
 /**
  * @swagger
  * tags:
@@ -446,12 +453,12 @@ class SettingController {
     }
     else {
       return res.status(400).send({
-        "msg": "Problem with deleting filter. " + error
+        "msg": "Problem with deleting filter. "
       });
     }
   }
 
-  static parseOpenSSLCertificate(req, res, next) {
+  static parseOpenSSLCertificate(req, res) {
     let params = ["x509", "-text", "-noout"];
     if (req.body.type === "key") {
       params = ["rsa", "-text", "-noout"];
@@ -571,7 +578,7 @@ class SettingController {
 
     //check cert and keys validation
     async function checkCertificate(m_config, respond) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         fs.readFile(cfg.fileDefaults, async function (err, defaults) {
           if (err) {
             console.error("Problem with reading defaults file. " + err);
@@ -621,7 +628,7 @@ class SettingController {
                           }
                         }
                       }
-                      resolving = resolving && await new Promise((resolve, reject) => {
+                      resolving = resolving && (await new Promise((resolve) => {
                         //check cert
                         const certResult = spawn('openssl', ["x509", "-text", "-noout"]);
                         certResult.stdin.write(cert);
@@ -699,7 +706,7 @@ class SettingController {
                         }
                         key = "";
                         cert = "";
-                      })
+                      }))
                     }
                   }
                 }
@@ -713,7 +720,7 @@ class SettingController {
             }
           }
         })
-      })
+      });
     }
 
     let certCheck = await checkCertificate(m_config, respond);
@@ -753,7 +760,7 @@ class SettingController {
       }
 
       //write it to monitor file
-      fs.writeFile(cfg.fileMonitor, JSON.stringify(jsonData, null, 2), function (error, stdout, stderr) {
+      fs.writeFile(cfg.fileMonitor, JSON.stringify(jsonData, null, 2), function (error, _stdout, stderr) {
         if (error) {
           //write old data back
           try {
@@ -772,7 +779,7 @@ class SettingController {
         console.info("Writing new config to file. " + JSON.stringify(jsonData));
 
         //call check config script
-        exec("sudo /usr/sbin/abc-monitor-check-config", function (error, stdout, stderr) {
+        exec("sudo /usr/sbin/abc-monitor-check-config", function (error, _stdout, stderr) {
           if (error) {
             //write old data back - rename again
             try {
@@ -792,7 +799,7 @@ class SettingController {
           } else {
             console.info("Activating config.");
             //call generate config script
-            exec("sudo /usr/sbin/abc-monitor-activate-config", function (error, stdout, stderr) {
+            exec("sudo /usr/sbin/abc-monitor-activate-config", function (error, _stdout, stderr) {
               if (error) {
                 //write old data back - rename again
                 try {
@@ -1202,4 +1209,4 @@ class SettingController {
   }
 }
 
-module.exports = SettingController;
+export default SettingController;

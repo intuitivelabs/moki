@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Format SIP Payload 1`] = `
+"<div><b>INVITE</b></div><div>
+        <span className=\\"key\\"><b>Call-ID: </b></span>
+        <span className=\\"value\\"> bliup@bloup</span>
+      </div><div>
+        <span className=\\"key\\"><b>CSeq: </b></span>
+        <span className=\\"value\\"> 213 INVITE</span>
+      </div><div>
+        <span className=\\"key\\"><b>Content-Length: </b></span>
+        <span className=\\"value\\"> 232</span>
+      </div><br /><div>
+      <span className=\\"value\\" style=color:green>
+        c=bla
+      </span></div><div>
+      <span className=\\"value\\" style=>
+        awdc=bloup
+      </span></div><div>
+      <span className=\\"value\\" style=color:green>
+        m=audio
+      </span></div>"
+`;

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import * as d3 from "d3";
 import { parseTimestamp } from "../helpers/parseTimestamp";
 

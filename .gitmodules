@@ -1,0 +1,3 @@
+[submodule "external/decap"]
+	path = external/decap
+	url = ../../gommon/decap

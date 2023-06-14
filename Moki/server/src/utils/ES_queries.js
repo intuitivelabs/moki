@@ -1,12 +1,10 @@
-const {
-  connectToES
-} = require('../modules/elastic');
-const { cfg } = require('../modules/config');
+import { connectToES } from '../modules/elastic.js';
+import { cfg } from '../modules/config.js';
 /*
 ES search query
 
 */
-async function searchES(indexName, queries, res) {
+async function searchES(indexName, queries) {
   const client = connectToES();
   if (cfg.debug) console.info("Search in ES " + JSON.stringify(queries));
   return await client.search({
@@ -27,7 +25,7 @@ ES create new index
 arg: index name and JSON format of mapping
 
 */
-async function newIndexES(indexName, mapping, res) {
+async function newIndexES(indexName, mapping) {
   const client = connectToES();
   if (cfg.debug) console.info("Creating new index " + indexName + " " + JSON.stringify(mapping));
   return await client.indices.create({
@@ -41,7 +39,7 @@ async function newIndexES(indexName, mapping, res) {
 /*
 ES exists index
 */
-async function existsIndexES(indexName, res) {
+async function existsIndexES(indexName) {
   const client = connectToES();
   return await client.indices.exists({ index: indexName });
 }
@@ -49,7 +47,7 @@ async function existsIndexES(indexName, res) {
 /*
 insert new event to index
 */
-async function insertES(indexName, event, res) {
+async function insertES(indexName, event) {
   const client = connectToES();
   if (cfg.debug) console.info("Inserting " + indexName + " " + JSON.stringify(event));
   return client.index({
@@ -64,7 +62,7 @@ async function insertES(indexName, event, res) {
 /*
 ES update query
 */
-async function updateES(indexName, queries, script, params, res) {
+async function updateES(indexName, queries, script, params) {
   if (cfg.debug) console.info("Updating " + indexName + " " + JSON.stringify("{index: " + indexName + ",type: '_doc', refresh: true, body: {query: { bool: { must:" + JSON.stringify(queries) + "} },'script': { 'source': " + JSON.stringify(script) + ",'lang': 'painless','params': " + JSON.stringify(params) + "}}"));
   const client = connectToES();
   return await client.updateByQuery({
@@ -88,7 +86,7 @@ async function updateES(indexName, queries, script, params, res) {
 /*
 ES delete  query
 */
-async function deleteES(indexName, queries, res) {
+async function deleteES(indexName, queries) {
   const client = connectToES();
   if (cfg.debug) console.info("deleting from index " + indexName + " " + JSON.stringify(queries));
   return await client.deleteByQuery({
@@ -98,11 +96,11 @@ async function deleteES(indexName, queries, res) {
   })
 }
 
-module.exports = {
-  searchES: searchES,
-  newIndexES: newIndexES,
-  existsIndexES: existsIndexES,
-  insertES: insertES,
-  updateES: updateES,
-  deleteES: deleteES
+export {
+  searchES,
+  newIndexES,
+  existsIndexES,
+  insertES,
+  updateES,
+  deleteES
 };

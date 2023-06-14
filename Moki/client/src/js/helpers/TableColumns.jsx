@@ -577,7 +577,7 @@ function getColumn(column_name, tags, tag, width = 0, hidden = false, dashboard)
                     {(ob.attrs && ob.attrs.filenameDownload && column_name.icons.includes("downloadAll")) &&
                         <button className="noFormatButton" onClick={() => downloadAll(ob)} file={ob.attrs.filenameDownload} data={obj}>  <img className="icon" alt="downloadIcon" src={downloadIcon} title="download all" /></button>
                     }
-                    {(ob.attrs && ob.attrs.filenameDownload && column_name.icons.includes("diagram") && !user.aws) && <a href={"/sequenceDiagram/" + ob.attrs.filenameDownload} target="_blank" rel="noopener noreferrer"><img className="icon" alt="viewIcon" src={viewIcon} title="view PCAP" /></a>}
+                    {(ob.attrs && ob.attrs.filenameDownload && column_name.icons.includes("diagram") && !user.aws) && <a href={"/sequenceDiagram/?id=" + ob.attrs.filenameDownload} target="_blank" rel="noopener noreferrer"><img className="icon" alt="viewIcon" src={viewIcon} title="view PCAP" /></a>}
                     {(ob.dbg && ob.dbg.msg_trace && column_name.icons.includes("diagram")) && <Popup trigger={<img className="icon" alt="viewIcon" src={viewIcon} title="diagram" />} modal>
                         {close => (
                             <div className="Advanced">

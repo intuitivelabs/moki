@@ -103,33 +103,23 @@ stop-elastic:
 # include makefile targets
 MAKE_PATH	= ../../make_src
 # npm-proxy
-SKIP_NODE_TARGET := 0 ## TODO: don't skip, use npm ci, pkg lock needed
+SKIP_NODE_TARGET := 0
 include $(MAKE_PATH)/npm.mk
 include $(MAKE_PATH)/help.mk
 
-server_deps := server_node
-ifeq ($(DEV_INSTALL),1)
-server_deps += server_node_dev
-endif
+# TODO: only production ATM, need to support dev (or not ?)
 
-server_node: # ${server_lock} ## smth
-	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy ; fi
-	NODE_ENV=production npm i --omit-dev
-	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy-off ; fi
-
-server_node_dev: # ${server_lock}  ## smth else
+server_js: # ${server_lock} ## smth
 	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy ; fi
 	npm i
-	if test "${NPM_PROXY}" = "1"; then ${MAKE} npm-proxy-off ; fi
-
-install: ${server_deps}
+	NODE_ENV=production npm run build && npm prune --production
 	install -d $(DESTDIR)/usr/share/Moki/server
-	cp -r js $(DESTDIR)/usr/share/Moki/server/
-	cp -r src $(DESTDIR)/usr/share/Moki/server/
-	cp package*.json $(DESTDIR)/usr/share/Moki/server
-	cp config.js $(DESTDIR)/usr/share/Moki/server
-	cp -r node_modules $(DESTDIR)/usr/share/Moki/server
+	cp -rf package*.json $(DESTDIR)/usr/share/Moki/server
+	cp -rf node_modules $(DESTDIR)/usr/share/Moki/server
+	cp -r dist ${DESTDIR}/usr/share/Moki/server/
+
+install: server_js
 	install -d $(DESTDIR)/usr/lib/systemd/system
 	install -m 0644 moki-server.service $(DESTDIR)/usr/lib/systemd/system/
-	# fix absolute paths that npm leaves there due to npm feature/bug
 	find $(DESTDIR)/usr/share/Moki -name "package.json" -exec sed -i 's#$(DESTDIR)##' '{}' \;
+	$(MAKE) -C ../../external/decap install

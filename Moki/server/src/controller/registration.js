@@ -1,12 +1,12 @@
-const Controller = require('./controller');
-const geoip = require('../../js/template_queries/geoip_agg_filter');
-const datehistogram_agg_filter_query = require('../../js/template_queries/datehistogram_agg_filter_query');
-const agg_filter = require('../../js/template_queries/agg_filter');
-const geoipAnimation = require('../../js/template_queries/geoip_agg_filter_animation');
-const geoip_hash_query = require('../../js/template_queries/geoip_agg_hash_filter');
-const distinct_timerange_query_string = require('../../js/template_queries/distinct_timerange_query_string');
-const two_agg_query = require('../../js/template_queries/two_agg_query');
-const two_agg_query_nolimit = require('../../js/template_queries/two_agg_query_nolimit');
+import Controller from './controller.js';
+import geoip from '../js/template_queries/geoip_agg_filter.js';
+import datehistogram_agg_filter_query from '../js/template_queries/datehistogram_agg_filter_query.js';
+import agg_filter from '../js/template_queries/agg_filter.js';
+import geoipAnimation from '../js/template_queries/geoip_agg_filter_animation.js';
+import geoip_hash_query from '../js/template_queries/geoip_agg_hash_filter.js';
+import distinct_timerange_query_string from '../js/template_queries/distinct_timerange_query_string.js';
+import two_agg_query from '../js/template_queries/two_agg_query.js';
+import two_agg_query_nolimit from '../js/template_queries/two_agg_query_nolimit.js';
 
 class registrationController extends Controller {
 
@@ -160,4 +160,4 @@ class registrationController extends Controller {
   }
 }
 
-module.exports = registrationController;
+export default registrationController;
