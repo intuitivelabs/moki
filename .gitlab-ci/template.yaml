@@ -9,7 +9,8 @@
     - if: $CI_MERGE_REQUEST_LABELS =~ /^(.*,)?ci-skip-tests(,.*)*$/
       when: never
     - changes:
-        - $WHERE/**
+        - $WHERE/**/*
+        - $WHERE/*
   script:
     - cd $WHERE
     - npm install
@@ -27,7 +28,8 @@
     - if: $CI_MERGE_REQUEST_LABELS =~ /^(.*,)?ci-skip-tests(,.*)*$/
       when: never
     - changes:
-        - $WHERE/**
+        - $WHERE/**/*
+        - $WHERE/*
   script:
     - cd $WHERE
     - npm install

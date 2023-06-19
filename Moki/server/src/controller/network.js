@@ -53,10 +53,10 @@ class networkController extends Controller {
       { index: "collectd*", template: datehistogram_three_agg_query, params: ['attrs.hostname', 'rx', 'rx', "timebucket"], filter: "tags:collectd AND attrs.type:if_octets" },
       //TX BYTES BY HOST
       { index: "collectd*", template: datehistogram_three_agg_query, params: ['attrs.hostname', 'tx', 'tx', "timebucket"], filter: "tags:collectd AND attrs.type:if_octets" },
-      //RX BYTES BY HOST
+      //RX PACKET BY HOST
       { index: "collectd*", template: datehistogram_three_agg_query, params: ['attrs.hostname', 'rx', 'rx', "timebucket"], filter: "tags:collectd AND attrs.type:if_packets" },
       //TX PACKET BY HOST
-      { index: "collectd*", template: datehistogram_three_agg_query, params: ['attrs.hostname', 'tx', 'tx', "timebucket"], filter: "tags:collectd AND attrs.type:if_octets" },
+      { index: "collectd*", template: datehistogram_three_agg_query, params: ['attrs.hostname', 'tx', 'tx', "timebucket"], filter: "tags:collectd AND attrs.type:if_packets" },
       //RX BYTES BY INTERFACE
       { index: "collectd*", template: datehistogram_three_agg_query, params: ['type_instance', 'rx', 'rx', "timebucket"], filter: "tags:collectd AND attrs.type:if_octets" },
       //TX BYTES BY INTERFACE

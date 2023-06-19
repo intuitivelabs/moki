@@ -3,7 +3,7 @@ Class to get data for all charts iin Call dashboard
 */
 
 import LoadingScreenCharts from "../../helpers/LoadingScreenCharts";
-import MultipleLine from "@charts/MultipleLine";
+import MultipleLine, { UNIT_BYTES_SECOND, UNIT_CALLS, UNIT_PACKETS_SECOND, UNIT_REGS } from "@charts/MultipleLine";
 import { parseMultipleLineData } from "../../../es-response-parser";
 import { useDashboardData } from "@hooks/useDashboardData";
 
@@ -17,7 +17,7 @@ function NetworkCharts({ hostnames }) {
       //CALL STARTS BY HOST
       [{ result: "callStartsByHost", func: parseMultipleLineData }],
       //RELAYED RTP BY HOST
-      [{ result: "relayedRtpByHost", func: parseMultipleLineData }],
+      [{ result: "relayedMediaByHost", func: parseMultipleLineData }],
       //RX BYTES BY HOST
       [{ result: "rxBytesByHost", func: parseMultipleLineData }],
       //TX BYTES BY HOST
@@ -50,44 +50,35 @@ function NetworkCharts({ hostnames }) {
         {charts["MAX CALLS BY HOST"] && (
           <div className="col-6 pr-1">
             <MultipleLine
+              unit={UNIT_CALLS}
               field={"attrs.hostname"}
               hostnames={hostnames}
               data={chartsData.callsByHost}
-              name={"MAX CALLS BY HOST"}
+              name={"CALLS BY HOST"}
             />
           </div>
         )}
         {charts["MAX REGS BY HOST"] && (
           <div className="col-6 px-1">
             <MultipleLine
+              unit={UNIT_REGS}
               field={"attrs.hostname"}
               hostnames={hostnames}
               data={chartsData.regsByHost}
-              name={"MAX REGS BY HOST"}
+              name={"REGS BY HOST"}
             />
           </div>
         )}
-        {charts["MAX CALL STARTS BY HOST"] &&
-          (
-            <div className="col-6 pr-1">
-              <MultipleLine
-                rate
-                field={"attrs.hostname"}
-                hostnames={hostnames}
-                data={chartsData.callStartsByHost}
-                name={"MAX CALL STARTS BY HOST"}
-              />
-            </div>
-          )}
         {charts["RELAYED RTP BY HOST"] &&
           (
             <div className="col-6 px-1">
               <MultipleLine
-                rate
+                type="rate"
+                unit={UNIT_BYTES_SECOND}
                 field={"attrs.hostname"}
                 hostnames={hostnames}
-                data={chartsData.relayedRtpByHost}
-                name={"RELAYED RTP BY HOST"}
+                data={chartsData.relayedMediaByHost}
+                name={"RELAYED MEDIA BY HOST"}
               />
             </div>
           )}
@@ -95,7 +86,8 @@ function NetworkCharts({ hostnames }) {
           (
             <div className="col-6 pr-1">
               <MultipleLine
-                rate
+                type="rate"
+                unit={UNIT_BYTES_SECOND}
                 field={"attrs.hostname"}
                 hostnames={hostnames}
                 data={chartsData.txBytesByHost}
@@ -107,11 +99,12 @@ function NetworkCharts({ hostnames }) {
           (
             <div className="col-6 px-1">
               <MultipleLine
-                rate
+                type="rate"
+                unit={UNIT_PACKETS_SECOND}
                 field={"attrs.hostname"}
                 hostnames={hostnames}
                 data={chartsData.rxPacketByHost}
-                name={"RX PACKET BY HOST"}
+                name={"RX PACKETS BY HOST"}
               />
             </div>
           )}
@@ -119,11 +112,12 @@ function NetworkCharts({ hostnames }) {
           (
             <div className="col-6 pr-1">
               <MultipleLine
-                rate
+                type="rate"
+                unit={UNIT_PACKETS_SECOND}
                 field={"attrs.hostname"}
                 hostnames={hostnames}
                 data={chartsData.txPacketByHost}
-                name={"TX PACKET BY HOST"}
+                name={"TX PACKETS BY HOST"}
               />
             </div>
           )}
@@ -131,7 +125,8 @@ function NetworkCharts({ hostnames }) {
           (
             <div className="col-6 px-1">
               <MultipleLine
-                rate
+                type="rate"
+                unit={UNIT_BYTES_SECOND}
                 field="type_instance"
                 hostnames={hostnames}
                 data={chartsData.rxBytesByInterface}
@@ -143,7 +138,8 @@ function NetworkCharts({ hostnames }) {
           (
             <div className="col-6 pr-1">
               <MultipleLine
-                rate
+                type="rate"
+                unit={UNIT_BYTES_SECOND}
                 field="type_instance"
                 hostnames={hostnames}
                 data={chartsData.txBytesByInterface}
@@ -155,7 +151,8 @@ function NetworkCharts({ hostnames }) {
           (
             <div className="col-6 px-1">
               <MultipleLine
-                rate
+                type="rate"
+                unit={UNIT_PACKETS_SECOND}
                 field="type_instance"
                 hostnames={hostnames}
                 data={chartsData.rxPacketByInterface}
@@ -167,7 +164,8 @@ function NetworkCharts({ hostnames }) {
           (
             <div className="col-6 pr-1">
               <MultipleLine
-                rate
+                type="rate"
+                unit={UNIT_PACKETS_SECOND}
                 field="type_instance"
                 hostnames={hostnames}
                 data={chartsData.txPacketByInterface}

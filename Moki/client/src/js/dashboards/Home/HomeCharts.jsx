@@ -5,7 +5,7 @@ import { useDashboardData, getLastValueInInterval } from "@hooks/useDashboardDat
 import TimedateHeatmap from "@charts/TimedateHeatmap";
 import CountUp from "@charts/CountUp";
 import Value from "@charts/Value";
-import MultipleLine from "@charts/MultipleLine";
+import MultipleLine, { UNIT_CALLS, UNIT_INCS, UNIT_REGS } from "@charts/MultipleLine";
 import LoadingScreenCharts from "../../helpers/LoadingScreenCharts";
 import MultivalueChart from "@charts/multivalue_chart";
 import ListChart from "@charts/list_chart";
@@ -213,7 +213,7 @@ function HomeCharts() {
                 height={220}
                 data={chartsData.parallelCalls}
                 name={"PARALLEL CALLS"}
-                units={"count"}
+                unit={UNIT_CALLS}
               />
             </div>
           )}
@@ -241,7 +241,7 @@ function HomeCharts() {
                 height={220}
                 data={chartsData.parallelRegs}
                 name={"PARALLEL REGS"}
-                units={"count"}
+                unit={UNIT_REGS}
               />
             </div>
           )}
@@ -267,8 +267,7 @@ function HomeCharts() {
               area
               height={220}
               data={chartsData.incidentCount}
-              name={"INCIDENTS"}
-              units={"count"}
+              units={UNIT_INCS}
             />
           </div>
         )}

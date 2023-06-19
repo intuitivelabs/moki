@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import type { TimerangeProps } from "@/stories/utils/timerange";
 import { timerangeProps } from "@/stories/utils/timerange";
-import { MultipleLineRender, RenderProps } from "@charts/MultipleLine";
+import {
+  MultipleLineRender,
+  RenderProps,
+  UNIT_CALLS,
+} from "@charts/MultipleLine";
 import { DAY_TIME } from "@/data/utils/date";
 import { genMutlipleLineArea } from "@/data/charts/genMultipleLineArea";
 import { parseMultipleLineDataShareAxis } from "@/es-response-parser";
@@ -49,7 +53,7 @@ const meta: Meta<StoryProps> = {
     valueMod: 10,
   },
   render: ({ colorScheme, dataName, dataDayName, ...args }) => {
-    const color = COLOR_SCHEME[colorScheme];
+    const colors = COLOR_SCHEME[colorScheme];
     const interval = getTimeBucketInt([args.startDate, args.endDate]);
     const data = genMutlipleLineArea({ ...args, interval });
     const dataDay = genMutlipleLineArea({
@@ -66,7 +70,7 @@ const meta: Meta<StoryProps> = {
     );
     return (
       <MultipleLineRender
-        {...{ ...timerangeProps(args), data: parsedData, color }}
+        {...{ ...timerangeProps(args), data: parsedData, colors }}
       />
     );
   },
@@ -80,7 +84,7 @@ export const Calls: Story = {
     dataName: "Calls",
     dataDayName: "Calls-1d",
     name: "PARALLEL CALLS",
-    units: "count",
+    unit: UNIT_CALLS,
   },
 };
 
@@ -92,7 +96,7 @@ export const Registrations: Story = {
     dataName: "Regs",
     dataDayName: "Regs-1d",
     name: "PARALLEL REGS",
-    units: "count",
+    unit: UNIT_CALLS,
   },
 };
 
@@ -104,6 +108,6 @@ export const Incidents: Story = {
     dataName: "Incident",
     dataDayName: "Incident-1d",
     name: "INCIDENTS",
-    units: "count",
+    unit: UNIT_CALLS,
   },
 };

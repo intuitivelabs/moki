@@ -4,36 +4,39 @@ Class to get data for all charts iin Call dashboard
 
 import { useDashboardData } from "@hooks/useDashboardData";
 import LoadingScreenCharts from "../../helpers/LoadingScreenCharts";
-import MultipleLine from "@charts/MultipleLine";
+import MultipleLine, {
+  UNIT_BYTES_SECOND,
+  UNIT_CALLS,
+} from "@charts/MultipleLine";
 import { parseMultipleLineData } from "../../../es-response-parser";
 
 function RealmCharts({ hostnames }) {
   const { chartsData, isLoading } = useDashboardData("realm/charts", {
     functors: [
       //MAX CALLS FROM BY HOST
-      [{ result: "maxCallsFromByHost", func: parseMultipleLineData }],
+      [{ result: "callsFromByHost", func: parseMultipleLineData }],
       //MAX CALLS To BY HOST
-      [{ result: "maxCallsToByHost", func: parseMultipleLineData }],
+      [{ result: "callsToByHost", func: parseMultipleLineData }],
       ////MAX CALLS FROM BY REALM
-      [{ result: "maxCallsFromByrealm", func: parseMultipleLineData }],
+      [{ result: "callsFromByrealm", func: parseMultipleLineData }],
       //MAX CALLS TO BY REALM
-      [{ result: "maxCallsToByrealm", func: parseMultipleLineData }],
+      [{ result: "callsToByrealm", func: parseMultipleLineData }],
       //MAX START CALLS FROM BY HOST
-      [{ result: "maxStartCallsFromByHost", func: parseMultipleLineData }],
+      [{ result: "callsStartFromByHost", func: parseMultipleLineData }],
       //MAX START CALLS To BY HOST
-      [{ result: "maxStartCallsToByHost", func: parseMultipleLineData }],
+      [{ result: "callsStartToByHost", func: parseMultipleLineData }],
       //MAX START CALLS FROM BY REALM
-      [{ result: "maxStartCallsFromByrealm", func: parseMultipleLineData }],
+      [{ result: "callsStartFromByrealm", func: parseMultipleLineData }],
       //MAX START CALLS TO BY REALM
-      [{ result: "maxStartCallsToByrealm", func: parseMultipleLineData }],
+      [{ result: "callsStartToByrealm", func: parseMultipleLineData }],
       //RTP RELAYED TO BY HOST
-      [{ result: "rtpToByHost", func: parseMultipleLineData }],
+      [{ result: "mediaToByHost", func: parseMultipleLineData }],
       //RTP RELAYED FROM BY HOST
-      [{ result: "rtpFromByHost", func: parseMultipleLineData }],
+      [{ result: "mediaFromByHost", func: parseMultipleLineData }],
       //RTP RELAYED TO BY REALM
-      [{ result: "rtpToByRealm", func: parseMultipleLineData }],
+      [{ result: "mediaToByRealm", func: parseMultipleLineData }],
       //RTP RELAYED FROM BY REALM
-      [{ result: "rtpFromByRealm", func: parseMultipleLineData }],
+      [{ result: "mediaFromByRealm", func: parseMultipleLineData }],
     ],
   }, false);
 
@@ -43,124 +46,121 @@ function RealmCharts({ hostnames }) {
       <div className="row no-gutters">
         <div className="col-6 pr-1">
           <MultipleLine
-            id="maxCallsFromByHost"
+            unit={UNIT_CALLS}
             hostnames={hostnames}
-            data={chartsData.maxCallsFromByHost}
-            name={"MAX CALLS FROM BY HOST"}
-            ticks={3}
+            data={chartsData.callsFromByHost}
+            name={"CALLS FROM BY HOST"}
           />
         </div>
         <div className="col-6 px-1">
           <MultipleLine
-            id="maxCallsToByHost"
-            data={chartsData.maxCallsToByHost}
-            name={"MAX CALLS TO BY HOST"}
+            unit={UNIT_CALLS}
+            data={chartsData.callsToByHost}
+            name={"CALLS TO BY HOST"}
             hostnames={hostnames}
-            ticks={3}
           />
         </div>
         <div className="col-6 pr-1">
           <MultipleLine
-            id="maxCallsFromByrealm"
-            data={chartsData.maxCallsFromByrealm}
+            unit={UNIT_CALLS}
+            data={chartsData.callsFromByrealm}
             hostnames={chartsData.realm}
-            name={"MAX CALLS FROM BY REALM"}
+            name={"CALLS FROM BY REALM"}
             field={"attrs.realm"}
-            ticks={3}
           />
         </div>
         <div className="col-6 px-1">
           <MultipleLine
-            id="maxCallsToByrealm"
-            data={chartsData.maxCallsToByrealm}
-            name={"MAX CALLS TO BY REALM"}
+            unit={UNIT_CALLS}
+            data={chartsData.callsToByrealm}
+            name={"CALLS TO BY REALM"}
             field={"attrs.realm"}
             hostnames={hostnames}
-            ticks={3}
           />
         </div>
 
         <div className="col-6 pr-1">
           <MultipleLine
-            id="maxStartCallsFromByHost"
-            data={chartsData.maxStartCallsFromByHost}
+            type="difference"
+            unit={UNIT_CALLS}
+            data={chartsData.callsStartFromByHost}
             hostnames={hostnames}
-            name={"MAX START CALLS FROM BY HOST"}
+            name={"CALLS START FROM BY HOST"}
             ticks={3}
           />
         </div>
 
         <div className="col-6 px-1">
           <MultipleLine
-            id="maxStartCallsToByHost"
-            data={chartsData.maxStartCallsToByHost}
+            type="difference"
+            unit={UNIT_CALLS}
+            data={chartsData.callsStartToByHost}
             hostnames={hostnames}
-            name={"MAX START CALLS TO BY HOST"}
-            ticks={3}
+            name={"CALLS START TO BY HOST"}
           />
         </div>
 
         <div className="col-6 pr-1">
           <MultipleLine
-            id="maxStartCallsFromByrealm"
-            data={chartsData.maxStartCallsFromByrealm}
+            type="difference"
+            unit={UNIT_CALLS}
+            data={chartsData.callsStartFromByrealm}
             hostnames={hostnames}
-            name={"MAX START CALLS FROM BY REALM"}
+            name={"CALLS START FROM BY REALM"}
             field={"attrs.realm"}
-            ticks={3}
           />
         </div>
 
         <div className="col-6 px-1">
           <MultipleLine
-            id="maxStartCallsToByrealm"
-            data={chartsData.maxStartCallsToByrealm}
+            type="difference"
+            unit={UNIT_CALLS}
+            data={chartsData.callsStartToByrealm}
             hostnames={hostnames}
-            name={"MAX START CALLS TO BY REALM"}
+            name={"CALLS START TO BY REALM"}
             field={"attrs.realm"}
-            ticks={3}
           />
         </div>
 
         <div className="col-6 pr-1">
           <MultipleLine
-            id="rtpToByHost"
-            data={chartsData.rtpToByHost}
+            type="rate"
+            unit={UNIT_BYTES_SECOND}
+            data={chartsData.mediaToByHost}
             hostnames={hostnames}
-            name={"RTP RELAYED TO BY HOST"}
-            ticks={3}
+            name={"MEDIA RELAYED TO BY HOST"}
           />
         </div>
 
         <div className="col-6 px-1">
           <MultipleLine
-            id="rtpFromByHost"
-            data={chartsData.rtpFromByHost}
-            name={"RTP RELAYED FROM BY HOST"}
+            type="rate"
+            unit={UNIT_BYTES_SECOND}
+            data={chartsData.mediaFromByHost}
+            name={"MEDIA RELAYED FROM BY HOST"}
             hostnames={hostnames}
-            ticks={3}
           />
         </div>
 
         <div className="col-6 pr-1">
           <MultipleLine
-            id="rtpToByRealm"
-            data={chartsData.rtpToByRealm}
-            name={"RTP RELAYED TO BY REALM"}
+            type="rate"
+            unit={UNIT_BYTES_SECOND}
+            data={chartsData.mediaToByRealm}
+            name={"MEDIA RELAYED TO BY REALM"}
             field={"attrs.realm"}
             hostnames={hostnames}
-            ticks={3}
           />
         </div>
 
         <div className="col-6 px-1">
           <MultipleLine
-            id="rtpFromByRealm"
-            data={chartsData.rtpFromByRealm}
-            name={"RTP RELAYED FROM BY REALM"}
+            type="rate"
+            unit={UNIT_BYTES_SECOND}
+            data={chartsData.mediaFromByRealm}
+            name={"MEDIA RELAYED FROM BY REALM"}
             field={"attrs.realm"}
             hostnames={hostnames}
-            ticks={3}
           />
         </div>
       </div>

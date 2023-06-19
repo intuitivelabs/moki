@@ -35,17 +35,29 @@ interface ChartData {
 
 export interface Props {
   data: Chart[];
-  units: string;
   name: string;
   area: boolean;
+  unit?: string;
+  type?: ValueType;
   rate?: boolean;
   height?: number;
   field?: string;
   hostnames?: Record<string, string>;
 }
 
+export const UNIT_CALLS = "calls";
+export const UNIT_REGS = "regs";
+export const UNIT_INCS = "incs";
+export const UNIT_BYTES_SECOND = "bytes/s";
+export const UNIT_PACKETS_SECOND = "packets/s";
+
+export type ValueType = "rate" | "absolute" | "difference";
+
+/**
+ * Show as absolute values per default
+ */
 export default function MultipleLines(
-  { name, rate = false, height, ...props }: Props,
+  { name, unit, type = "absolute", height, ...props }: Props,
 ) {
   const timerange = store.getState().filter.timerange;
   const setTimerange = (newTimerange: [number, number, string]) => {
@@ -66,7 +78,8 @@ export default function MultipleLines(
       {...{
         name,
         colors,
-        absolute: !rate,
+        type,
+        unit,
         navbarExpanded,
         timerange: [timerange[0], timerange[1]],
         setTimerange,
@@ -79,11 +92,11 @@ export default function MultipleLines(
 
 export interface RenderProps {
   data: Chart[];
-  units: string;
+  unit?: string;
   name: string;
   totalHeight?: number;
   area: boolean;
-  absolute: boolean;
+  type: ValueType;
   colors: string[];
   navbarExpanded: boolean;
   timerange: [number, number];
@@ -95,10 +108,10 @@ export interface RenderProps {
 export function MultipleLineRender(
   {
     data,
-    units,
+    unit,
     area,
     name,
-    absolute = true,
+    type = "absolute",
     totalHeight = 190,
     colors = Colors,
     navbarExpanded,
@@ -124,7 +137,7 @@ export function MultipleLineRender(
 
   // transform to rate if needed
   const transformedData = useMemo(() => {
-    if (absolute || noData) return data;
+    if (type === "absolute" || noData) return data;
 
     return data.map((chart) => {
       let values = chart.values;
@@ -135,17 +148,21 @@ export function MultipleLineRender(
 
         const valueDiff = next.value - current.value;
         const timeDiff = next.date - current.date;
-        if (timeDiff === 0) continue;
 
-        values[i].value = valueDiff / (timeDiff / 1000);
+        if (type === "difference") {
+          values[i].value = valueDiff;
+        } else if (type === "rate") {
+          if (timeDiff === 0) continue;
+          values[i].value = Math.floor(valueDiff / (timeDiff / 1000));
+        }
       }
 
       values.pop();
-      values = values.filter((data) => data.value > 0);
+      values = values.filter((data) => data.value >= 0);
 
       return { ...chart, values };
     });
-  }, [absolute, data]);
+  }, [type, data]);
 
   useEffect(() => {
     draw(true);
@@ -317,7 +334,7 @@ export function MultipleLineRender(
                 formatValueISO(d.value),
                 d.date,
                 timeBucket.name,
-                units,
+                unit,
               ),
             );
           })
