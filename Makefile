@@ -2,6 +2,7 @@ NAME	:= moki
 SHELL := /bin/bash
 
 include ./make_src/help.mk
+include ./make_src/tag.mk
 
 .PHONY: install install_mon install_client install_server
 
@@ -13,11 +14,12 @@ install_server: ## Install moki' server
 	@ $(MAKE) install -C Moki/server
 
 
-ENGINE	?= docker
+ENGINE		?= docker
 REGISTRY	?= docker.frafos.net
+B_VERSION	?= 5.3
 VERSION		?= 5.3
 IMG_BASE	?= ${REGISTRY}/debian/mon:${VERSION}
-IMG_BUILD	?= ${REGISTRY}/debian/mon:${VERSION}
+IMG_BUILD	?= ${REGISTRY}/debian/mon:${B_VERSION}
 IMG_OUT		?= ${REGISTRY}/debian/mon-overlay:${VERSION}
 
 .PHONY: pull-base pull-build overlay push

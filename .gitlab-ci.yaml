@@ -23,11 +23,6 @@ variables:
 include:
   - .gitlab-ci/template.yaml
 
-# TODO: docker image build
-# --> pull latest mon, deploy custom dist on top
-
-# TODO: makefile install
-
 docker:ci:
   stage: builder
   image: docker.frafos.net/docker:20.10-ci
@@ -91,7 +86,8 @@ client:build:
     - if: $CI_MERGE_REQUEST_LABELS =~ /^(.*,)?ci-skip-tests(,.*)*$/
       when: never
     - changes:
-        - Moki/client/**
+        - Moki/client/*
+        - Moki/client/**/*
 
 server:build:
   stage: build
@@ -109,7 +105,8 @@ server:build:
     - if: $CI_MERGE_REQUEST_LABELS =~ /^(.*,)?ci-skip-tests(,.*)*$/
       when: never
     - changes:
-        - Moki/server/**
+        - Moki/server/*
+        - Moki/server/**/*
 
 docker:dist:
   stage: build
@@ -135,5 +132,9 @@ docker:overlay:
     alias: docker
   script:
     - make pull-base pull-build
-    - make overlay
-    - docker push docker.frafos.net/debian/mon-overlay:5.3
+    - |
+      if test "$CI_MERGE_REQUEST_IID" -o "$CI_COMMIT_REF_NAME" != "$CI_DEFAULT_BRANCH" ; then
+        export VERSION=`make get_tag TAG=$CI_COMMIT_REF_NAME`
+      fi
+    - echo "Image version is $VERSION"
+    - make overlay push
