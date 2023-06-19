@@ -126,12 +126,12 @@ docker:dist:
 
 docker:overlay:
   stage: image
-  image: docker.frafos.net/docker:20.10-ci
+  image: docker.frafos.net/docker:23.0-ci
   interruptible: true
   needs:
     - docker:dist
   services:
-  - name: docker.frafos.net/docker:20.10-dind
+  - name: docker.frafos.net/docker:23.0-dind
     alias: docker
   script:
     - make pull-base pull-build
