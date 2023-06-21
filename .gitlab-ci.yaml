@@ -30,6 +30,7 @@ docker:ci:
   rules:
     - changes:
       - Dockerfile.ci
+      - external/*
   services:
   - name: docker.frafos.net/docker:20.10-dind
     alias: docker
