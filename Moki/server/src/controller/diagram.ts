@@ -54,15 +54,14 @@ class DiagramController {
    *             example:
    *               error: "bash: not found"
    */
-  static downloadPCAPs(req: Request, res: Response) {
+  static downloadPCAPs(req: Request, res: Response, next: NextFunction) {
     const error = checkFilesParam(req);
     if (error) return res.status(400).send(error);
 
     try {
-      const readStream = loadPCAPs(req.body.urls);
+      const readStream = loadPCAPs(req.body.urls, next);
       res.writeHead(200, {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": "attachment; filename=" + req.body.urls,
       });
       readStream.pipe(res);
     } catch (err) {
@@ -104,7 +103,6 @@ class DiagramController {
       const readStream = runDecap(req.body.urls, next);
       res.writeHead(200, {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": "attachment; filename=" + req.body.urls,
       });
       readStream.pipe(res);
     } catch (err) {
@@ -151,7 +149,6 @@ class DiagramController {
       const readStream = bundlePCAPFlow(flowStream, next);
       res.writeHead(200, {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": "attachment; filename=" + req.body.urls,
       });
       readStream.pipe(res);
     } catch (err) {

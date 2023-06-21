@@ -118,8 +118,12 @@ server_js: # ${server_lock} ## smth
 	cp -rf node_modules $(DESTDIR)/usr/share/Moki/server
 	cp -r dist ${DESTDIR}/usr/share/Moki/server/
 
-install: server_js
+.PHONY: install_decap
+install_decap:
+	GOINSECURE="gitlab.frafos.net" GOPRIVATE="gitlab.frafos.net/gommon" \
+		$(MAKE) -C ../../external/decap install
+
+install: server_js install_decap
 	install -d $(DESTDIR)/usr/lib/systemd/system
 	install -m 0644 moki-server.service $(DESTDIR)/usr/lib/systemd/system/
 	find $(DESTDIR)/usr/share/Moki -name "package.json" -exec sed -i 's#$(DESTDIR)##' '{}' \;
-	$(MAKE) -C ../../external/decap install

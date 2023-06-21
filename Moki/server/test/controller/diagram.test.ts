@@ -17,6 +17,26 @@ function expectError(res: Response) {
   expect(res.send).toBeCalled();
 }
 
+function testValidPcapFiles(pcapMethod: Function) {
+  it("valid PCAP file", () => {
+    const req = { body: { urls: ["01.pcap"] } } as any;
+    const res = { writeHead: vi.fn(), ...mockStream() } as any;
+    const next = vi.fn();
+    pcapMethod(req, res, next);
+    expect(res.writeHead).toBeCalled();
+    expect(next).not.toBeCalled();
+  });
+
+  it("valid multiple PCAP files", () => {
+    const req = { body: { urls: ["01.pcap", "01.pcap"] } } as any;
+    const res = { writeHead: vi.fn(), ...mockStream() } as any;
+    const next = vi.fn();
+    pcapMethod(req, res, next);
+    expect(res.writeHead).toBeCalled();
+    expect(next).not.toBeCalled();
+  });
+}
+
 function testFileParamsError(pcapMethod: Function) {
   it("inexistent files", () => {
     const req = { body: { urls: ["bloup"] } } as any;
@@ -43,49 +63,20 @@ function testFileParamsError(pcapMethod: Function) {
 // Download PCAPs
 
 describe("download PCAPs", () => {
-  it("valid PCAP file", () => {
-    const req = { body: { urls: ["01.pcap"] } } as any;
-    const res = { writeHead: vi.fn(), ...mockStream() } as any;
-    DiagramController.downloadPCAPs(req, res);
-    expect(res.writeHead).toBeCalled();
-  });
-
-  it("valid multiple PCAP files", () => {
-    const req = { body: { urls: ["01.pcap", "01.pcap"] } } as any;
-    const res = { writeHead: vi.fn(), ...mockStream() } as any;
-    DiagramController.downloadPCAPs(req, res);
-    expect(res.writeHead).toBeCalled();
-  });
-
+  testValidPcapFiles(DiagramController.downloadPCAPs);
   testFileParamsError(DiagramController.downloadPCAPs);
 });
 
 // Run Decap
 
 describe("run Decap to make a sequence diagram", () => {
-  it("valid PCAP file", () => {
-    const req = { body: { urls: ["01.pcap"] } } as any;
-    const res = { writeHead: vi.fn(), ...mockStream() } as any;
-    const next = vi.fn();
-    DiagramController.decapPCAP(req, res, next);
-    expect(res.writeHead).toBeCalled();
-    expect(next).not.toBeCalled();
-  });
-
+  testValidPcapFiles(DiagramController.decapPCAP);
   testFileParamsError(DiagramController.decapPCAP);
 });
 
 // Give back bundled HTML with sequence diagram
 
 describe("bundled HTML containing the sequence diagram", () => {
-  it("valid PCAP file", () => {
-    const req = { body: { urls: ["01.pcap"] } } as any;
-    const res = { writeHead: vi.fn(), ...mockStream() } as any;
-    const next = vi.fn() as any;
-    DiagramController.bundleSequenceDiagram(req, res, next);
-    expect(res.writeHead).toBeCalled();
-    expect(next).not.toBeCalled();
-  });
-
+  testValidPcapFiles(DiagramController.bundleSequenceDiagram);
   testFileParamsError(DiagramController.bundleSequenceDiagram);
 });

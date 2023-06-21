@@ -3,6 +3,34 @@ import { bundlePCAPFlow, loadPCAPs, runDecap } from "@/lib/diagram/pcap.js";
 import { pipeline } from "stream/promises";
 import { PassThrough } from "stream";
 
+function emptyPassThrough() {
+  const ps = new PassThrough();
+  ps.on("data", () => {});
+  return ps;
+}
+
+async function testStreamMethod(
+  method: Function,
+  params: Object,
+  shouldFail = false,
+) {
+  const next = vi.fn() as any;
+  const stream = method(params, next);
+  await pipeline(stream, emptyPassThrough());
+  if (shouldFail) expect(next).toBeCalled();
+  else expect(next).not.toBeCalled();
+}
+
+function testFilePCAPs(pcapMethod: Function) {
+  it("valid pcap file", async () => {
+    await testStreamMethod(pcapMethod, ["01.pcap"]);
+  });
+
+  it("valid multiple pcap files", async () => {
+    await testStreamMethod(pcapMethod, ["01.pcap", "02.pcap"]);
+  });
+}
+
 function testFileErrors(pcapMethod: Function) {
   it.fails("inexistent file", () => {
     pcapMethod(["bloup"]);
@@ -22,46 +50,35 @@ function testFileErrors(pcapMethod: Function) {
 }
 
 describe("load PCAPs", () => {
-  it("valid loading", () => {
-    loadPCAPs(["01.pcap"]);
+  it("invalid pcap files", async () => {
+    await testStreamMethod(loadPCAPs, ["invalid.pcap", "01.pcap"], true);
   });
 
-  it("valid merge", async () => {
-    const stream = loadPCAPs(["01.pcap", "01.pcap"]);
-    await pipeline(stream, new PassThrough());
-  });
-
+  testFilePCAPs(loadPCAPs);
   testFileErrors(loadPCAPs);
 });
 
 describe("run Decap", () => {
-  it("valid decap", async () => {
-    const next = vi.fn() as any;
-    const stream = runDecap(["01.pcap"], next);
-    const ps = new PassThrough();
-    ps.on("data", () => {});
-    await pipeline(stream, ps);
-    expect(next).not.toBeCalled();
+  it("invalid pcap file", async () => {
+    await testStreamMethod(runDecap, ["invalid.pcap"], true);
   });
 
-  it("valid decap merge", async () => {
-    const next = vi.fn() as any;
-    const stream = runDecap(["01.pcap", "01.pcap"], next);
-    await pipeline(stream, new PassThrough());
-    expect(next).toBeCalled();
+  it("invalid merged pcap files", async () => {
+    await testStreamMethod(runDecap, ["01.pcap", "invalid.pcap"], true);
   });
 
+  testFilePCAPs(runDecap);
   testFileErrors(runDecap);
 });
 
 describe("bundle PCAP flow", () => {
   it("valid pcap", async () => {
     const flowStream = runDecap(["01.pcap"], vi.fn() as any);
-    const next = vi.fn() as any;
-    const stream = bundlePCAPFlow(flowStream, next);
-    expect(next).not.toBeCalled();
-    const ps = new PassThrough();
-    ps.on("data", () => {});
-    await pipeline(stream, ps);
+    await testStreamMethod(bundlePCAPFlow, flowStream);
+  });
+
+  it("valid multiple pcaps", async () => {
+    const flowStream = runDecap(["01.pcap", "01.pcap"], vi.fn() as any);
+    await testStreamMethod(bundlePCAPFlow, flowStream);
   });
 });

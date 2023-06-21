@@ -2,4 +2,10 @@ FROM docker.frafos.net/debian/mon-builder:5.3
 
 COPY external/decap /app
 
+ENV GOPRIVATE=gitlab.frafos.net/gommon
+ENV GOINSECURE=gitlab.frafos.net
+
+COPY frafos_cacert.crt /usr/local/share/ca-certificates/frafosca_cert.crt
+RUN /bin/sh -c update-ca-certificates
+
 RUN make -C /app install DESTDIR=/ && rm -rf /app

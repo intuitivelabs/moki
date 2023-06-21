@@ -27,13 +27,20 @@ function checkFiles(urls: string[]): string[] {
  * If multiple files are provided, merge them together
  * Throw an error if files aren't accessible
  */
-function loadPCAPs(urls: string[]): Readable {
+function loadPCAPs(urls: string[], next: NextFunction): Readable {
   const paths = checkFiles(urls);
 
   if (paths.length > 1) {
-    const command = `ls`;
-    const child = spawn(command);
-    return Readable.from(child.stdout);
+    const child = spawn(config.decapPath, ["merge", "-i", paths.join(",")]);
+
+    child.on("error", (err) => {
+      next(err);
+    })
+    child.stderr.on("data", (chunk) => {
+      next(chunk.toString())
+    })
+
+    return ReadStream.from(child.stdout);
   }
 
   return createReadStream(paths.at(0) || "");
@@ -45,18 +52,15 @@ function loadPCAPs(urls: string[]): Readable {
  * Throw an error if files aren't accessible
  */
 function runDecap(urls: string[], next: NextFunction): Readable {
-  const pcapStream = loadPCAPs(urls);
+  const pcapStream = loadPCAPs(urls, next);
   const child = spawn(config.decapPath);
   pcapStream.pipe(child.stdin);
 
   child.on("error", (err) => {
     next(err);
   });
-  child.stdin.on("error", (err) => {
-    next(err);
-  });
   child.stderr.on("data", (chunk) => {
-    next(Buffer.from(chunk).toString());
+    next(chunk.toString());
   });
 
   return ReadStream.from(child.stdout);
