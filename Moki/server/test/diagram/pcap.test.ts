@@ -13,9 +13,10 @@ async function testStreamMethod(
   method: Function,
   params: Object,
   shouldFail = false,
+  onEnd: Function | undefined = undefined,
 ) {
   const next = vi.fn() as any;
-  const stream = method(params, next);
+  const stream = method(params, next, onEnd);
   await pipeline(stream, emptyPassThrough());
   if (shouldFail) expect(next).toBeCalled();
   else expect(next).not.toBeCalled();
@@ -50,22 +51,28 @@ function testFileErrors(pcapMethod: Function) {
 }
 
 describe("load PCAPs", () => {
-  it("invalid pcap files", async () => {
-    await testStreamMethod(loadPCAPs, ["invalid.pcap", "01.pcap"], true);
-  });
+  it("invalid pcap file", () =>
+    new Promise<void>((done) => {
+      const onEnd = vi.fn(() => done());
+      testStreamMethod(loadPCAPs, ["invalid.pcap", "01.pcap"], true, onEnd);
+    }));
 
   testFilePCAPs(loadPCAPs);
   testFileErrors(loadPCAPs);
 });
 
 describe("run Decap", () => {
-  it("invalid pcap file", async () => {
-    await testStreamMethod(runDecap, ["invalid.pcap"], true);
-  });
+  it("invalid pcap file", () =>
+    new Promise<void>((done) => {
+      const onEnd = vi.fn(() => done());
+      testStreamMethod(runDecap, ["invalid.pcap"], true, onEnd);
+    }));
 
-  it("invalid merged pcap files", async () => {
-    await testStreamMethod(runDecap, ["01.pcap", "invalid.pcap"], true);
-  });
+  it("invalid merged pcap files", async () =>
+    new Promise<void>((done) => {
+      const onEnd = vi.fn(() => done());
+      testStreamMethod(runDecap, ["01.pcap", "invalid.pcap"], true, onEnd);
+    }));
 
   testFilePCAPs(runDecap);
   testFileErrors(runDecap);

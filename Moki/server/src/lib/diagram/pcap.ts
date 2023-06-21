@@ -27,7 +27,11 @@ function checkFiles(urls: string[]): string[] {
  * If multiple files are provided, merge them together
  * Throw an error if files aren't accessible
  */
-function loadPCAPs(urls: string[], next: NextFunction): Readable {
+function loadPCAPs(
+  urls: string[],
+  next: NextFunction,
+  onEnd: VoidFunction | undefined = undefined,
+): Readable {
   const paths = checkFiles(urls);
 
   if (paths.length > 1) {
@@ -35,9 +39,12 @@ function loadPCAPs(urls: string[], next: NextFunction): Readable {
 
     child.on("error", (err) => {
       next(err);
-    })
+    });
     child.stderr.on("data", (chunk) => {
-      next(chunk.toString())
+      next(chunk.toString());
+    });
+    child.on("close", () => {
+      onEnd?.();
     })
 
     return ReadStream.from(child.stdout);
@@ -51,7 +58,11 @@ function loadPCAPs(urls: string[], next: NextFunction): Readable {
  * Give back the sequence diagram in XML format
  * Throw an error if files aren't accessible
  */
-function runDecap(urls: string[], next: NextFunction): Readable {
+function runDecap(
+  urls: string[],
+  next: NextFunction,
+  onEnd: VoidFunction | undefined = undefined,
+): Readable {
   const pcapStream = loadPCAPs(urls, next);
   const child = spawn(config.decapPath);
   pcapStream.pipe(child.stdin);
@@ -61,6 +72,9 @@ function runDecap(urls: string[], next: NextFunction): Readable {
   });
   child.stderr.on("data", (chunk) => {
     next(chunk.toString());
+  });
+  child.on("close", () => {
+    onEnd?.();
   });
 
   return ReadStream.from(child.stdout);
