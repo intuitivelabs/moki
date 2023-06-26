@@ -3,7 +3,8 @@ import { isHostnameOrIp, isHostname } from './isHostnameOrIp';
 import querySrv from './querySrv';
 
 const ccmAddrLabel = "Hostname or IP of CCM";
-const ccmProxiedLabel = "Proxy CCM behind monitor";
+const ccmProxiedLabel = "Proxy CCM authentication behind ABC Monitor";
+const ccmRedirectedLabel = "Redirect to CCM authentication";
 
 export default class FirstLoginPopup extends Component {
 
@@ -16,24 +17,24 @@ export default class FirstLoginPopup extends Component {
         this.keyDown = this.keyDown.bind(this);
     }
 
+    // Return part of the string behind 2nd last dot. E.g. from 'mon.example.com' it return the 'example.com'
+    getDomain(val){
+        // get position of last dot
+        let lastDot = val.lastIndexOf('.');
+        if (lastDot < 0) return '';
+
+        // get position of 2nd last dot
+        lastDot = val.lastIndexOf('.', lastDot-1);
+        if (lastDot < 0) return '';
+
+        return val.slice(lastDot + 1);
+    }
+
     // Check whether two hostnames belong to the same domain, like:
     // 'ccm.example.com' and 'monitor.example.com'
     isFromSameDomain(val1, val2){
-        // Return part of the string behind 2nd last dot. E.g. from 'mon.example.com' it return the 'example.com'
-        function getDomain(val){
-            // get position of last dot
-            let lastDot = val.lastIndexOf('.');
-            if (lastDot < 0) return '';
-
-            // get position of 2nd last dot
-            lastDot = val.lastIndexOf('.', lastDot-1);
-            if (lastDot < 0) return '';
-
-            return val.slice(lastDot + 1);
-        }
-
-        const dom1 = getDomain(val1);
-        const dom2 = getDomain(val2);
+        const dom1 = this.getDomain(val1);
+        const dom2 = this.getDomain(val2);
 
         if (!dom1 || !dom2 || dom1 !== dom2) return false;
         return true;
@@ -42,7 +43,7 @@ export default class FirstLoginPopup extends Component {
     validate(){
 
         const ccmAddr = document.getElementById("ccmAddr").value;
-        const ccmProxied = document.getElementById("ccmProxied").checked;
+        const ccmProxied = document.getElementById("ccmModeProxied").checked;
 
         if (ccmAddr.trim() === "") {
             this.setState({ "error": `${ccmAddrLabel} must be filled.` });
@@ -55,8 +56,12 @@ export default class FirstLoginPopup extends Component {
         }
 
         if (!ccmProxied){
+            // When CCM is running on the same host as monitor, single-sign-on
+            // is working too and we do not need those limitations on hostname etc.
+            if (window.location.hostname == ccmAddr) return true;
+
             if (!isHostname(window.location.hostname)) {
-                this.setState({ "error": `When CCM is not proxied behind monitor, the monitor shall be accessed by hostname, not by IP address.` });
+                this.setState({ "error": `When CCM is not proxied behind monitor, the monitor shall be accessed by hostname, not by IP address (${window.location.hostname}).` });
                 return false;
             }
 
@@ -66,7 +71,7 @@ export default class FirstLoginPopup extends Component {
             }
 
             if (!this.isFromSameDomain(ccmAddr, window.location.hostname)){
-                this.setState({ "error": `When CCM is not proxied behind monitor, the hostname in ${ccmAddrLabel} field must belong to the same domain as the monitor.` });
+                this.setState({ "error": `When CCM is not proxied behind monitor, the hostname in ${ccmAddrLabel} field must belong to the same domain as the monitor (${this.getDomain(window.location.hostname)}).` });
                 return false;
             }
         }
@@ -83,7 +88,7 @@ export default class FirstLoginPopup extends Component {
         document.getElementById("create").style.display = "block";
 
         const ccmAddr = document.getElementById("ccmAddr").value;
-        const ccmProxied = document.getElementById("ccmProxied").checked;
+        const ccmProxied = document.getElementById("ccmModeProxied").checked;
 
         try {
             var response = await querySrv("api/firsttimelogin/save", {
@@ -135,30 +140,59 @@ export default class FirstLoginPopup extends Component {
 
     render() {
         return (
-            <div className="popupOverlay" style={{ "visibility": "visible" }}>
-                <div id="popupsmall" style={{ "maxWidth": "550px" }}>
-                    <h3 style={{ "marginBottom": "15px" }}>Address of CCM is not set. Please enter hostname of CCM used for user authentication:</h3>
-                    <div className="row align-items-center">
-                        <label className="col-md-6 col-form-label" htmlFor="ccmAddr" style={{ "color": "grey" }}>{ccmAddrLabel}</label>
-                        <input type="text" id="ccmAddr" required className="form-control col" onKeyDown={(e) => this.keyDown(e)} />
+            <div className="container firstLoginPopup">
+                <hr />
+                    <h3 className="text-center">Welcome to the ABC Monitor</h3>
+                <hr />
+
+                <p  className="text-justify">
+                    An ABC Cluster Config Manager (CCM) is used for user authentication.
+                    Its URL or IP can be set here.
+                </p>
+
+                <p className="text-justify">
+                    A “Proxy” mode can be used, or a “Redirect” mode. In the proxy mode,
+                    the CCM is proxied behind the ABC Monitor for authentication.
+                    This allows using IP addresses, i.e. deployment without DNS,
+                    and also e.g. allows to use the monitor GUI via an SSH tunnel
+                    as everything is behind a single IP address.
+                </p>
+
+                <p className="text-justify">
+                    The “Redirect” mode supports single-sign-on for ABC Monitor and
+                    CCM GUI; a FQDN (not an IP address) must used for accessing
+                    both ABC Monitor and CCM and they need to be in the same domain.
+                    In the case both CCM and ABC Monitor are running on same IP address
+                    the “Redirect” mode is supported too and FQDN is not required
+                    in this special case.
+                </p>
+
+                <hr />
+
+                <div className="row align-items-center">
+                    <div className="form-check col-auto">
+                        <input type="radio" name="ccmMode" id="ccmModeProxied" className="mb-0" />
                     </div>
-                    <div className="row align-items-center">
-                        <label className="col-md-6 col-form-label" htmlFor="ccmProxied" style={{ "color": "grey" }}>{ccmProxiedLabel}</label>
-                        <div className="form-check col">
-                            <input type="checkbox" id="ccmProxied" className="mb-0" />
-                        </div>
+                    <label className="col form-check-label" htmlFor="ccmModeProxied">{ccmProxiedLabel}</label>
+                </div>
+
+                <div className="row align-items-center">
+                    <div className="form-check col-auto">
+                        <input type="radio" name="ccmMode" id="ccmModeRedirected" className="mb-0" defaultChecked />
                     </div>
-                    <p className='text-center font-italic' style={{ "fontSize": "11px", "color": "grey" }}>
-                        If the checkbox is checked, the CCM is proxied behind monitor for authentication purposes.
-                        This allow e.g. to use monitor GUI via SSH tunnel as everything is behind single IP address,
-                        but single-sign-on to CCM GUI does not work.
-                        If the checkbox is unchecked, single-sign-on should work if configured properly. E.g. you should
-                        use FQDN instead of IP address for accessing monitor and CCM.
-                    </p>
-                    {this.state.error ? <p className="error" style={{"color": "red"}}>{this.state.error}</p> : ""}
-                    <div style={{ "textAlign": "center" }} className="mt-4">
-                        <button onClick={this.save} style={{ "marginRight": "5px" }} className="btn btn-primary"><i className="fa fa-circle-o-notch fa-spin" id="create" style={{ "display": "none" }}></i> <span id="createR">Save</span> </button>
-                    </div>
+                    <label className="col form-check-label" htmlFor="ccmModeRedirected">{ccmRedirectedLabel}</label>
+                </div>
+
+                <div className="row align-items-center">
+                    <label className="col-auto col-form-label" htmlFor="ccmAddr">{ccmAddrLabel}</label>
+                    <input type="text" id="ccmAddr" required className="form-control col" onKeyDown={(e) => this.keyDown(e)} />
+                </div>
+
+                {this.state.error ? <p className="error">{this.state.error}</p> : ""}
+
+                <hr />
+                <div style={{ "textAlign": "center" }} className="mt-4">
+                    <button onClick={this.save} style={{ "marginRight": "5px" }} className="btn btn-primary"><i className="fa fa-circle-o-notch fa-spin" id="create" style={{ "display": "none" }}></i> <span id="createR">Save</span> </button>
                 </div>
             </div>
         )
