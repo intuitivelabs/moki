@@ -54,7 +54,7 @@ describe("load PCAPs", () => {
   it("invalid pcap file", () =>
     new Promise<void>((done) => {
       const onEnd = vi.fn(() => done());
-      testStreamMethod(loadPCAPs, ["invalid.pcap", "01.pcap"], true, onEnd);
+      testStreamMethod(loadPCAPs, ["invalid.pcap", "01.pcap"], false, onEnd);
     }));
 
   testFilePCAPs(loadPCAPs);
@@ -71,7 +71,7 @@ describe("run Decap", () => {
   it("invalid merged pcap files", async () =>
     new Promise<void>((done) => {
       const onEnd = vi.fn(() => done());
-      testStreamMethod(runDecap, ["01.pcap", "invalid.pcap"], true, onEnd);
+      testStreamMethod(runDecap, ["01.pcap", "invalid.pcap"], false, onEnd);
     }));
 
   testFilePCAPs(runDecap);

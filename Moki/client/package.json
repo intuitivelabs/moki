@@ -25,9 +25,12 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.24.3",
     "@r2wc/react-to-web-component": "^2.0.2",
     "@reduxjs/toolkit": "^1.9.5",
+    "@tabler/icons-react": "^2.22.0",
     "@tanstack/react-table": "^8.8.5",
+    "@visx/visx": "^3.1.2",
     "bootstrap": "^4.6.0",
     "d3": "^7.8.4",
     "file-saver": "^2.0.5",

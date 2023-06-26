@@ -1,5 +1,3 @@
-import { formatDate } from "../helpers/formatTime";
-
 interface Flow {
   sipFlow: Pick<FlowSIP, "sips" | "hosts" | "branches">;
   syslogs: PacketSyslog[];
@@ -10,40 +8,32 @@ interface FlowSIP {
   hosts: Set<string>;
   branches: Set<string>;
   idCounter: number;
-  lastTimestamp: Date | undefined;
 }
 
-// timestep in milliseconds
 interface PacketSIP {
   id: number;
+  unixTimestamp: number;
   method: string;
-  timestep: number;
   branch: string;
   src: string;
   dst: string;
-  timestamp: string;
   payload: string;
 }
 
 interface PacketSyslog {
+  unixTimestamp: number;
   facility: string;
   severity: string;
-  timestamp: string;
   payload: string;
 }
 
-// utilities
+/*
+ * first pass
+ * extract data from the XML, put it in the Flow structure
+ * second pass
+ * sort by timestamp
+ */
 
-function getTimestamp(node: Element): Date | null {
-  const timestamp = node.getAttribute("timestamp");
-  if (timestamp == null) return null;
-  const parsedTimestamp = new Date(timestamp);
-  if (parsedTimestamp == null) return null;
-  return parsedTimestamp;
-}
-
-// Parse XML flow following decap format
-// Can throw an error
 function parseFlow(flowDataXML: string): Flow {
   const parser = new DOMParser();
   const doc = parser.parseFromString(flowDataXML, "text/xml");
@@ -56,7 +46,6 @@ function parseFlow(flowDataXML: string): Flow {
     sips: [],
     hosts: new Set(),
     branches: new Set(),
-    lastTimestamp: undefined,
     idCounter: 0,
   };
   const syslogs = [];
@@ -77,31 +66,43 @@ function parseFlow(flowDataXML: string): Flow {
     }
   }
 
+  // order sip by timestamp
+  // order sylogs by timestamp
+  const sortTimestamp = (
+    a: { unixTimestamp: number },
+    b: { unixTimestamp: number },
+  ) => (a.unixTimestamp - b.unixTimestamp);
+
+  sipFlow.sips.sort(sortTimestamp);
+  syslogs.sort(sortTimestamp);
+
   return { sipFlow, syslogs };
 }
 
-function parseSIP(node: Element, flow: FlowSIP): PacketSIP | null {
-  const src = node.getAttribute("src");
-  const dst = node.getAttribute("dst");
-  if (!src || !dst) return null;
+// utilities
 
-  // keep tracks of src and dst value
+function getTimestamp(node: Element): Date | null {
+  const timestamp = node.getAttribute("timestamp");
+  if (timestamp == null) return null;
+  const parsedTimestamp = new Date(timestamp);
+  if (parsedTimestamp == null) return null;
+  return parsedTimestamp;
+}
+
+function parseSIP(node: Element, flow: FlowSIP): PacketSIP | null {
+  const srcIP = node.getAttribute("src");
+  const srcPort = node.getAttribute("src-port");
+  const dstIP = node.getAttribute("dst");
+  const dstPort = node.getAttribute("dst-port");
+  if (!srcIP || !dstIP || !srcPort || !dstPort) return null;
+
+  const src = `${srcIP}:${srcPort}`;
+  const dst = `${dstIP}:${dstPort}`;
   flow.hosts.add(src);
   flow.hosts.add(dst);
 
-  // keep track of timestamp for time difference between packets
   const parsedTimestamp = getTimestamp(node);
   if (parsedTimestamp == null) return null;
-
-  // first sip packet
-  let timestep = 0;
-  if (flow.lastTimestamp == undefined) {
-    flow.lastTimestamp = parsedTimestamp;
-  } else {
-    timestep = parsedTimestamp.getTime() -
-      flow.lastTimestamp.getTime();
-    flow.lastTimestamp = parsedTimestamp;
-  }
 
   const branch = node.getAttribute("branch") ?? "unknown";
   flow.branches.add(branch);
@@ -110,8 +111,7 @@ function parseSIP(node: Element, flow: FlowSIP): PacketSIP | null {
 
   return {
     id,
-    timestamp: formatDate(parsedTimestamp.getTime()),
-    timestep,
+    unixTimestamp: parsedTimestamp.getTime(),
     branch,
     src,
     dst,
@@ -130,10 +130,10 @@ function parseSyslog(node: Element): PacketSyslog | null {
   return {
     facility,
     severity,
-    timestamp: formatDate(parsedTimestamp.getTime()),
+    unixTimestamp: parsedTimestamp.getTime(),
     payload: node.textContent ?? "",
-  }
+  };
 }
 
-export type { Flow, PacketSIP };
+export type { Flow, PacketSIP, PacketSyslog };
 export { parseFlow };

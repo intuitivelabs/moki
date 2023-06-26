@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow>
+  <sip branch="bloup-blap" method="BLOUP sip:bloup" 
+    src="bloupbloup" src-port="1020" dst="bla" dst-port="1020"
+    timestamp="2023-05-26T13:37:27.583467Z">
+  </sip>
+  <syslog facility="daemon" severity="debug" 
+    timestamp="2023-05-26T13:41:33.307871Z">
+    sems 5406: [Am100rel.cpp:26] DEBUG:  reliable_1xx = 1
+  </syslog>
+  <sip branch="bloup-blap" method="INVITE sip:bloup" 
+    src="bla" src-port="3040" dst="blou" dst-port="2010"
+    timestamp="2023-05-26T13:35:27.583467Z">
+  </sip>
+  <sip branch="bloup-blap-blop" method="100 Trying" 
+    src="blou" src-port="2010" dst="bloupbloup" dst-port="3040"
+    timestamp="2023-05-26T13:40:27.583467Z">
+  </sip>
+  <syslog facility="daemon" severity="debug" 
+    timestamp="2023-05-26T13:40:26.307871Z">
+    sems 5406: [Am100rel.cpp:26] DEBUG:  reliable_1xx = 3
+  </syslog>
+  <sip/>
+  <syslog/>
+</flow>

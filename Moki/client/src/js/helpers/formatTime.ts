@@ -10,9 +10,17 @@ function formatDuration(duration: number, unit = true) {
   return `${formattedMin} min`;
 }
 
-function formatDate(timestamp: number) {
+function formatSmallDuration(duration: number) {
+  if (duration < 1000) return `+ ${Math.round(duration)}ms`;
+  else return `+ ${Math.round(duration / 1000)}s`;
+}
+
+function formatDate(timestamp: number, millisecond = false) {
   if (isNaN(timestamp)) return "";
+  if (millisecond) {
+    return timeFormat("%e %B, %Y %H:%M:%S.%L")(new Date(timestamp));
+  }
   return timeFormat("%e %B, %Y %H:%M:%S")(new Date(timestamp));
 }
 
-export { formatDate, formatDuration };
+export { formatDate, formatDuration, formatSmallDuration };
