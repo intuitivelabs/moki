@@ -16,7 +16,7 @@ a {
     background-color: var(--second);
     height: 15px;
   }
-    
+
   #myprogressBar {
     width: 1%;
     background-color: #4CAF50;
@@ -76,6 +76,33 @@ a {
 .popupwidecontext{
     max-width: 800px;
     min-width: 600px;
+}
+
+
+.firstLoginPopup.container{
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+
+.firstLoginPopup h3{
+    color: black !important;
+}
+
+.firstLoginPopup p,
+.firstLoginPopup label{
+    font-size: .8125rem;
+}
+
+.firstLoginPopup p.error{
+    color: red;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.firstLoginPopup input[type=radio]{
+    width: auto;
 }
 
 .expand-cell-header {
@@ -1647,7 +1674,7 @@ input {
     border: 1px solid #ced4da;
     margin-right: 0px;
     margin-top: 0px;
-} 
+}
 
 #searchBar {
     height: 30px;
