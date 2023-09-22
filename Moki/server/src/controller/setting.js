@@ -4,11 +4,10 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const { spawn } = require('child_process')
 const { newHTTPError } = require('./index');
-const { cfg, setMonitorVersion } = require('../modules/config');
+const { cfg, setMonitorVersion, getUser } = require('../modules/config');
 const { connectToES } = require('../modules/elastic');
 const distinct_query = require('../../js/template_queries/distinct_query');
 const { getJWTsipUserFilter } = require('../modules/jwt');
-const AdminController = require('./admin');
 const elastic = require('../modules/elastic');
 
 let domainFilter = "*";
@@ -205,7 +204,7 @@ class SettingController {
   static loadFilters(req, res) {
     async function search(req) {
       //get user's right to load correct filters
-      const user = AdminController.getUser(req);
+      const user = getUser(req);
       let condition;
       //admin, show everything
       if (user.jwtbit === 0) {
@@ -312,7 +311,7 @@ class SettingController {
   static saveFilter(req, res, next) {
     async function search() {
       const client = connectToES(res);
-      const user = AdminController.getUser(req);
+      const user = getUser(req);
       const sub = user.sub;
       const indexName = "filters";
       let newIndex = false;
