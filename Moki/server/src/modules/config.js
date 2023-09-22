@@ -3,11 +3,63 @@ const fs = require('fs');
 const path = require('path');
 const appDir = path.dirname(require.main.filename);
 const c = require('@moki-server/server/modules/config');
+const hfName = 'x-amzn-oidc-data';
 
 
 if (c.nodeEnv === 'test') {
   c.port = 5001;
 }
+
+/*
+  return login user info
+  */
+  function getUser(req) {
+    let parsedHeader;
+    try {
+      //get domain id
+      function parseBase64(token) {
+        if (!token) {
+          return 'redirect';
+        }
+        const base64Url = token.split('.')[1];
+        if (!base64Url) {
+          return JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
+  
+        }
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const dataJSON = JSON.parse(Buffer.from(base64, 'base64').toString());
+        return dataJSON;
+      }
+  
+      parsedHeader = parseBase64(req.headers[hfName]);
+    } catch (e) {
+      console.log("ACCESS getJWTsipUserFilter: JWT parsing failed");
+      throw new Error("ACCESS: JWT parsing error");
+    }
+    const sip = parsedHeader['custom:sip'];
+    const jwtbit = parsedHeader['custom:adminlevel'];
+    const domainID = parsedHeader['custom:domainid'];
+    const subId = parsedHeader['sub'];
+    const userbackend = parsedHeader['custom:userbackend'];
+  
+    if (domainID) {
+      return {
+        sip: sip,
+        jwtbit: jwtbit,
+        domain: domainID,
+        sub: subId,
+        userbackend: userbackend
+      };
+    }
+    else {
+      return {
+        sip: "admin",
+        jwtbit: 0,
+        domain: "default",
+        sub: "default"
+      };
+    }
+  }
 
 function readJsonFileSync(filepath, encoding) {
   return (typeof (encoding) == 'undefined') ? JSON.parse(fs.readFileSync(filepath, 'utf8')) : JSON.parse(fs.readFileSync(filepath, encoding));
@@ -158,5 +210,6 @@ module.exports = {
   getActualConfig,
   isRequireJWT,
   getWebFilter,
-  getDefaults
+  getDefaults,
+  getUser
 };
