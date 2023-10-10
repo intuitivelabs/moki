@@ -209,7 +209,11 @@ class SettingController {
       //admin, show everything
       if (user.jwtbit === 0) {
         condition = {
-          index: 'filters'
+          index: 'filters',
+          body: {
+            size: 500,
+            "sort": { "title": { "order": "desc" } }
+          }
         };
       }
       //site admin, show only domain and encrypt filter
@@ -217,6 +221,8 @@ class SettingController {
         condition = {
           index: 'filters',
           body: {
+            size: 500,
+            "sort": { "title": { "order": "desc" } },
             query: {
               bool: {
                 must: [
@@ -233,6 +239,8 @@ class SettingController {
         condition = {
           index: 'filters',
           body: {
+            size: 500,
+            "sort": { "title": { "order": "desc" } },
             query: {
               bool: {
                 must: [
