@@ -654,7 +654,7 @@ class App extends Component {
                     dashboardAlter.push("connectivityIP");
                 }
 
-                var styleUser = { "display": "inline", "paddingTop": "7px", "position": "absolute" };
+                var styleUser = { "paddingTop": "7px", "position": "absolute" };
                 if (storePersistent.getState().user && storePersistent.getState().user.jwt === 0) {
                     styleUser = { "display": "inline" };
                 }
